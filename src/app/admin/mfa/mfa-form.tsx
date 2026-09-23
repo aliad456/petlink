@@ -1,0 +1,113 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button, FormMessage, Input, Label } from "@/components/ui";
+import { createClient } from "@/lib/supabase/client";
+
+type Enrollment = { factorId: string; qrCode: string; secret: string };
+
+export function MfaForm({ factorId }: { factorId: string | null }) {
+  const router = useRouter();
+  const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState<string>();
+  const [pending, setPending] = useState(false);
+
+  // First visit: create a new TOTP factor and show its QR code.
+  useEffect(() => {
+    if (factorId) return;
+    let cancelled = false;
+
+    (async () => {
+      const supabase = createClient();
+      // Drop half-finished enrollments from earlier visits.
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      for (const f of factors?.all ?? []) {
+        if (f.factor_type === "totp" && f.status === "unverified") {
+          await supabase.auth.mfa.unenroll({ factorId: f.id });
+        }
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({
+        factorType: "totp",
+        friendlyName: `PetLink ${new Date().toISOString().slice(0, 10)}`,
+      });
+      if (cancelled) return;
+      if (error) {
+        setError("לא הצלחנו להתחיל את ההגדרה. רעננו את העמוד.");
+        return;
+      }
+      setEnrollment({
+        factorId: data.id,
+        qrCode: data.totp.qr_code,
+        secret: data.totp.secret,
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [factorId]);
+
+  const activeFactorId = factorId ?? enrollment?.factorId;
+
+  async function verify(event: React.FormEvent) {
+    event.preventDefault();
+    if (!activeFactorId) return;
+    setPending(true);
+    setError(undefined);
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.mfa.challengeAndVerify({
+      factorId: activeFactorId,
+      code: code.trim(),
+    });
+    if (error) {
+      setPending(false);
+      setError("הקוד שגוי או שפג תוקפו. נסו את הקוד הבא.");
+      return;
+    }
+    router.replace("/admin");
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={verify} className="flex flex-col gap-4">
+      {!factorId && enrollment && (
+        <div className="flex flex-col items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element -- data: URL from Supabase */}
+          <img
+            src={enrollment.qrCode}
+            alt="קוד QR לאפליקציית האימות"
+            className="h-48 w-48 rounded-lg bg-white p-2"
+          />
+          <p className="text-xs text-muted">
+            לא מצליחים לסרוק? הזינו ידנית:{" "}
+            <code dir="ltr" className="select-all break-all">
+              {enrollment.secret}
+            </code>
+          </p>
+        </div>
+      )}
+      <Label>
+        קוד בן 6 ספרות
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="\d{6}"
+          maxLength={6}
+          dir="ltr"
+          className="text-center text-xl tracking-[0.5em]"
+          required
+        />
+      </Label>
+      <FormMessage error={error} />
+      <Button type="submit" disabled={pending || !activeFactorId}>
+        {pending ? "מאמת…" : "אימות"}
+      </Button>
+    </form>
+  );
+}
