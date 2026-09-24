@@ -33,6 +33,7 @@
   --blob-2: rgb(147 197 253 / 0.6);
   --blob-3: rgb(253 186 116 / 0.45);
   --blob-4: rgb(196 181 253 / 0.5);
+  --doodle: rgb(15 118 110 / 0.13);
 
   /* תנועה */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -66,6 +67,7 @@
     --blob-2: rgb(59 130 246 / 0.22);
     --blob-3: rgb(249 115 22 / 0.12);
     --blob-4: rgb(139 92 246 / 0.2);
+    --doodle: rgb(204 251 241 / 0.07);
   }
 }
 
@@ -117,6 +119,19 @@ body::before {
   to {
     transform: translate3d(3vmax, -2vmax, 0) scale(1.05);
   }
+}
+
+/* טפט ציורים של חיות, בסגנון רקע של שיחת וואטסאפ.
+   ‎/doodles.svg‎ נוצר ע"י scripts/generate-doodles.mjs ומשמש כמסכה, כך שהצבע מגיע מ-‎--doodle‎. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--doodle);
+  -webkit-mask: url("/doodles.svg") 0 0 / 480px 480px repeat;
+  mask: url("/doodles.svg") 0 0 / 480px 480px repeat;
 }
 
 ::selection {
