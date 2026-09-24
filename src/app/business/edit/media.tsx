@@ -61,7 +61,7 @@ export function MediaFields({ business }: { business: BusinessRow }) {
           onFile={(f) =>
             run("cover", async () => setMedia("cover", await upload(business.id, "cover", f, 1920)))
           }
-          className="group relative block h-36 w-full overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#2dd4bf,#0e7490)]"
+          className="group relative block h-36 w-full overflow-hidden rounded-3xl bg-kami"
           label="החלפת תמונת רקע"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- Supabase public URL */}

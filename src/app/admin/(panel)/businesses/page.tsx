@@ -87,7 +87,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
             {rows.map((b, i) => (
               <li key={b.id} className="glass animate-rise flex flex-col gap-4 rounded-[1.75rem] p-4 sm:flex-row sm:items-center" style={{ "--i": i } as CSSProperties}>
                 <div className="flex min-w-0 flex-1 items-center gap-3.5">
-                  <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#2dd4bf,#0e7490)]">
+                  <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-kami">
                     {b.avatar_path && (
                       // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
                       <img src={mediaUrl(b.avatar_path)!} alt="" className="size-full object-cover" />

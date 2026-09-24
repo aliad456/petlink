@@ -7,9 +7,9 @@ type Size = "sm" | "md" | "lg" | "icon";
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    "text-brand-foreground bg-[linear-gradient(180deg,color-mix(in_oklab,var(--brand)_85%,white),var(--brand-strong))] " +
-    "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_1px_2px_rgb(0_0_0/0.1),0_8px_24px_color-mix(in_oklab,var(--brand)_35%,transparent)] " +
-    "hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.4),0_2px_4px_rgb(0_0_0/0.1),0_12px_32px_color-mix(in_oklab,var(--brand)_45%,transparent)]",
+    "text-white bg-[linear-gradient(135deg,#0891b2,#2563eb)] " +
+    "shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_1px_2px_rgb(0_0_0/0.1),0_8px_24px_rgb(37_99_235/0.3)] " +
+    "hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.4),0_2px_4px_rgb(0_0_0/0.1),0_12px_32px_rgb(37_99_235/0.4)]",
   glass: "glass glass-glow text-foreground",
   ghost: "text-foreground hover:bg-[var(--glass-bg)]",
   danger:
