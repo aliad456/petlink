@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Button, FormMessage, Input, Label } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
-type Enrollment = { factorId: string; qrCode: string; secret: string };
+type Enrollment = { factorId: string; qrCode: string; secret: string; uri: string };
 
 export function MfaForm({ factorId }: { factorId: string | null }) {
   const router = useRouter();
@@ -42,6 +42,7 @@ export function MfaForm({ factorId }: { factorId: string | null }) {
         factorId: data.id,
         qrCode: data.totp.qr_code,
         secret: data.totp.secret,
+        uri: data.totp.uri,
       });
     })();
 
@@ -82,6 +83,14 @@ export function MfaForm({ factorId }: { factorId: string | null }) {
             alt="קוד QR לאפליקציית האימות"
             className="h-48 w-48 rounded-lg bg-white p-2"
           />
+          {/* On a phone the QR can't be scanned from the same screen; the
+              otpauth:// link opens the authenticator app directly. */}
+          <a
+            href={enrollment.uri}
+            className="rounded-lg border border-brand px-4 py-2 text-sm font-medium text-brand md:hidden"
+          >
+            פתיחה באפליקציית האימות
+          </a>
           <p className="text-xs text-muted">
             לא מצליחים לסרוק? הזינו ידנית:{" "}
             <code dir="ltr" className="select-all break-all">
