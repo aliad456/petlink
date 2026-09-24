@@ -1,0 +1,60 @@
+import {
+  Bath,
+  Bird,
+  Bone,
+  BriefcaseMedical,
+  Camera,
+  Car,
+  Cat,
+  Dog,
+  Fish,
+  GraduationCap,
+  Heart,
+  House,
+  PawPrint,
+  Pill,
+  Rabbit,
+  Scissors,
+  ShoppingBag,
+  Sparkles,
+  Stethoscope,
+  Store,
+  Syringe,
+  Tent,
+  Trees,
+  Turtle,
+  type LucideIcon,
+} from "lucide-react";
+
+// Icons a category can use. The key is what's stored in categories.icon.
+// Add here to offer a new icon in the admin picker.
+export const CATEGORY_ICONS: Record<string, { icon: LucideIcon; label: string }> = {
+  stethoscope: { icon: Stethoscope, label: "וטרינר" },
+  "briefcase-medical": { icon: BriefcaseMedical, label: "מרפאה" },
+  syringe: { icon: Syringe, label: "חיסונים" },
+  pill: { icon: Pill, label: "תרופות" },
+  dog: { icon: Dog, label: "כלב" },
+  cat: { icon: Cat, label: "חתול" },
+  bird: { icon: Bird, label: "ציפור" },
+  fish: { icon: Fish, label: "דג" },
+  rabbit: { icon: Rabbit, label: "ארנב" },
+  turtle: { icon: Turtle, label: "צב" },
+  "graduation-cap": { icon: GraduationCap, label: "אילוף" },
+  scissors: { icon: Scissors, label: "טיפוח" },
+  bath: { icon: Bath, label: "רחצה" },
+  sparkles: { icon: Sparkles, label: "יופי" },
+  store: { icon: Store, label: "חנות" },
+  "shopping-bag": { icon: ShoppingBag, label: "קניות" },
+  bone: { icon: Bone, label: "מזון" },
+  house: { icon: House, label: "פנסיון" },
+  tent: { icon: Tent, label: "קייטנה" },
+  trees: { icon: Trees, label: "טיולים" },
+  car: { icon: Car, label: "הסעות" },
+  camera: { icon: Camera, label: "צילום" },
+  heart: { icon: Heart, label: "אימוץ" },
+  "paw-print": { icon: PawPrint, label: "כללי" },
+};
+
+export function categoryIcon(name: string | null | undefined): LucideIcon {
+  return (name && CATEGORY_ICONS[name]?.icon) || PawPrint;
+}
