@@ -71,7 +71,7 @@ export default async function AccountPage() {
           {profile.account_type === "business_owner" &&
             (business ? (
               <Card className="animate-rise flex items-center gap-4" style={{ "--i": 1 } as CSSProperties}>
-                <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#2dd4bf,#0e7490)]">
+                <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-kami">
                   {business.avatar_path && (
                     // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
                     <img src={mediaUrl(business.avatar_path)!} alt="" className="size-full object-cover" />
@@ -97,7 +97,7 @@ export default async function AccountPage() {
               </Card>
             ) : (
               <Card className="animate-rise flex flex-col items-center gap-3 p-7 text-center" style={{ "--i": 1 } as CSSProperties}>
-                <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#2dd4bf,#0e7490)] text-white">
+                <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-kami text-white">
                   <Store className="size-6" />
                 </span>
                 <p className="text-lg font-bold">עוד לא פתחתם עמוד לעסק</p>

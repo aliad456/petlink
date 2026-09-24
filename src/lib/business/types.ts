@@ -30,6 +30,7 @@ export type Design = {
 };
 
 export const ACCENTS = {
+  kami: { label: "Kami", from: "#22d3ee", to: "#2563eb" },
   teal: { label: "טורקיז", from: "#2dd4bf", to: "#0e7490" },
   sky: { label: "תכלת", from: "#38bdf8", to: "#1d4ed8" },
   indigo: { label: "אינדיגו", from: "#818cf8", to: "#4338ca" },
@@ -110,7 +111,7 @@ export function resolveDesign(design: Design) {
         ]
       : SECTION_IDS.map((id) => ({ id, visible: true }));
   return {
-    accent: ACCENTS[(personal && design.accent) || "teal"] ?? ACCENTS.teal,
+    accent: ACCENTS[(personal && design.accent) || "kami"] ?? ACCENTS.kami,
     layout: (personal && design.layout) || "classic",
     sections: order.filter((s) => s.visible).map((s) => s.id),
   };

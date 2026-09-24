@@ -53,7 +53,7 @@ export function DesignFields({
   const setPersonal = (patch: Partial<Design>) =>
     onChange({
       mode: "personal",
-      accent: design.accent ?? "teal",
+      accent: design.accent ?? "kami",
       layout: design.layout ?? "classic",
       sections,
       ...patch,
@@ -67,7 +67,7 @@ export function DesignFields({
           onClick={() => onChange({ ...design, mode: "default" })}
           title="ברירת מחדל"
           subtitle="Liquid Glass מוכן"
-          preview={<MiniPage from="#2dd4bf" to="#0e7490" />}
+          preview={<MiniPage from="#22d3ee" to="#2563eb" />}
         />
         <ModeCard
           active={personal}
@@ -100,13 +100,13 @@ export function DesignFields({
                   key={key}
                   type="button"
                   aria-label={ACCENTS[key].label}
-                  aria-pressed={(design.accent ?? "teal") === key}
+                  aria-pressed={(design.accent ?? "kami") === key}
                   title={ACCENTS[key].label}
                   onClick={() => setPersonal({ accent: key })}
                   style={{ background: `linear-gradient(135deg, ${ACCENTS[key].from}, ${ACCENTS[key].to})` }}
                   className={cn(
                     "pressable focus-ring size-10 rounded-full shadow-[inset_0_1px_0_rgb(255_255_255/0.4)]",
-                    (design.accent ?? "teal") === key &&
+                    (design.accent ?? "kami") === key &&
                       "ring-2 ring-foreground ring-offset-2 ring-offset-[var(--background)]",
                   )}
                 />
