@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     <div className="flex flex-1 flex-col gap-3 p-3 md:flex-row md:gap-5 md:p-5">
       <aside
         style={{ viewTransitionName: "app-chrome" }}
-        className="glass sticky top-3 z-40 flex shrink-0 flex-col rounded-[1.75rem] md:top-5 md:h-[calc(100dvh-2.5rem)] md:w-64"
+        className="glass z-40 flex shrink-0 flex-col rounded-[1.75rem] md:sticky md:top-5 md:h-[calc(100dvh-2.5rem)] md:w-64"
       >
         <div className="flex items-center justify-between p-3 md:p-4">
           <div className="flex items-center gap-2">

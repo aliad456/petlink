@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
 import { signUp, type FormState } from "../actions";
 
-export function SignupForm() {
+export function SignupForm({ defaultType }: { defaultType?: "pet_owner" | "business_owner" }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signUp, {});
 
   if (state.message) {
@@ -18,7 +18,7 @@ export function SignupForm() {
       </div>
     );
   }
-  const accountType = state.fields?.account_type;
+  const accountType = state.fields?.account_type ?? defaultType;
 
   return (
     <form action={action} className="flex flex-col gap-5">

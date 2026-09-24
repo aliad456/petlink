@@ -27,17 +27,20 @@ function initials(name: string) {
 export function Avatar({
   name,
   seed,
+  shape = "circle",
   className,
 }: {
   name: string;
   seed: string;
+  shape?: "circle" | "square";
   className?: string;
 }) {
   return (
     <span
       aria-hidden
       className={cn(
-        "inline-flex size-11 shrink-0 select-none items-center justify-center rounded-full bg-gradient-to-br font-bold text-white",
+        "inline-flex size-11 shrink-0 select-none items-center justify-center bg-gradient-to-br font-bold text-white",
+        shape === "circle" ? "rounded-full" : "rounded-xl",
         "shadow-[inset_0_1px_0_rgb(255_255_255/0.4),0_4px_12px_rgb(0_0_0/0.12)]",
         GRADIENTS[hash(seed) % GRADIENTS.length],
         className,
