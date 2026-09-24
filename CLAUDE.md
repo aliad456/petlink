@@ -1,6 +1,12 @@
 @AGENTS.md
 
-# PetLink
+# Kami (formerly PetLink)
+
+The brand is **Kami**; the repo and some internal names still say `petlink`.
+Logo assets: `public/brand/` (cut from the owner's artwork), favicon/app icons in
+`src/app/{favicon.ico,icon.png,apple-icon.png}` and `public/icons/`. Use `<Logo>` from
+`src/components/logo.tsx`; never re-draw the logo. Brand name in code: `SITE_NAME` in `src/lib/site.ts`.
+
 
 Hebrew-only (RTL), mobile-first directory of pet services in Israel. Read
 `docs/SPEC.md` (product spec, Hebrew) before building a feature — items marked

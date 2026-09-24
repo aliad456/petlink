@@ -114,7 +114,7 @@ export function Editor({
     <div className="flex min-h-dvh flex-col">
       {/* סרגל עליון */}
       <header className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-3 px-4 py-4">
-        <Logo />
+        <Logo size={26} />
         <span className="hidden h-6 w-px bg-border sm:block" />
         <Link href="/account" transitionTypes={["nav-back"]} className="hidden items-center gap-1 text-sm text-muted hover:text-foreground sm:inline-flex">
           <ArrowRight className="size-4" />

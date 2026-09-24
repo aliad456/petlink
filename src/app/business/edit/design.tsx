@@ -30,6 +30,7 @@ import {
   type Design,
   type Layout,
 } from "@/lib/business/types";
+import { siteHost } from "@/lib/site";
 import { joinProWaitlist } from "../actions";
 
 export function DesignFields({
@@ -293,7 +294,7 @@ const PRO_FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: Megaphone, title: "באנר מבצעים", text: "פס מבצע בולט בראש העמוד שלכם" },
   { icon: CalendarCheck, title: "קביעת תור מהעמוד", text: "טופס פנייה ישיר, בלי לפספס לקוחות" },
   { icon: ChartColumn, title: "סטטיסטיקות אמיתיות", text: "כמה צפו, התקשרו, שלחו וואטסאפ וניווטו אליכם" },
-  { icon: Link2, title: "כתובת אישית", text: "petlink.co.il/השם-שלכם במקום מספר" },
+  { icon: Link2, title: "כתובת אישית", text: `${siteHost()}/השם-שלכם במקום מספר` },
 ];
 
 function ProDialog({ open, onClose, joined }: { open: boolean; onClose: () => void; joined: boolean }) {
@@ -301,7 +302,7 @@ function ProDialog({ open, onClose, joined }: { open: boolean; onClose: () => vo
   const [done, setDone] = useState(joined);
 
   return (
-    <Dialog open={open} onClose={onClose} title="PetLink PRO" className="!w-[min(100%-2rem,34rem)]">
+    <Dialog open={open} onClose={onClose} title="Kami PRO" className="!w-[min(100%-2rem,34rem)]">
       <div className="flex flex-col gap-5">
         <div className="relative -mt-2 flex flex-col items-center gap-3 overflow-hidden rounded-3xl bg-[linear-gradient(135deg,#fbbf24,#b45309)] px-5 py-6 text-center text-white">
           <div aria-hidden className="absolute inset-0 bg-white/20 [mask:url(/doodles.svg)_0_0/300px_300px_repeat]" />

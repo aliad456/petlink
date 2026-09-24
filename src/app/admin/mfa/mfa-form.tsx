@@ -31,7 +31,7 @@ export function MfaForm({ factorId }: { factorId: string | null }) {
 
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: `PetLink ${new Date().toISOString().slice(0, 10)}`,
+        friendlyName: `Kami ${new Date().toISOString().slice(0, 10)}`,
       });
       if (cancelled) return;
       if (error) {

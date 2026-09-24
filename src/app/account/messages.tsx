@@ -24,7 +24,7 @@ export function Messages({ messages }: { messages: Message[] }) {
 
   return (
     <Card className="flex flex-col gap-4">
-      <SectionTitle>הודעות מ-PetLink</SectionTitle>
+      <SectionTitle>הודעות מ-Kami</SectionTitle>
       <ul className="flex flex-col gap-3">
         {messages.map((m) => (
           <li key={m.id} className="rounded-2xl bg-[var(--glass-bg)] p-4">
