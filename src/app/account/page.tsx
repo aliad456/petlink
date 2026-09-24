@@ -1,8 +1,14 @@
+import { ShieldCheck } from "lucide-react";
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui";
+import { PageTransition } from "@/components/page-transition";
 import { SignOutButton } from "@/components/sign-out-button";
+import { SiteHeader } from "@/components/site-header";
+import { Avatar, Badge, buttonClass, Card, FormMessage, SectionTitle } from "@/components/ui";
 import { getStaffContext, requireUser } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
+import { Messages, type Message } from "./messages";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "החשבון שלי" };
@@ -14,37 +20,62 @@ const ACCOUNT_TYPE_LABEL = {
 
 export default async function AccountPage() {
   const profile = await requireUser();
-  const staff = await getStaffContext();
+  const supabase = await createClient();
+  const [staff, { data: messages }] = await Promise.all([
+    getStaffContext(),
+    supabase
+      .from("user_messages")
+      .select("id, subject, body, created_at, read_at")
+      .eq("user_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(20)
+      .returns<Message[]>(),
+  ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-8">
-      <header className="flex items-center justify-between">
-        <Link href="/" className="text-2xl font-extrabold text-brand">
-          PetLink
-        </Link>
-        <SignOutButton />
-      </header>
+    <>
+      <SiteHeader />
+      <PageTransition>
+        <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 pb-16 pt-8">
+          <section className="animate-rise flex items-center gap-4">
+            <Avatar name={profile.full_name || profile.email || "?"} seed={profile.id} className="size-16 text-xl" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <h1 className="truncate text-2xl font-extrabold tracking-tight">
+                {profile.full_name || "החשבון שלי"}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                <span dir="ltr">{profile.email}</span>
+                <Badge tone="brand">{ACCOUNT_TYPE_LABEL[profile.account_type]}</Badge>
+              </div>
+            </div>
+            <SignOutButton compact />
+          </section>
 
-      {profile.status !== "active" && (
-        <Card className="border-danger text-danger">
-          החשבון {profile.status === "locked" ? "נעול" : "חסום"}. לפרטים פנו לשירות
-          הלקוחות.
-        </Card>
-      )}
+          {profile.status !== "active" && (
+            <FormMessage
+              error={`החשבון ${profile.status === "locked" ? "נעול" : "חסום"}. לפרטים פנו לשירות הלקוחות.`}
+            />
+          )}
 
-      <Card>
-        <h1 className="mb-1 text-xl font-bold">החשבון שלי</h1>
-        <p className="mb-6 text-sm text-muted" dir="auto">
-          {profile.email} · {ACCOUNT_TYPE_LABEL[profile.account_type]}
-        </p>
-        <ProfileForm profile={profile} />
-      </Card>
+          <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 1 } as CSSProperties}>
+            <SectionTitle>פרטים אישיים</SectionTitle>
+            <ProfileForm profile={profile} />
+          </Card>
 
-      {staff && (
-        <Link href="/admin" className="text-center font-medium text-brand underline">
-          לפאנל הניהול
-        </Link>
-      )}
-    </main>
+          {messages && messages.length > 0 && <Messages messages={messages} />}
+
+          {staff && (
+            <Link
+              href="/admin"
+              transitionTypes={["nav-forward"]}
+              className={buttonClass({ variant: "glass", size: "lg", className: "self-center" })}
+            >
+              <ShieldCheck className="size-5 text-brand" />
+              לפאנל הניהול
+            </Link>
+          )}
+        </main>
+      </PageTransition>
+    </>
   );
 }

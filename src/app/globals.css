@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────
+   PetLink — מערכת עיצוב "Liquid Glass"
+   משטחי זכוכית שקופים מעל רקע צבעוני רך, עם תנועה קפיצית.
+   ─────────────────────────────────────────────────────────── */
+
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
-  --muted: #78716c;
-  --card: #ffffff;
-  --border: #e7e5e4;
+  color-scheme: light;
+
+  --background: #eef2f4;
+  --foreground: #0b1215;
+  --muted: #5b6b73;
+  --border: rgb(15 23 42 / 0.08);
+
   --brand: #0d9488;
+  --brand-strong: #0f766e;
   --brand-foreground: #ffffff;
-  --danger: #dc2626;
+  --danger: #e11d48;
+  --warning: #d97706;
+  --success: #059669;
+
+  /* זכוכית */
+  --glass-bg: rgb(255 255 255 / 0.48);
+  --glass-bg-strong: rgb(255 255 255 / 0.72);
+  --glass-border: rgb(255 255 255 / 0.75);
+  --glass-highlight: rgb(255 255 255 / 0.9);
+  --glass-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 32px rgb(15 23 42 / 0.08);
+  --glass-glow: rgb(255 255 255 / 0.55);
+
+  /* רקע */
+  --blob-1: rgb(45 212 191 / 0.55);
+  --blob-2: rgb(147 197 253 / 0.6);
+  --blob-3: rgb(253 186 116 / 0.45);
+  --blob-4: rgb(196 181 253 / 0.5);
+
+  /* תנועה */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0c0a09;
-    --foreground: #f5f5f4;
-    --muted: #a8a29e;
-    --card: #1c1917;
-    --border: #292524;
-    --brand: #14b8a6;
+    color-scheme: dark;
+
+    --background: #05080b;
+    --foreground: #eef4f6;
+    --muted: #8fa1a9;
+    --border: rgb(255 255 255 / 0.08);
+
+    --brand: #2dd4bf;
+    --brand-strong: #14b8a6;
     --brand-foreground: #042f2e;
-    --danger: #f87171;
+    --danger: #fb7185;
+    --warning: #fbbf24;
+    --success: #34d399;
+
+    --glass-bg: rgb(255 255 255 / 0.06);
+    --glass-bg-strong: rgb(255 255 255 / 0.1);
+    --glass-border: rgb(255 255 255 / 0.12);
+    --glass-highlight: rgb(255 255 255 / 0.22);
+    --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
+    --glass-glow: rgb(255 255 255 / 0.12);
+
+    --blob-1: rgb(20 184 166 / 0.28);
+    --blob-2: rgb(59 130 246 / 0.22);
+    --blob-3: rgb(249 115 22 / 0.12);
+    --blob-4: rgb(139 92 246 / 0.2);
   }
 }
 
@@ -28,15 +73,298 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
-  --color-card: var(--card);
   --color-border: var(--border);
   --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
   --color-brand-foreground: var(--brand-foreground);
   --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
   --font-sans: var(--font-heebo);
+  --ease-spring: var(--ease-spring);
+  --ease-out-soft: var(--ease-out);
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* הרקע הצבעוני שהזכוכית "שוברת". קבוע, כדי שלא יזוז בגלילה. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(40vmax 40vmax at 85% 0%, var(--blob-1), transparent 70%),
+    radial-gradient(35vmax 35vmax at 0% 30%, var(--blob-2), transparent 70%),
+    radial-gradient(30vmax 30vmax at 100% 80%, var(--blob-4), transparent 70%),
+    radial-gradient(30vmax 30vmax at 20% 100%, var(--blob-3), transparent 70%),
+    radial-gradient(25vmax 25vmax at 50% 55%, var(--blob-2), transparent 70%);
+  filter: blur(40px);
+  animation: drift 40s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  to {
+    transform: translate3d(3vmax, -2vmax, 0) scale(1.05);
+  }
+}
+
+::selection {
+  background: color-mix(in oklab, var(--brand) 30%, transparent);
+}
+
+/* ───────────────────────────────────────────────────────────
+   זכוכית
+   ─────────────────────────────────────────────────────────── */
+
+@utility glass {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--glass-bg);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--glass-highlight) 35%, transparent),
+    transparent 45%
+  );
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    inset 0 -1px 0 color-mix(in oklab, var(--glass-highlight) 20%, transparent),
+    var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+@utility glass-strong {
+  background-color: var(--glass-bg-strong);
+}
+
+/* ברק שעוקב אחרי הסמן. המיקום מגיע מ-PointerGlow (‎--mx / --my). */
+@utility glass-glow {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      160px circle at var(--mx, 50%) var(--my, 50%),
+      var(--glass-glow),
+      transparent 70%
+    );
+    transition: opacity 300ms var(--ease-out);
+  }
+  @media (hover: hover) {
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+}
+
+/* מגע קפיצי: הרמה קלה במעבר עכבר, כיווץ בלחיצה. */
+@utility pressable {
+  transition:
+    transform 450ms var(--ease-spring),
+    box-shadow 300ms var(--ease-out),
+    background-color 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    color 200ms var(--ease-out),
+    opacity 200ms var(--ease-out);
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      transform: translateY(-1px) scale(1.015);
+    }
+  }
+  &:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: scale(0.96);
+    transition-duration: 120ms;
+  }
+}
+
+@utility focus-ring {
+  outline: none;
+  &:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--background),
+      0 0 0 4px color-mix(in oklab, var(--brand) 70%, transparent);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   אנימציות כניסה
+   ─────────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 600ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   דיאלוג (‎<dialog>‎) — נפתח בקפיצה עם רקע מטושטש
+   ─────────────────────────────────────────────────────────── */
+
+dialog.sheet {
+  margin: auto;
+  max-height: min(90dvh, 720px);
+  width: min(100% - 2rem, 30rem);
+  padding: 0;
+  color: inherit;
+  border-radius: 1.75rem;
+  opacity: 0;
+  transform: translateY(16px) scale(0.96);
+  transition:
+    opacity 250ms var(--ease-out),
+    transform 450ms var(--ease-spring),
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
+}
+
+dialog.sheet[open] {
+  opacity: 1;
+  transform: none;
+}
+
+@starting-style {
+  dialog.sheet[open] {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+}
+
+dialog.sheet::backdrop {
+  background: rgb(2 6 23 / 0);
+  backdrop-filter: blur(0);
+  transition:
+    background 250ms var(--ease-out),
+    backdrop-filter 250ms var(--ease-out),
+    overlay 250ms allow-discrete,
+    display 250ms allow-discrete;
+}
+
+dialog.sheet[open]::backdrop {
+  background: rgb(2 6 23 / 0.35);
+  backdrop-filter: blur(6px);
+}
+
+@starting-style {
+  dialog.sheet[open]::backdrop {
+    background: rgb(2 6 23 / 0);
+    backdrop-filter: blur(0);
+  }
+}
+
+/* ───────────────────────────────────────────────────────────
+   מעברי עמודים (React <ViewTransition>)
+   בעברית "קדימה" זז שמאלה: התוכן החדש נכנס מצד שמאל.
+   ─────────────────────────────────────────────────────────── */
+
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes vt-slide {
+  from {
+    translate: var(--vt-offset) 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+::view-transition-old(.nav-forward) {
+  --vt-offset: 48px;
+  animation:
+    160ms ease-in both vt-fade reverse,
+    420ms var(--ease-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --vt-offset: -48px;
+  animation:
+    240ms ease-out 120ms both vt-fade,
+    480ms var(--ease-out) both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --vt-offset: -48px;
+  animation:
+    160ms ease-in both vt-fade reverse,
+    420ms var(--ease-out) both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --vt-offset: 48px;
+  animation:
+    240ms ease-out 120ms both vt-fade,
+    480ms var(--ease-out) both vt-slide;
+}
+
+/* אלמנט משותף שעובר בין עמודים (למשל תמונת פרופיל) */
+::view-transition-group(.morph) {
+  animation-duration: 480ms;
+  animation-timing-function: var(--ease-out);
+}
+
+/* סרגל הניווט נשאר במקום בזמן מעבר */
+::view-transition-group(app-chrome) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(app-chrome) {
+  display: none;
+}
+::view-transition-new(app-chrome) {
+  animation: none;
+}
+
+/* ───────────────────────────────────────────────────────────
+   נגישות: בלי תנועה למי שביקש
+   ─────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
 }

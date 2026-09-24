@@ -12,7 +12,7 @@ const schema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(/^(\+972|0)[\d-]{8,12}$/, "מספר טלפון לא תקין")
+    .regex(/^(\+972|0)[\d\s-]{8,13}$/, "מספר טלפון לא תקין")
     .or(z.literal("")),
 });
 
@@ -33,4 +33,14 @@ export async function updateProfile(
 
   revalidatePath("/account");
   return { message: "הפרטים נשמרו" };
+}
+
+export async function markMessagesRead(): Promise<void> {
+  const profile = await requireUser();
+  const supabase = await createClient();
+  await supabase
+    .from("user_messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("user_id", profile.id)
+    .is("read_at", null);
 }

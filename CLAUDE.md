@@ -25,6 +25,19 @@ Stack rationale: `docs/STACK.md`.
   check, and only for what RLS can't do (e.g. auth admin API).
 - User-facing copy is Hebrew. Use `dir="ltr"` on email/phone/code inputs.
 - Categories and filters are data, edited from the admin panel — never hardcode them.
+- Admin actions on users go through a `public.admin_*` SQL function (authorizes +
+  audits in one transaction); only then may a server action call the Auth Admin
+  API (ban, reset email, delete). See `src/app/admin/(panel)/users/[id]/actions.ts`.
+
+## Design ("Liquid Glass")
+- Tokens and utilities live in `src/app/globals.css`: `glass`, `glass-strong`,
+  `glass-glow` (pointer-following highlight), `pressable` (spring hover/press),
+  `focus-ring`, `animate-rise` (stagger with `style={{"--i": n}}`).
+- Components in `src/components/ui` (`Button`/`buttonClass`, `Card`, `Input`,
+  `Badge`, `Avatar`, …) and `src/components/{dialog,toast}.tsx`. Icons: `lucide-react`.
+- Page transitions: wrap each page in `<PageTransition>`; links opt in with
+  `transitionTypes={["nav-forward"]}` / `["nav-back"]`. In RTL, forward moves left.
+- Every screen must work in light and dark mode and at 390px width.
 
 ## Commands
 - `npm run db:start` — local Supabase (Docker); applies migrations.

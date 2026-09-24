@@ -9,7 +9,7 @@ export function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signIn, {});
 
   return (
-    <form action={action} className="flex flex-col gap-4">
+    <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="next" value={next ?? ""} />
       <Label>
         מייל
@@ -23,7 +23,16 @@ export function LoginForm({ next }: { next?: string }) {
         />
       </Label>
       <Label>
-        סיסמה
+        <span className="flex items-center justify-between">
+          סיסמה
+          <Link
+            href="/forgot-password"
+            transitionTypes={["nav-forward"]}
+            className="text-xs font-medium text-muted hover:text-brand"
+          >
+            שכחתי סיסמה
+          </Link>
+        </span>
         <Input
           name="password"
           type="password"
@@ -33,12 +42,9 @@ export function LoginForm({ next }: { next?: string }) {
         />
       </Label>
       <FormMessage error={state.error} />
-      <Button type="submit" disabled={pending}>
-        {pending ? "מתחבר…" : "התחברות"}
+      <Button type="submit" size="lg" loading={pending} className="mt-1">
+        התחברות
       </Button>
-      <Link href="/forgot-password" className="text-center text-sm text-muted underline">
-        שכחתי סיסמה
-      </Link>
     </form>
   );
 }

@@ -4,13 +4,22 @@ import { safeNextPath } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 
 // Landing point for links in auth emails (confirm signup, password reset).
-// Supports both the PKCE `code` flow and the `token_hash` email template flow.
+// Supports the PKCE `code` flow and the `token_hash` email template flow.
+// Links with neither carry the session in the URL fragment (implicit flow),
+// which only the browser can read: forward to /auth/confirm. Browsers keep the
+// fragment across redirects.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const next = safeNextPath(searchParams.get("next"));
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
+
+  if (!code && !tokenHash && !searchParams.has("error")) {
+    const confirm = new URL("/auth/confirm", origin);
+    confirm.searchParams.set("next", next);
+    return NextResponse.redirect(confirm);
+  }
 
   const supabase = await createClient();
   let ok = false;

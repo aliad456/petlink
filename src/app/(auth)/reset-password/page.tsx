@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, Card, FormMessage, Input, Label } from "@/components/ui";
+import { Button, FormMessage, Input, Label } from "@/components/ui";
 import { updatePassword, type FormState } from "../actions";
+import { AuthCard } from "../auth-card";
 
 // Reached from the reset email via /auth/callback, which signs the user in.
 export default function ResetPasswordPage() {
@@ -12,9 +13,8 @@ export default function ResetPasswordPage() {
   );
 
   return (
-    <Card>
-      <h1 className="mb-6 text-2xl font-bold">בחירת סיסמה חדשה</h1>
-      <form action={action} className="flex flex-col gap-4">
+    <AuthCard title="סיסמה חדשה" subtitle="בחרו סיסמה של 8 תווים לפחות">
+      <form action={action} className="flex flex-col gap-5">
         <Label>
           סיסמה חדשה
           <Input
@@ -28,19 +28,13 @@ export default function ResetPasswordPage() {
         </Label>
         <Label>
           אימות סיסמה
-          <Input
-            name="confirm"
-            type="password"
-            autoComplete="new-password"
-            dir="ltr"
-            required
-          />
+          <Input name="confirm" type="password" autoComplete="new-password" dir="ltr" required />
         </Label>
         <FormMessage error={state.error} />
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" size="lg" loading={pending}>
           שמירה
         </Button>
       </form>
-    </Card>
+    </AuthCard>
   );
 }
