@@ -13,7 +13,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       <h1 className="mb-6 text-2xl font-bold">התחברות</h1>
       {error === "link" && (
         <p role="alert" className="mb-4 text-sm text-danger">
-          הקישור פג תוקף או כבר נוצל. נסו שוב.
+          הקישור כבר לא תקף, או שנפתח בדפדפן אחר. אם לחצתם על קישור לאישור המייל, הוא כנראה אושר, ואפשר פשוט להתחבר.
         </p>
       )}
       <LoginForm next={typeof next === "string" ? next : undefined} />

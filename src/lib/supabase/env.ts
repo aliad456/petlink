@@ -15,5 +15,6 @@ export const supabasePublishableKey = () =>
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );
 
+// Trailing slashes are stripped so `${siteUrl()}/path` never yields "//path".
 export const siteUrl = () =>
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
