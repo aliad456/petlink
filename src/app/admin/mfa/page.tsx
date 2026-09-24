@@ -1,5 +1,7 @@
+import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { Logo } from "@/components/logo";
 import { Card } from "@/components/ui";
 import { getCurrentProfile, getStaffContext } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -20,13 +22,19 @@ export default async function MfaPage() {
   const factor = data?.totp.find((f) => f.status === "verified");
 
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-10">
-      <Card className="w-full max-w-sm">
-        <h1 className="mb-2 text-2xl font-bold">אימות דו-שלבי</h1>
-        <p className="mb-6 text-sm text-muted">
+    <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
+      <div className="mb-8">
+        <Logo />
+      </div>
+      <Card className="animate-rise w-full max-w-md p-7 sm:p-8">
+        <span className="mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-[color-mix(in_oklab,var(--brand)_15%,transparent)] text-brand">
+          <ShieldCheck className="size-6" />
+        </span>
+        <h1 className="text-2xl font-extrabold tracking-tight">אימות דו-שלבי</h1>
+        <p className="mb-6 mt-1.5 text-muted">
           {factor
             ? "הזינו את הקוד מאפליקציית האימות."
-            : "חשבונות מנהלים מחייבים אימות דו-שלבי. סרקו את הקוד באפליקציית אימות (Google Authenticator, Microsoft Authenticator או דומה) והזינו את הקוד שמופיע בה."}
+            : "חשבונות מנהלים מחייבים אימות דו-שלבי. פתחו את Google Authenticator, לחצו + ← סריקת קוד QR, וסרקו את הקוד."}
         </p>
         <MfaForm factorId={factor?.id ?? null} />
       </Card>

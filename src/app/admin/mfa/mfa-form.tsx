@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button, FormMessage, Input, Label } from "@/components/ui";
+import { Button, buttonClass, FormMessage, Input, Label, Spinner } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
 type Enrollment = { factorId: string; qrCode: string; secret: string; uri: string };
@@ -74,24 +74,29 @@ export function MfaForm({ factorId }: { factorId: string | null }) {
   }
 
   return (
-    <form onSubmit={verify} className="flex flex-col gap-4">
+    <form onSubmit={verify} className="flex flex-col gap-5">
+      {!factorId && !enrollment && !error && (
+        <div className="flex h-52 items-center justify-center text-muted">
+          <Spinner />
+        </div>
+      )}
       {!factorId && enrollment && (
-        <div className="flex flex-col items-center gap-2">
+        <div className="animate-rise flex flex-col items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element -- data: URL from Supabase */}
           <img
             src={enrollment.qrCode}
             alt="קוד QR לאפליקציית האימות"
-            className="h-48 w-48 rounded-lg bg-white p-2"
+            className="size-52 rounded-3xl bg-white p-3 shadow-[0_8px_32px_rgb(0_0_0/0.12)]"
           />
           {/* On a phone the QR can't be scanned from the same screen; the
               otpauth:// link opens the authenticator app directly. */}
           <a
             href={enrollment.uri}
-            className="rounded-lg border border-brand px-4 py-2 text-sm font-medium text-brand md:hidden"
+            className={buttonClass({ variant: "glass", size: "sm", className: "md:hidden" })}
           >
             פתיחה באפליקציית האימות
           </a>
-          <p className="text-xs text-muted">
+          <p className="text-center text-xs text-muted">
             לא מצליחים לסרוק? הזינו ידנית:{" "}
             <code dir="ltr" className="select-all break-all">
               {enrollment.secret}
@@ -109,13 +114,13 @@ export function MfaForm({ factorId }: { factorId: string | null }) {
           pattern="\d{6}"
           maxLength={6}
           dir="ltr"
-          className="text-center text-xl tracking-[0.5em]"
+          className="h-14 text-center text-2xl font-semibold tracking-[0.5em]"
           required
         />
       </Label>
       <FormMessage error={error} />
-      <Button type="submit" disabled={pending || !activeFactorId}>
-        {pending ? "מאמת…" : "אימות"}
+      <Button type="submit" size="lg" loading={pending} disabled={!activeFactorId}>
+        אימות
       </Button>
     </form>
   );

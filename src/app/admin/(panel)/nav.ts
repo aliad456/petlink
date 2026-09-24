@@ -1,23 +1,36 @@
 import type { Permission } from "@/lib/auth/permissions";
 
+export type NavIcon =
+  | "home"
+  | "users"
+  | "store"
+  | "star"
+  | "tags"
+  | "heart"
+  | "megaphone"
+  | "wallet"
+  | "history"
+  | "shield";
+
 export type NavItem = {
   href: string;
   label: string;
-  // Staff see the item if they hold any of these. null = owner only.
+  icon: NavIcon;
+  // Staff see the item if they hold any of these. [] = everyone, null = owner only.
   anyOf: Permission[] | null;
   // Not built yet: shown greyed out so the panel's shape is visible.
   soon?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { href: "/admin", label: "ראשי", anyOf: [] },
-  { href: "/admin/users", label: "משתמשים", anyOf: ["users.view"], soon: true },
-  { href: "/admin/businesses", label: "עסקים", anyOf: ["businesses.view"], soon: true },
-  { href: "/admin/reviews", label: "ביקורות", anyOf: ["reviews.moderate"], soon: true },
-  { href: "/admin/catalog", label: "קטגוריות ופילטרים", anyOf: ["catalog.manage"], soon: true },
-  { href: "/admin/adoption", label: "ימי אימוץ", anyOf: ["adoption.manage"], soon: true },
-  { href: "/admin/banners", label: "באנרים", anyOf: ["banners.manage", "banners.reports"], soon: true },
-  { href: "/admin/billing", label: "מנויים ותשלומים", anyOf: ["subscriptions.view", "coupons.manage"], soon: true },
-  { href: "/admin/audit", label: "יומן פעולות", anyOf: ["audit.view"], soon: true },
-  { href: "/admin/staff", label: "מנהלים והרשאות", anyOf: null, soon: true },
+  { href: "/admin", label: "ראשי", icon: "home", anyOf: [] },
+  { href: "/admin/users", label: "משתמשים", icon: "users", anyOf: ["users.view"] },
+  { href: "/admin/businesses", label: "עסקים", icon: "store", anyOf: ["businesses.view"], soon: true },
+  { href: "/admin/reviews", label: "ביקורות", icon: "star", anyOf: ["reviews.moderate"], soon: true },
+  { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"], soon: true },
+  { href: "/admin/adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["adoption.manage"], soon: true },
+  { href: "/admin/banners", label: "באנרים", icon: "megaphone", anyOf: ["banners.manage", "banners.reports"], soon: true },
+  { href: "/admin/billing", label: "מנויים ותשלומים", icon: "wallet", anyOf: ["subscriptions.view", "coupons.manage"], soon: true },
+  { href: "/admin/audit", label: "יומן פעולות", icon: "history", anyOf: ["audit.view"], soon: true },
+  { href: "/admin/staff", label: "מנהלים והרשאות", icon: "shield", anyOf: null, soon: true },
 ];

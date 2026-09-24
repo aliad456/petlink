@@ -25,7 +25,7 @@ const AUTH_ERRORS: Record<string, string> = {
   same_password: "הסיסמה החדשה זהה לישנה.",
   over_email_send_rate_limit: "נשלחו יותר מדי מיילים. נסו שוב בעוד כמה דקות.",
   over_request_rate_limit: "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
-  user_banned: "החשבון הזה נחסם. לפרטים פנו לשירות הלקוחות.",
+  user_banned: "החשבון נעול או חסום. לפרטים פנו לשירות הלקוחות.",
 };
 
 function authError(code: string | undefined): FormState {

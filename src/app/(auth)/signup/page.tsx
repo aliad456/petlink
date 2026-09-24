@@ -1,21 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui";
+import { AuthCard } from "../auth-card";
 import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = { title: "הרשמה" };
 
 export default function SignupPage() {
   return (
-    <Card>
-      <h1 className="mb-6 text-2xl font-bold">הרשמה ל-PetLink</h1>
+    <AuthCard
+      title="הצטרפות ל-PetLink"
+      subtitle="חינם, תוך פחות מדקה"
+      footer={
+        <>
+          כבר רשומים?{" "}
+          <Link
+            href="/login"
+            transitionTypes={["nav-back"]}
+            className="font-semibold text-brand-strong hover:underline dark:text-brand"
+          >
+            התחברות
+          </Link>
+        </>
+      }
+    >
       <SignupForm />
-      <p className="mt-6 text-center text-sm">
-        כבר רשומים?{" "}
-        <Link href="/login" className="font-medium text-brand underline">
-          התחברות
-        </Link>
-      </p>
-    </Card>
+    </AuthCard>
   );
 }
