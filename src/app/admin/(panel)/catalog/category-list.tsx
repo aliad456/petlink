@@ -7,6 +7,7 @@ import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
 import { Badge, Button, cn, FormMessage, Input, Label, Switch, Textarea } from "@/components/ui";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
+import { siteHost } from "@/lib/site";
 import { reorderCategories, saveCategory, setCategoryVisible } from "./actions";
 import { RowControls } from "./row-controls";
 import type { CatalogCategory } from "./types";
@@ -132,7 +133,7 @@ function CategoryForm({
           dir="ltr"
           className="glass flex h-12 items-center rounded-2xl ps-4 focus-within:border-[color-mix(in_oklab,var(--brand)_60%,transparent)]"
         >
-          <span className="text-muted">petlink.co.il/</span>
+          <span className="text-muted">{siteHost()}/</span>
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-"))}

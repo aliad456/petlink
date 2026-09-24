@@ -23,7 +23,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
       >
         <div className="flex items-center justify-between p-3 md:p-4">
           <div className="flex items-center gap-2">
-            <Logo href="/admin" />
+            <Logo href="/admin" size={24} />
             <span className="rounded-full bg-[var(--glass-bg)] px-2 py-0.5 text-[11px] font-semibold text-muted">
               ניהול
             </span>

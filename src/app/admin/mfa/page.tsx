@@ -24,7 +24,7 @@ export default async function MfaPage() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
       <div className="mb-8">
-        <Logo />
+        <Logo size={40} />
       </div>
       <Card className="animate-rise w-full max-w-md p-7 sm:p-8">
         <span className="mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-[color-mix(in_oklab,var(--brand)_15%,transparent)] text-brand">

@@ -9,7 +9,7 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
   const { type } = await searchParams;
   return (
     <AuthCard
-      title="הצטרפות ל-PetLink"
+      title="הצטרפות ל-Kami"
       subtitle={type === "business" ? "הצטרפו למדריך והגיעו ללקוחות חדשים" : "חינם, תוך פחות מדקה"}
       footer={
         <>

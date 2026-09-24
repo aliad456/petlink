@@ -2,15 +2,18 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "PetLink",
-    short_name: "PetLink",
+    name: "Kami",
+    short_name: "Kami",
     description: "כל השירותים לחיות מחמד במקום אחד",
     lang: "he",
     dir: "rtl",
     start_url: "/",
     display: "standalone",
-    background_color: "#eef2f4",
-    theme_color: "#0d9488",
-    icons: [{ src: "/favicon.ico", sizes: "any", type: "image/x-icon" }],
+    background_color: "#05080b",
+    theme_color: "#0e7490",
+    icons: [
+      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+    ],
   };
 }

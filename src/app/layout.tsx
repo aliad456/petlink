@@ -11,13 +11,13 @@ const heebo = Heebo({
 
 export const metadata: Metadata = {
   title: {
-    default: "PetLink — כל השירותים לחיות מחמד במקום אחד",
-    template: "%s | PetLink",
+    default: "Kami — כל השירותים לחיות מחמד במקום אחד",
+    template: "%s | Kami",
   },
   description:
     "וטרינרים, מאלפים, ספרים, חנויות וימי אימוץ — עם פילטרים שגוגל מפות לא נותן.",
-  applicationName: "PetLink",
-  appleWebApp: { capable: true, title: "PetLink", statusBarStyle: "default" },
+  applicationName: "Kami",
+  appleWebApp: { capable: true, title: "Kami", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
