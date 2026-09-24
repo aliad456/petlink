@@ -27,7 +27,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/admin/users", label: "משתמשים", icon: "users", anyOf: ["users.view"] },
   { href: "/admin/businesses", label: "עסקים", icon: "store", anyOf: ["businesses.view"], soon: true },
   { href: "/admin/reviews", label: "ביקורות", icon: "star", anyOf: ["reviews.moderate"], soon: true },
-  { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"], soon: true },
+  { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"] },
   { href: "/admin/adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["adoption.manage"], soon: true },
   { href: "/admin/banners", label: "באנרים", icon: "megaphone", anyOf: ["banners.manage", "banners.reports"], soon: true },
   { href: "/admin/billing", label: "מנויים ותשלומים", icon: "wallet", anyOf: ["subscriptions.view", "coupons.manage"], soon: true },

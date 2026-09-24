@@ -5,7 +5,8 @@
 Hebrew-only (RTL), mobile-first directory of pet services in Israel. Read
 `docs/SPEC.md` (product spec, Hebrew) before building a feature — items marked
 **[פתוח]** are undecided and must be confirmed with the owner first.
-Stack rationale: `docs/STACK.md`.
+Stack rationale: `docs/STACK.md`. **Current status, next steps and decisions:
+`docs/ROADMAP.md`** — read it first and update it when a stage finishes.
 
 ## Stack
 - Next.js 16 App Router (`src/app`), TypeScript, Tailwind v4. Middleware is `src/proxy.ts`.
@@ -38,6 +39,11 @@ Stack rationale: `docs/STACK.md`.
 - Page transitions: wrap each page in `<PageTransition>`; links opt in with
   `transitionTypes={["nav-forward"]}` / `["nav-back"]`. In RTL, forward moves left.
 - Every screen must work in light and dark mode and at 390px width.
+
+## Workflow
+- Work on the session's branch; after every push make sure an open PR exists
+  (a merged PR can't take new commits — open a new one) and send the owner its link.
+- A PR that adds a migration must say so: the owner runs it in Supabase → SQL Editor before merging.
 
 ## Commands
 - `npm run db:start` — local Supabase (Docker); applies migrations.
