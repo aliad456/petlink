@@ -1,7 +1,8 @@
 "use server";
 
 import type { PostgrestError } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { CATALOG_TAG } from "@/lib/catalog";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/session";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
@@ -29,6 +30,8 @@ async function db() {
 }
 
 function done(ok: string): ActionResult {
+  // Staff expect to see their change on the site right away.
+  revalidateTag(CATALOG_TAG, { expire: 0 });
   revalidatePath("/admin/catalog");
   revalidatePath("/"); // the home page lists categories and featured filters
   return { ok };

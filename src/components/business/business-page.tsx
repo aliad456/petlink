@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Award,
   BadgeCheck,
@@ -62,8 +63,7 @@ export function BusinessPage({ business, preview = false }: { business: Business
       {/* רקע */}
       <div className="relative h-52 overflow-hidden sm:mt-3 sm:h-72 sm:rounded-[2rem]">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
-          <img src={cover} alt="" className="size-full object-cover" />
+          <Image src={cover} alt="" fill preload sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
         ) : (
           <div className="relative size-full bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))]">
             <div
@@ -102,10 +102,9 @@ export function BusinessPage({ business, preview = false }: { business: Business
                 side ? "size-28" : "size-36",
               )}
             >
-              <div className="size-full overflow-hidden rounded-full border-4 border-[var(--background)] bg-[var(--background)]">
+              <div className="relative size-full overflow-hidden rounded-full border-4 border-[var(--background)] bg-[var(--background)]">
                 {avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
-                  <img src={avatar} alt={business.name} className="size-full object-cover" />
+                  <Image src={avatar} alt={business.name} fill sizes="144px" className="object-cover" />
                 ) : (
                   <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-white">
                     <CategoryIcon name={business.category.icon} className="size-1/2" />
@@ -500,12 +499,12 @@ function Gallery({ business }: { business: BusinessView }) {
             onClick={() => setOpen(i)}
             className="focus-ring group relative aspect-square overflow-hidden"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- Supabase public URL */}
-            <img
+            <Image
               src={mediaUrl(p.path)!}
               alt={p.caption ?? ""}
-              loading="lazy"
-              className="size-full object-cover transition-transform duration-500 ease-out-soft group-hover:scale-105"
+              fill
+              sizes="(min-width: 768px) 250px, 33vw"
+              className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-105"
             />
           </button>
         ))}

@@ -3,7 +3,7 @@
 import { ArrowLeft, MapPin, Search, Store, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
-import { suggest, type Suggestion } from "@/app/search/actions";
+import { suggest, type Suggestion } from "@/lib/search/suggest";
 import { CategoryIcon } from "@/components/category-icon";
 import { cn, Spinner } from "@/components/ui";
 

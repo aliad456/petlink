@@ -2,7 +2,6 @@ import { Store } from "lucide-react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { PageTransition } from "@/components/page-transition";
-import { SiteHeader } from "@/components/site-header";
 import { Card, FormMessage } from "@/components/ui";
 import { requireUser } from "@/lib/auth/session";
 import { getOwnBusiness } from "@/lib/business/own";
@@ -25,7 +24,6 @@ export default async function NewBusinessPage() {
 
   return (
     <>
-      <SiteHeader />
       <PageTransition>
         <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pb-16 pt-8">
           <header className="animate-rise flex flex-col items-center gap-3 text-center">
