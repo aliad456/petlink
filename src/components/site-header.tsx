@@ -1,6 +1,7 @@
 import { ArrowLeft, LogIn, Store } from "lucide-react";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { BetaTag } from "./beta";
 import { Logo } from "./logo";
 import { Avatar, cn } from "./ui";
 
@@ -29,8 +30,11 @@ export async function SiteHeader() {
           )}
         </div>
 
-        {/* אמצע: הלוגו */}
-        <Logo />
+        {/* אמצע: הלוגו, ותגית BETA שלא מזיזה אותו מהמרכז */}
+        <div className="relative">
+          <Logo />
+          <BetaTag className="absolute -bottom-1 left-1/2 -translate-x-1/2" />
+        </div>
 
         {/* שמאל: חשבון */}
         <nav className="flex items-center justify-end gap-1 sm:gap-2">

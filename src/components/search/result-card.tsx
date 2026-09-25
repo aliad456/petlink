@@ -27,7 +27,8 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
   const cover = mediaUrl(r.cover_path);
   const avatar = mediaUrl(r.avatar_path);
   const state = client && hasAnyHours(r.hours) ? openState(r.hours) : null;
-  const wa = r.whatsapp || r.phone;
+  // Unclaimed pages: only an explicit WhatsApp number (the public phone may be a landline).
+  const wa = r.whatsapp || (r.unclaimed ? null : r.phone);
 
   return (
     <article
@@ -92,7 +93,7 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
             >
               {r.name}
             </Link>
-            <BadgeCheck className="size-[18px] shrink-0 text-brand" aria-label="עסק מאושר" />
+            {!r.unclaimed && <BadgeCheck className="size-[18px] shrink-0 text-brand" aria-label="עסק מאושר" />}
           </h3>
           <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
             <span>{r.category_name}</span>

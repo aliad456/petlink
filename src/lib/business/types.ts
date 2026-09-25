@@ -55,6 +55,8 @@ export type BusinessView = {
   id: string;
   public_id: number;
   status: BusinessStatus;
+  /** Created by staff from public info and not managed by the owner yet. */
+  unclaimed?: boolean;
   name: string;
   tagline: string | null;
   bio: string | null;

@@ -10,6 +10,7 @@ import { mediaUrl } from "@/lib/business/media";
 import { getOwnBusiness } from "@/lib/business/own";
 import { createClient } from "@/lib/supabase/server";
 import { Messages, type Message } from "./messages";
+import { MarketingToggle } from "./marketing-toggle";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "החשבון שלי" };
@@ -30,7 +31,7 @@ const ACCOUNT_TYPE_LABEL = {
 export default async function AccountPage() {
   const profile = await requireUser();
   const supabase = await createClient();
-  const [staff, business, { data: messages }] = await Promise.all([
+  const [staff, business, { data: messages }, { data: consent }] = await Promise.all([
     getStaffContext(),
     profile.account_type === "business_owner" ? getOwnBusiness() : null,
     supabase
@@ -40,6 +41,7 @@ export default async function AccountPage() {
       .order("created_at", { ascending: false })
       .limit(20)
       .returns<Message[]>(),
+    supabase.from("profiles").select("marketing_consent").eq("id", profile.id).single<{ marketing_consent: boolean }>(),
   ]);
 
   return (
@@ -109,6 +111,18 @@ export default async function AccountPage() {
           <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 2 } as CSSProperties}>
             <SectionTitle>פרטים אישיים</SectionTitle>
             <ProfileForm profile={profile} />
+          </Card>
+
+          <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 3 } as CSSProperties}>
+            <SectionTitle>התראות ופרטיות</SectionTitle>
+            <MarketingToggle consent={consent?.marketing_consent ?? false} />
+            <p className="text-sm text-muted">
+              רוצים לקבל עותק של המידע שלכם או למחוק את החשבון?{" "}
+              <Link href="/contact?kind=privacy" className="font-medium text-brand-strong underline underline-offset-2 dark:text-brand">
+                שלחו בקשה
+              </Link>
+              .
+            </p>
           </Card>
 
           {messages && messages.length > 0 && <Messages messages={messages} />}

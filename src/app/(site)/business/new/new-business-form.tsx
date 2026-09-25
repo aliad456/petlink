@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
@@ -63,6 +64,17 @@ export function NewBusinessForm({
           />
         </Label>
       </div>
+
+      <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
+        <input type="checkbox" name="business_terms" required className="mt-0.5 size-4 shrink-0 accent-[var(--brand)]" />
+        <span>
+          קראתי ואני מסכים/ה ל
+          <Link href="/business-terms" target="_blank" className="font-medium text-brand-strong underline underline-offset-2 dark:text-brand">
+            תנאי השימוש לבעלי עסקים
+          </Link>
+          . אני מצהיר/ה שאני בעל/ת העסק או מורשה מטעמו, שהפרטים נכונים ושיש לי זכויות בתכנים שאעלה.
+        </span>
+      </label>
 
       <FormMessage error={state.error} />
       <Button type="submit" size="lg" loading={pending}>
