@@ -247,6 +247,20 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
+# Kami's Hebrew emails. Production: paste the same files into
+# Supabase → Authentication → Email Templates (with the same subjects).
+[auth.email.template.confirmation]
+subject = "אישור ההרשמה ל-Kami"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "איפוס סיסמה ב-Kami"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "אישור כתובת מייל חדשה ב-Kami"
+content_path = "./supabase/templates/email-change.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>אישור ההרשמה ל-Kami</title>
+</head>
+<!-- Kami — confirm signup. Edit here, then paste into Supabase → Authentication → Email Templates. -->
+<body style="margin:0;padding:0;background:#eef2f4;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;color:#0b1215;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">עוד לחיצה אחת וזהו — מאשרים את המייל ומתחילים.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f4;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+        <tr>
+          <td align="center" style="padding-bottom:20px;">
+            <img src="{{ .SiteURL }}/icons/icon-192.png" width="64" height="64" alt="Kami" style="display:block;border:0;border-radius:32px;">
+          </td>
+        </tr>
+        <tr>
+          <td dir="rtl" style="background:#ffffff;border-radius:24px;padding:36px 32px;text-align:right;box-shadow:0 8px 32px rgba(15,23,42,0.08);">
+            <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;font-weight:800;color:#0b1215;">ברוכים הבאים ל-Kami! 🐾</h1>
+            <p style="margin:0 0 28px;font-size:16px;line-height:1.7;color:#334155;">תודה שנרשמת. נשאר רק לאשר שהמייל הזה שלך, ואפשר להתחיל: לשמור עסקים, להוסיף את חיית המחמד שלך ולכתוב ביקורות.</p>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+              <tr>
+                <td align="center" style="border-radius:999px;background:#2563eb;background-image:linear-gradient(135deg,#0891b2,#2563eb);">
+                  <a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next={{ .Data.next }}" style="display:inline-block;padding:14px 36px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:999px;">אישור המייל</a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:28px 0 0;font-size:13px;line-height:1.6;color:#64748b;">לא נרשמת ל-Kami? אפשר פשוט להתעלם מהמייל, והחשבון לא יופעל.</p>
+            <p style="margin:12px 0 0;font-size:12px;line-height:1.6;color:#94a3b8;">הכפתור לא עובד? העתיקו את הקישור לדפדפן:<br><a href="{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next={{ .Data.next }}" dir="ltr" style="color:#0891b2;word-break:break-all;">{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email&next={{ .Data.next }}</a></p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" dir="rtl" style="padding:20px 8px 0;font-size:12px;line-height:1.6;color:#94a3b8;">
+            Kami · כל השירותים לחיות מחמד במקום אחד<br>
+            קיבלת את המייל כי מישהו השתמש בכתובת הזו ב-Kami.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
