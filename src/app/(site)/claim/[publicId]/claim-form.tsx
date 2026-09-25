@@ -11,11 +11,13 @@ export function ClaimForm({
   defaultName,
   defaultPhone,
   isBusinessAccount,
+  defaultKind,
 }: {
   businessId: string;
   defaultName: string;
   defaultPhone: string;
   isBusinessAccount: boolean;
+  defaultKind?: "claim" | "removal";
 }) {
   const [state, action, pending] = useActionState<ClaimState, FormData>(requestClaim, {});
 
@@ -34,7 +36,7 @@ export function ClaimForm({
     );
   }
 
-  const kind = state.fields?.kind ?? (isBusinessAccount ? "claim" : "removal");
+  const kind = state.fields?.kind ?? defaultKind ?? (isBusinessAccount ? "claim" : "removal");
   return (
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="business_id" value={businessId} />

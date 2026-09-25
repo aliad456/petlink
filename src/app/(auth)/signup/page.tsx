@@ -6,7 +6,8 @@ import { SignupForm } from "./signup-form";
 export const metadata: Metadata = { title: "הרשמה" };
 
 export default async function SignupPage({ searchParams }: PageProps<"/signup">) {
-  const { type } = await searchParams;
+  const { type, next: rawNext } = await searchParams;
+  const next = typeof rawNext === "string" ? rawNext : undefined;
   return (
     <AuthCard
       title="הצטרפות ל-Kami"
@@ -15,7 +16,7 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
         <>
           כבר רשומים?{" "}
           <Link
-            href="/login"
+            href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
             transitionTypes={["nav-back"]}
             className="font-semibold text-brand-strong hover:underline dark:text-brand"
           >
@@ -24,7 +25,7 @@ export default async function SignupPage({ searchParams }: PageProps<"/signup">)
         </>
       }
     >
-      <SignupForm defaultType={type === "business" ? "business_owner" : undefined} />
+      <SignupForm defaultType={type === "business" ? "business_owner" : undefined} next={next} />
     </AuthCard>
   );
 }

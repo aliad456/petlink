@@ -67,6 +67,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
 
   const { full_name, account_type } = parsed.data;
+  const next = safeNextPath(formData.get("next"));
   // Stored on the profile by handle_new_user(): proof of consent (terms version)
   // and a separate, optional opt-in for marketing (Communications Law §30A).
   const marketing_consent = formData.get("marketing") === "on";
@@ -76,7 +77,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
     password: parsed.data.password,
     options: {
       data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent },
-      emailRedirectTo: `${siteUrl()}/auth/callback?next=/account`,
+      emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
   if (error) return { ...authError(error.code), fields };
@@ -84,7 +85,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   // With email confirmation off (local dev) the user is signed in immediately.
   if (data.session) {
     revalidatePath("/", "layout");
-    redirect("/account");
+    redirect(next);
   }
 
   return { message: "שלחנו לכם מייל לאישור החשבון. לחצו על הקישור כדי להמשיך." };

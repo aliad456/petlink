@@ -122,22 +122,35 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           )}
           {row.owner_id === null && row.status === "approved" && (
             <div className="mx-auto mt-3 w-full max-w-3xl px-4">
-              <div className="glass-lite flex flex-col gap-3 rounded-2xl p-4 text-sm sm:flex-row sm:items-center">
-                <p className="flex flex-1 items-start gap-2.5 leading-relaxed text-muted">
-                  <Info className="mt-0.5 size-4 shrink-0 text-brand" />
+              <div className="glass-lite flex flex-col gap-3 rounded-2xl p-4 text-sm">
+                <p className="flex items-start gap-2.5 leading-relaxed text-muted">
+                  <Info className="mt-0.5 size-4 shrink-0 text-warning" />
                   <span>
-                    <strong className="font-semibold text-foreground">עמוד לא מנוהל.</strong> העמוד נוצר ע״י צוות {SITE_NAME}{" "}
-                    מתוך מידע ציבורי, ואינו מנוהל ע״י בעל העסק. ייתכן שחלק מהפרטים אינם מעודכנים.
+                    <strong className="font-semibold text-foreground">עסק שלא אומת.</strong> הפרטים בעמוד נאספו באופן
+                    כללי ממקורות פומביים באינטרנט, ולא נבדקו מול בעל העסק או אושרו על ידו. ייתכן שחלקם אינם מדויקים או
+                    מעודכנים — מומלץ לוודא מול העסק לפני הגעה. {SITE_NAME} אינו קשור לעסק ואינו אחראי לפרטים.
                   </span>
                 </p>
-                <Link
-                  href={`/claim/${row.public_id}`}
-                  transitionTypes={["nav-forward"]}
-                  className={buttonClass({ size: "sm", className: "shrink-0" })}
-                >
-                  <BadgeCheck className="size-4" />
-                  זה העסק שלך?
-                </Link>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <Link
+                    href={profile ? `/claim/${row.public_id}` : `/signup?type=business&next=${encodeURIComponent(`/claim/${row.public_id}`)}`}
+                    transitionTypes={["nav-forward"]}
+                    className={buttonClass({ size: "sm", className: "shrink-0" })}
+                  >
+                    <BadgeCheck className="size-4" />
+                    העסק שלך? {profile ? "קבל גישה מלאה" : "צור משתמש וקבל גישה מלאה"}
+                  </Link>
+                  <Link
+                    href={
+                      profile
+                        ? `/claim/${row.public_id}?kind=removal`
+                        : `/contact?kind=business&topic=removal&page=${encodeURIComponent(`/b/${row.public_id}`)}`
+                    }
+                    className="px-2 py-1 text-muted underline underline-offset-2 hover:text-foreground"
+                  >
+                    העסק בבעלותך ורוצה להסיר אותו? לחץ כאן
+                  </Link>
+                </div>
               </div>
             </div>
           )}

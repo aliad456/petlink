@@ -11,6 +11,8 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
   const [profile, sp] = await Promise.all([getCurrentProfile(), searchParams]);
   const kind = typeof sp.kind === "string" ? sp.kind : undefined;
   const page = typeof sp.page === "string" ? sp.page.slice(0, 300) : undefined;
+  // From "רוצה להסיר את העסק?" on an unclaimed business page.
+  const message = sp.topic === "removal" ? "אני בעל/ת העסק ומבקש/ת להסיר את העמוד מהאתר." : undefined;
 
   return (
     <PageTransition>
@@ -26,7 +28,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         </header>
         <Card className="animate-rise p-7" style={{ "--i": 1 } as React.CSSProperties}>
           <ContactForm
-            defaults={{ kind, page_url: page, name: profile?.full_name, email: profile?.email ?? undefined }}
+            defaults={{ kind, page_url: page, message, name: profile?.full_name, email: profile?.email ?? undefined }}
           />
         </Card>
       </main>

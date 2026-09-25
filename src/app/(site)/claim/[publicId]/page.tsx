@@ -12,13 +12,14 @@ export const metadata: Metadata = { title: "בקשת בעלות על עמוד", 
 
 type Row = { id: string; public_id: number; name: string; city: string | null; owner_id: string | null };
 
-export default async function ClaimPage({ params }: PageProps<"/claim/[publicId]">) {
-  const { publicId } = await params;
+export default async function ClaimPage({ params, searchParams }: PageProps<"/claim/[publicId]">) {
+  const [{ publicId }, sp] = await Promise.all([params, searchParams]);
+  const wantsRemoval = sp.kind === "removal";
   const id = Number(publicId);
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const profile = await getCurrentProfile();
-  if (!profile) redirect(`/login?next=/claim/${id}`);
+  if (!profile) redirect(`/login?next=${encodeURIComponent(`/claim/${id}${wantsRemoval ? "?kind=removal" : ""}`)}`);
 
   const supabase = await createClient();
   const { data: business } = await supabase
@@ -75,6 +76,7 @@ export default async function ClaimPage({ params }: PageProps<"/claim/[publicId]
               defaultName={profile.full_name}
               defaultPhone={profile.phone ?? ""}
               isBusinessAccount={profile.account_type === "business_owner"}
+              defaultKind={wantsRemoval ? "removal" : undefined}
             />
           )}
         </Card>

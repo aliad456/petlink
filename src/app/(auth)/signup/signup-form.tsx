@@ -6,7 +6,13 @@ import { useActionState } from "react";
 import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
 import { signUp, type FormState } from "../actions";
 
-export function SignupForm({ defaultType }: { defaultType?: "pet_owner" | "business_owner" }) {
+export function SignupForm({
+  defaultType,
+  next,
+}: {
+  defaultType?: "pet_owner" | "business_owner";
+  next?: string;
+}) {
   const [state, action, pending] = useActionState<FormState, FormData>(signUp, {});
 
   if (state.message) {
@@ -23,6 +29,7 @@ export function SignupForm({ defaultType }: { defaultType?: "pet_owner" | "busin
 
   return (
     <form action={action} className="flex flex-col gap-5">
+      <input type="hidden" name="next" value={next ?? ""} />
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">אני…</legend>
         <div className="grid grid-cols-2 gap-2.5">
