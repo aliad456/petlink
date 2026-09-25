@@ -38,6 +38,11 @@ Stack rationale: `docs/STACK.md`. **Current status, next steps and decisions:
 
 - Businesses may have no owner (`owner_id is null`, `source = 'staff'`): "unclaimed" pages staff
   create from public info. Ownership moves only via `admin_review_claim` after manual verification.
+- Site statistics: `/api/track` + `<SiteTracker>` (no cookies; daily-rotating hashed visitor id), read
+  only through `admin_site_stats()` / `admin_live_now()`. Don't add third-party analytics without
+  updating the privacy policy.
+- Business hours/filter editors are shared: `src/components/business/detail-editors.tsx`. Bulk import
+  parsing (table, hours text) is in `src/lib/business/import.ts`.
 - Legal pages live in `src/app/(site)/{terms,privacy,business-terms,accessibility}`; operator
   details and `TERMS_VERSION` in `src/lib/legal.ts`. Bump the version when terms change materially.
 - Don't export non-component values from `"use client"` files or non-functions from `"use server"`
