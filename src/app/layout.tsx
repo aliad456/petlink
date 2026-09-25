@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Heebo } from "next/font/google";
+import { AccessibilityMenu } from "@/components/accessibility-menu";
 import { PointerGlow } from "@/components/pointer-glow";
 import { Toaster } from "@/components/toast";
+import { A11Y_BOOT } from "@/lib/a11y";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -32,11 +34,16 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="he" dir="rtl" className={`${heebo.variable} h-full`}>
+    <html lang="he" dir="rtl" className={`${heebo.variable} h-full`} suppressHydrationWarning>
+      <head>
+        {/* Accessibility preferences before first paint (see src/lib/a11y.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT }} />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
         {children}
         <Toaster />
         <PointerGlow />
+        <AccessibilityMenu />
       </body>
     </html>
   );

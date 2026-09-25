@@ -4,9 +4,9 @@ import { addDays, type Reserved, type Rules } from "@/lib/ads-calendar";
 import { createClient } from "@/lib/supabase/server";
 
 export type PlacementRow = {
-  key: "home" | "category" | "search" | "popup";
+  key: "home" | "category" | "search" | "popup" | "adoption";
   label: string;
-  kind: "banner" | "popup";
+  kind: "banner" | "popup" | "gallery";
   capacity: number;
   image_width: number;
   image_height: number;

@@ -6,6 +6,7 @@ export type CatalogCategory = {
   icon: string | null;
   is_visible: boolean;
   is_emergency: boolean;
+  is_adoption: boolean;
 };
 
 export type FilterKind = "boolean" | "multi_select" | "open_now" | "distance";

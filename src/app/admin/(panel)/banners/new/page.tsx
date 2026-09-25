@@ -11,7 +11,8 @@ export default async function NewCampaignPage({ searchParams }: PageProps<"/admi
   const staff = await requirePermission("banners.manage");
   const sp = await searchParams;
   const ctx = await loadAdsContext();
-  const placement = ctx.placements.find((p) => p.key === sp.placement)?.key ?? "home";
+  const chosen = ctx.placements.find((p) => p.key === sp.placement);
+  const placement = chosen?.key ?? "home";
   const day = typeof sp.day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(sp.day) && sp.day >= ctx.today ? sp.day : null;
 
   return (
@@ -26,7 +27,8 @@ export default async function NewCampaignPage({ searchParams }: PageProps<"/admi
         <CampaignForm
           id={null}
           initial={{
-            kind: "ad",
+            // The adoption page shows organisations' posters: default to "יום אימוץ".
+            kind: chosen?.kind === "gallery" ? "adoption" : "ad",
             placement,
             advertiser: "",
             contact_name: "",

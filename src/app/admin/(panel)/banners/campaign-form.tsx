@@ -138,13 +138,20 @@ export function CampaignForm(props: CampaignFormProps) {
                 checked={form.placement === p.key}
                 onChange={() => {
                   set("placement", p.key);
-                  if (p.kind === "popup") set("mobile_image_path", "");
+                  if (p.kind !== "banner") set("mobile_image_path", "");
+                  if (p.kind === "gallery") set("kind", "adoption");
                 }}
                 className="flex-col items-start gap-0.5 px-4 text-start"
               >
                 <span>{p.label}</span>
                 <span className="text-xs font-normal text-muted">
-                  עד {p.capacity} ביום · תמונה <span dir="ltr">{p.image_width}×{p.image_height}</span>
+                  {p.kind === "gallery" ? (
+                    "בלי הגבלה · פוסטר בכל גודל"
+                  ) : (
+                    <>
+                      עד {p.capacity} ביום · תמונה <span dir="ltr">{p.image_width}×{p.image_height}</span>
+                    </>
+                  )}
                   {!p.is_active && " · כבוי כרגע"}
                 </span>
               </ChoiceTile>
@@ -156,9 +163,16 @@ export function CampaignForm(props: CampaignFormProps) {
         <Section title="תמונות">
           <div className="grid gap-4 sm:grid-cols-2">
             <ImageField
-              label={placement.kind === "popup" ? "תמונה לפופאפ (לאורך)" : "תמונה רחבה (מחשב)"}
+              label={
+                placement.kind === "popup"
+                  ? "תמונה לפופאפ (לאורך)"
+                  : placement.kind === "gallery"
+                    ? "הפוסטר של העמותה"
+                    : "תמונה רחבה (מחשב)"
+              }
               width={placement.image_width}
               height={placement.image_height}
+              free={placement.kind === "gallery"}
               path={form.image_path}
               onChange={(p) => set("image_path", p)}
               required
@@ -331,11 +345,14 @@ function ImageField({
   path,
   onChange,
   required,
+  free = false,
 }: {
   label: string;
   hint?: string;
   width: number;
   height: number;
+  /** Any proportions (adoption posters): only a minimum width. */
+  free?: boolean;
   path: string;
   onChange: (path: string) => void;
   required?: boolean;
@@ -352,16 +369,21 @@ function ImageField({
       const size = await readSize(file);
       const ratio = size.width / size.height;
       const want = width / height;
-      if (Math.abs(ratio - want) / want > 0.02) {
+      if (free) {
+        if (size.width < 600) {
+          setError(`התמונה קטנה מדי (${size.width}×${size.height}). צריך רוחב של 600 פיקסלים לפחות.`);
+          return;
+        }
+      } else if (Math.abs(ratio - want) / want > 0.02) {
         setError(`התמונה צריכה להיות ${width}×${height} פיקסלים. התמונה שבחרת: ${size.width}×${size.height}.`);
         return;
       }
-      if (size.width < width * 0.75) {
+      if (!free && size.width < width * 0.75) {
         setError(`התמונה קטנה מדי (${size.width}×${size.height}). צריך ${width}×${height} פיקסלים.`);
         return;
       }
-      const blob = await compressImage(file, Math.max(width, height), 0.9);
-      const name = `${crypto.randomUUID()}/${width}x${height}.webp`;
+      const blob = await compressImage(file, free ? 1600 : Math.max(width, height), 0.9);
+      const name = `${crypto.randomUUID()}/${free ? "poster" : `${width}x${height}`}.webp`;
       const { error: upErr } = await createClient()
         .storage.from(AD_BUCKET)
         .upload(name, blob, { contentType: "image/webp", cacheControl: "31536000" });
@@ -379,22 +401,26 @@ function ImageField({
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium">
         {label}{" "}
-        <span className="text-muted" dir="ltr">
-          {width}×{height}
-        </span>
+        {free ? (
+          <span className="text-muted">(כל גודל, רוחב 600 לפחות)</span>
+        ) : (
+          <span className="text-muted" dir="ltr">
+            {width}×{height}
+          </span>
+        )}
       </span>
       <button
         type="button"
         onClick={() => input.current?.click()}
-        style={{ aspectRatio: `${width} / ${height}` }}
+        style={free && url ? undefined : { aspectRatio: `${width} / ${height}` }}
         className={cn(
           "pressable focus-ring relative flex items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-[color-mix(in_oklab,var(--muted)_35%,transparent)] bg-[var(--glass-bg)]",
-          width / height >= 1 ? "w-full" : "mx-auto w-1/3",
+          free ? "mx-auto w-1/2" : width / height >= 1 ? "w-full" : "mx-auto w-1/3",
         )}
       >
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element -- preview
-          <img src={url} alt="" className="size-full object-cover" />
+          <img src={url} alt="" className={free ? "block w-full" : "size-full object-cover"} />
         ) : (
           <span className="flex flex-col items-center gap-1 p-3 text-center text-sm text-muted">
             <ImagePlus className="size-6" />

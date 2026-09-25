@@ -86,6 +86,15 @@ export async function setCategoryEmergency(id: string, value: boolean): Promise<
   return done(value ? "הקטגוריה תופיע בכפתור החירום בדף הבית" : "הקטגוריה הוסרה מכפתור החירום");
 }
 
+// The category whose page shows the adoption-day posters (ימי אימוץ).
+export async function setCategoryAdoption(id: string, value: boolean): Promise<ActionResult> {
+  if (!isUuid(id)) return { error: "מזהה לא תקין" };
+  const supabase = await db();
+  const { error } = await supabase.rpc("admin_set_category_adoption", { p_id: id, p_value: value });
+  if (error) return dbError(error);
+  return done(value ? "פוסטרי ימי האימוץ יוצגו בעמוד הקטגוריה הזו" : "הקטגוריה כבר לא מציגה את פוסטרי ימי האימוץ");
+}
+
 export async function reorderCategories(ids: string[]): Promise<ActionResult> {
   if (!ids.every(isUuid)) return { error: "מזהה לא תקין" };
   const supabase = await db();

@@ -27,7 +27,7 @@ const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 const campaignSchema = z.object({
   kind: z.enum(["ad", "adoption"]),
-  placement: z.enum(["home", "category", "search", "popup"]),
+  placement: z.enum(["home", "category", "search", "popup", "adoption"]),
   advertiser: z.string().trim().min(2, "שם המפרסם קצר מדי").max(80),
   contact_name: z.string().trim().max(80),
   contact_phone: z.string().trim().max(20),
@@ -124,7 +124,7 @@ export async function updatePlacement(
   size: { width: number; height: number; mobileWidth: number | null; mobileHeight: number | null },
 ): Promise<AdResult> {
   await requireStaff();
-  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10) return { error: "מספר מודעות ביום: 1 עד 10" };
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 200) return { error: "מספר מודעות ביום: 1 עד 200" };
   const ok = (n: number | null) => n === null || (Number.isInteger(n) && n >= 100 && n <= 4000);
   if (!ok(size.width) || !ok(size.height) || !ok(size.mobileWidth) || !ok(size.mobileHeight)) {
     return { error: "מידות בין 100 ל-4000 פיקסלים" };

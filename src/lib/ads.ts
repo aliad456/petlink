@@ -8,7 +8,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 
 export const ADS_TAG = "ads";
 
-export type Placement = "home" | "category" | "search" | "popup";
+export type Placement = "home" | "category" | "search" | "popup" | "adoption";
 
 export type ActiveAd = {
   id: string;

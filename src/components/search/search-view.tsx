@@ -2,6 +2,7 @@ import { SearchX, Store } from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
 import { AdBanner, type BannerAd } from "@/components/ads/ad-banner";
+import { AdGallery } from "@/components/ads/ad-gallery";
 import { PageTransition } from "@/components/page-transition";
 import { buttonClass, Card } from "@/components/ui";
 import { first, PAGE, type RawParams } from "@/lib/search/params";
@@ -23,6 +24,7 @@ export function SearchView({
   inlineAds = [],
   preview = false,
   favoriteIds,
+  gallery,
 }: {
   state: SearchState;
   params: RawParams;
@@ -32,10 +34,14 @@ export function SearchView({
   preview?: boolean;
   /** Saved businesses; null = signed out; undefined = no hearts (preview). */
   favoriteIds?: string[] | null;
+  /** Adoption-day posters (only on the category marked for them). */
+  gallery?: BannerAd[];
 }) {
   const { category, city, near, results, total } = state;
   const title = category ? category.name : state.q ? `תוצאות עבור „${state.q}”` : "כל השירותים";
   const where = city ? ` ב${city.name} והסביבה` : near ? " קרוב אליך" : "";
+  // The adoption page with posters and no businesses listed: just the posters.
+  const postersOnly = !!gallery?.length && total === 0 && !city && !near && !state.q && !state.openNow && Object.keys(state.active).length === 0;
 
   // Params the search box should keep when resubmitting.
   const keep = Object.fromEntries(
@@ -57,11 +63,26 @@ export function SearchView({
           <header className="flex flex-col gap-1">
             <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h1>
             <p className="text-muted">
-              {total > 0 ? `${total.toLocaleString("he-IL")} ${total === 1 ? "עסק" : "עסקים"}${where}` : `אין תוצאות${where}`}
+              {postersOnly
+                ? gallery!.length === 1
+                  ? "יום אימוץ אחד בקרוב"
+                  : `${gallery!.length} ימי אימוץ בקרוב`
+                : total > 0
+                  ? `${total.toLocaleString("he-IL")} ${total === 1 ? "עסק" : "עסקים"}${where}`
+                  : `אין תוצאות${where}`}
             </p>
           </header>
 
           {topAds.length > 0 && <AdBanner ads={topAds} preview={preview} />}
+
+          {gallery && (
+            <section aria-labelledby="adoption-heading" className="flex flex-col gap-3">
+              <h2 id="adoption-heading" className="text-xl font-bold">
+                ימי אימוץ קרובים
+              </h2>
+              <AdGallery ads={gallery} preview={preview} />
+            </section>
+          )}
 
           <CategoryPills
             categories={state.categories}
@@ -77,58 +98,60 @@ export function SearchView({
             size="md"
           />
 
-          <SearchShell>
-            <FilterBar
-              filters={state.relevant}
-              cities={state.cities.map((c) => c.name)}
-              city={city?.name ?? null}
-              near={!!near}
-              nearRequested={first(params.near) === "me"}
-              openNow={state.openNow}
-              active={state.active}
-            />
+          {!postersOnly && (
+            <SearchShell>
+              <FilterBar
+                filters={state.relevant}
+                cities={state.cities.map((c) => c.name)}
+                city={city?.name ?? null}
+                near={!!near}
+                nearRequested={first(params.near) === "me"}
+                openNow={state.openNow}
+                active={state.active}
+              />
 
-            <ResultsFrame>
-              {results.length === 0 ? (
-                <Card className="flex flex-col items-center gap-3 py-14 text-center">
-                  <SearchX className="size-10 text-muted" />
-                  <p className="text-lg font-bold">עוד לא מצאנו עסק שמתאים</p>
-                  <p className="max-w-sm text-sm text-muted">
-                    נסו להסיר חלק מהסינונים או לחפש בעיר אחרת. אנחנו מוסיפים עסקים כל יום.
-                  </p>
-                  <div className="mt-2 flex flex-wrap justify-center gap-2">
-                    <Link href={basePath} className={buttonClass({ variant: "glass", size: "sm" })}>
-                      בלי סינונים
-                    </Link>
-                    <Link href="/signup?type=business" className={buttonClass({ size: "sm" })}>
-                      <Store className="size-4" />
-                      יש לכם עסק? הצטרפו
-                    </Link>
+              <ResultsFrame>
+                {results.length === 0 ? (
+                  <Card className="flex flex-col items-center gap-3 py-14 text-center">
+                    <SearchX className="size-10 text-muted" />
+                    <p className="text-lg font-bold">עוד לא מצאנו עסק שמתאים</p>
+                    <p className="max-w-sm text-sm text-muted">
+                      נסו להסיר חלק מהסינונים או לחפש בעיר אחרת. אנחנו מוסיפים עסקים כל יום.
+                    </p>
+                    <div className="mt-2 flex flex-wrap justify-center gap-2">
+                      <Link href={basePath} className={buttonClass({ variant: "glass", size: "sm" })}>
+                        בלי סינונים
+                      </Link>
+                      <Link href="/signup?type=business" className={buttonClass({ size: "sm" })}>
+                        <Store className="size-4" />
+                        יש לכם עסק? הצטרפו
+                      </Link>
+                    </div>
+                  </Card>
+                ) : (
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {results.map((r, i) => (
+                        <Fragment key={r.id}>
+                          <ResultCard r={r} index={i} saved={favoriteIds === undefined ? undefined : favoriteIds ? favoriteIds.includes(r.id) : null} />
+                          {inlineAds.length > 0 && results.length >= 3 && i === Math.min(AD_AFTER, results.length) - 1 && (
+                            <div className="sm:col-span-2 lg:col-span-3">
+                              <AdBanner ads={inlineAds} preview={preview} />
+                            </div>
+                          )}
+                        </Fragment>
+                      ))}
+                    </div>
+                    {total > results.length && (
+                      <Link href={moreHref} scroll={false} className={buttonClass({ variant: "glass", className: "self-center" })}>
+                        הצגת עוד ({total - results.length})
+                      </Link>
+                    )}
                   </div>
-                </Card>
-              ) : (
-                <div className="flex flex-col gap-6">
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {results.map((r, i) => (
-                      <Fragment key={r.id}>
-                        <ResultCard r={r} index={i} saved={favoriteIds === undefined ? undefined : favoriteIds ? favoriteIds.includes(r.id) : null} />
-                        {inlineAds.length > 0 && results.length >= 3 && i === Math.min(AD_AFTER, results.length) - 1 && (
-                          <div className="sm:col-span-2 lg:col-span-3">
-                            <AdBanner ads={inlineAds} preview={preview} />
-                          </div>
-                        )}
-                      </Fragment>
-                    ))}
-                  </div>
-                  {total > results.length && (
-                    <Link href={moreHref} scroll={false} className={buttonClass({ variant: "glass", className: "self-center" })}>
-                      הצגת עוד ({total - results.length})
-                    </Link>
-                  )}
-                </div>
-              )}
-            </ResultsFrame>
-          </SearchShell>
+                )}
+              </ResultsFrame>
+            </SearchShell>
+          )}
         </main>
       </PageTransition>
     </>
