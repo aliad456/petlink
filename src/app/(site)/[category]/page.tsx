@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SearchView } from "@/components/search/search-view";
+import { getActiveAds } from "@/lib/ads";
 import { loadSearchContext, runSearch } from "@/lib/search/load";
 import { first } from "@/lib/search/params";
 
@@ -25,6 +26,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
   const category = await findCategory((await params).category);
   if (!category) notFound();
   const sp = await searchParams;
-  const state = await runSearch(sp, { category });
-  return <SearchView state={state} params={sp} basePath={`/${category.slug}`} />;
+  const [state, topAds, inlineAds] = await Promise.all([
+    runSearch(sp, { category }),
+    getActiveAds("category"),
+    getActiveAds("search"),
+  ]);
+  return (
+    <SearchView state={state} params={sp} basePath={`/${category.slug}`} topAds={topAds} inlineAds={inlineAds} />
+  );
 }

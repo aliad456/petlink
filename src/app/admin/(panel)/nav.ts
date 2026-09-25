@@ -33,7 +33,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/admin/reviews", label: "ביקורות", icon: "star", anyOf: ["reviews.moderate"] },
   { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"] },
   { href: "/admin/adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["adoption.manage"], soon: true },
-  { href: "/admin/banners", label: "באנרים", icon: "megaphone", anyOf: ["banners.manage", "banners.reports"], soon: true },
+  { href: "/admin/banners", label: "מודעות", icon: "megaphone", anyOf: ["banners.manage", "banners.reports"] },
   { href: "/admin/billing", label: "מנויים ותשלומים", icon: "wallet", anyOf: ["subscriptions.view", "coupons.manage"], soon: true },
   { href: "/admin/audit", label: "יומן פעולות", icon: "history", anyOf: ["audit.view"], soon: true },
   { href: "/admin/staff", label: "מנהלים והרשאות", icon: "shield", anyOf: null, soon: true },
