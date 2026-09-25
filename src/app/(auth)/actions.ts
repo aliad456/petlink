@@ -76,7 +76,8 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent },
+      // `next` is read by the confirmation email template (supabase/templates/confirmation.html).
+      data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent, next },
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
