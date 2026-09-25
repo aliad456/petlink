@@ -14,7 +14,7 @@ const SELECT =
 export function ContactForm({
   defaults,
 }: {
-  defaults: { kind?: string; name?: string; email?: string; page_url?: string };
+  defaults: { kind?: string; name?: string; email?: string; page_url?: string; message?: string };
 }) {
   const [state, action, pending] = useActionState<ContactState, FormData>(sendContact, {});
 
@@ -62,7 +62,7 @@ export function ContactForm({
       </Label>
       <Label>
         הודעה
-        <Textarea name="message" defaultValue={state.fields?.message} minLength={5} maxLength={3000} required />
+        <Textarea name="message" defaultValue={state.fields?.message ?? defaults.message} minLength={5} maxLength={3000} required />
       </Label>
       <p className="text-xs text-muted">
         נשתמש בפרטים רק כדי לטפל בפנייה. פרטים נוספים במדיניות הפרטיות.
