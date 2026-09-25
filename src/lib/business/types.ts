@@ -63,6 +63,8 @@ export type BusinessView = {
   /** Running deal ("מבצע") and its last day (YYYY-MM-DD). */
   deal_text?: string | null;
   deal_until?: string | null;
+  /** Pets on Kami adopted from this business (organisations). */
+  adopted_count?: number;
   name: string;
   tagline: string | null;
   bio: string | null;

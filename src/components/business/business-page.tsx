@@ -49,10 +49,13 @@ export function BusinessPage({
   preview = false,
   reviews,
   saved,
+  actions,
 }: {
   business: BusinessView;
   preview?: boolean;
   reviews?: ReactNode;
+  /** Extra actions for the signed-in viewer (e.g. share my pet). */
+  actions?: ReactNode;
   /** Saved to the viewer's favorites; null = signed out, undefined = hide (preview). */
   saved?: boolean | null;
 }) {
@@ -179,6 +182,7 @@ export function BusinessPage({
 
         <ActionButtons business={business} />
         <DealTicket business={business} />
+        {actions}
 
         {/* לשוניות */}
         <nav className="mt-6 flex gap-1.5 overflow-x-auto [scrollbar-width:none]" aria-label="חלקי העמוד">
@@ -423,6 +427,7 @@ function StatsSection({ business, preview }: { business: BusinessView; preview: 
       label: "בעלי חיים שטופלו",
       suffix: "+",
     },
+    !!business.adopted_count && { value: business.adopted_count, label: "חיות שאומצו מכאן", suffix: "" },
   ].filter(Boolean) as { value: number; label: string; suffix: string }[];
 
   if (!stats.length) {

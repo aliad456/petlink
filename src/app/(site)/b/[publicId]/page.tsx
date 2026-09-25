@@ -5,10 +5,12 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { BusinessPage } from "@/components/business/business-page";
 import { PageTransition } from "@/components/page-transition";
+import { SharePetsButton } from "@/components/pets/share-pets-button";
 import { ReviewsPanel, type PublicReview } from "@/components/reviews/reviews-panel";
 import { buttonClass } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { getFavoriteIds } from "@/lib/favorites";
+import type { Species } from "@/lib/pets";
 import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
 import { getBusinessFilters } from "@/lib/catalog";
 import { REVIEW_COLUMNS, type Review } from "@/lib/reviews/types";
@@ -58,7 +60,8 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
   const isOwner = profile?.id === row.owner_id;
 
   const supabase = await createClient();
-  const [{ data: reviewRows }, { data: mine }, favorites] = await Promise.all([
+  const canSharePet = profile?.account_type === "pet_owner" && row.owner_id !== null && row.status === "approved";
+  const [{ data: reviewRows }, { data: mine }, favorites, { data: adopted }, { data: myPets }] = await Promise.all([
     supabase
       .from("reviews")
       .select(REVIEW_COLUMNS)
@@ -76,6 +79,15 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           .maybeSingle<Review>()
       : Promise.resolve({ data: null }),
     getFavoriteIds(),
+    supabase.rpc("adopted_count", { p_business: row.id }),
+    canSharePet
+      ? supabase
+          .from("pets")
+          .select("id, name, species, avatar_path, shares:pet_shares(business_id)")
+          .eq("owner_id", profile!.id)
+          .order("created_at")
+          .returns<{ id: string; name: string; species: Species; avatar_path: string | null; shares: { business_id: string }[] }[]>()
+      : Promise.resolve({ data: null }),
   ]);
   // user_id stays on the server; the browser only learns which review is "mine".
   const toPublic = ({ user_id, ...r }: Review): PublicReview => ({ ...r, mine: user_id === profile?.id });
@@ -127,7 +139,16 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
             </div>
           )}
           <BusinessPage
-            business={view}
+            business={{ ...view, adopted_count: (adopted as number | null) ?? 0 }}
+            actions={
+              canSharePet ? (
+                <SharePetsButton
+                  businessId={row.id}
+                  businessName={row.name}
+                  pets={(myPets ?? []).map(({ shares, ...p }) => ({ ...p, shared: shares.some((s) => s.business_id === row.id) }))}
+                />
+              ) : undefined
+            }
             saved={favorites ? favorites.includes(row.id) : null}
             reviews={
               <ReviewsPanel
