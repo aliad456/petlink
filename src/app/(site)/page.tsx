@@ -2,9 +2,11 @@ import { Clock, Navigation, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
+import { AdBanner } from "@/components/ads/ad-banner";
 import { PageTransition } from "@/components/page-transition";
 import { ResultCard } from "@/components/search/result-card";
 import { SearchBar } from "@/components/search/search-bar";
+import { getActiveAds } from "@/lib/ads";
 import { getFreshBusinesses } from "@/lib/catalog";
 import { loadSearchContext } from "@/lib/search/load";
 
@@ -27,9 +29,10 @@ function filterHref(f: Featured) {
 }
 
 export default async function HomePage() {
-  const [{ categories, filters }, businesses] = await Promise.all([
+  const [{ categories, filters }, businesses, ads] = await Promise.all([
     loadSearchContext(),
     getFreshBusinesses().catch(() => []),
+    getActiveAds("home"),
   ]);
   const featured: Featured[] = filters.filter((f) => f.is_featured);
 
@@ -97,6 +100,8 @@ export default async function HomePage() {
               ))}
             </ul>
           </section>
+
+          {ads.length > 0 && <AdBanner ads={ads} className="animate-rise" />}
 
           {businesses.length > 0 && (
             <section aria-labelledby="new-heading" className="flex flex-col gap-4">

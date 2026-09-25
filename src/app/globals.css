@@ -470,3 +470,17 @@ dialog.sheet[open]::backdrop {
 }
 .legal-prose strong { font-weight: 600; }
 .legal-prose h3 { font-weight: 700; margin-top: 0.5rem; }
+
+/* Ad popup */
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.94) translateY(12px); }
+}
+@utility animate-fade-in {
+  animation: fade-in 300ms ease-out both;
+}
+@utility animate-pop {
+  animation: pop 500ms var(--ease-spring) both;
+}

@@ -1,5 +1,7 @@
 import { SearchX, Store } from "lucide-react";
 import Link from "next/link";
+import { Fragment } from "react";
+import { AdBanner, type BannerAd } from "@/components/ads/ad-banner";
 import { PageTransition } from "@/components/page-transition";
 import { buttonClass, Card } from "@/components/ui";
 import { first, PAGE, type RawParams } from "@/lib/search/params";
@@ -10,14 +12,21 @@ import { ResultCard } from "./result-card";
 import { SearchBar } from "./search-bar";
 import { ResultsFrame, SearchShell } from "./search-shell";
 
+// Ads between the result cards: after the 6th card (or the last, for short lists).
+const AD_AFTER = 6;
+
 export function SearchView({
   state,
   params,
   basePath,
+  topAds = [],
+  inlineAds = [],
 }: {
   state: SearchState;
   params: RawParams;
   basePath: string;
+  topAds?: BannerAd[];
+  inlineAds?: BannerAd[];
 }) {
   const { category, city, near, results, total } = state;
   const title = category ? category.name : state.q ? `תוצאות עבור „${state.q}”` : "כל השירותים";
@@ -46,6 +55,8 @@ export function SearchView({
               {total > 0 ? `${total.toLocaleString("he-IL")} ${total === 1 ? "עסק" : "עסקים"}${where}` : `אין תוצאות${where}`}
             </p>
           </header>
+
+          {topAds.length > 0 && <AdBanner ads={topAds} />}
 
           <CategoryPills
             categories={state.categories}
@@ -94,7 +105,14 @@ export function SearchView({
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {results.map((r, i) => (
-                      <ResultCard key={r.id} r={r} index={i} />
+                      <Fragment key={r.id}>
+                        <ResultCard r={r} index={i} />
+                        {inlineAds.length > 0 && results.length >= 3 && i === Math.min(AD_AFTER, results.length) - 1 && (
+                          <div className="sm:col-span-2 lg:col-span-3">
+                            <AdBanner ads={inlineAds} />
+                          </div>
+                        )}
+                      </Fragment>
                     ))}
                   </div>
                   {total > results.length && (
