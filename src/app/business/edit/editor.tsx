@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   Award,
+  BadgePercent,
   Clock,
   ExternalLink,
   Images,
@@ -32,6 +33,7 @@ import { MediaFields } from "./media";
 import {
   BasicsFields,
   ContactFields,
+  DealFields,
   ExperienceFields,
   FeatureFields,
   HoursFields,
@@ -211,6 +213,9 @@ export function Editor({
           </Panel>
           <Panel icon={Store} title="פרטים בסיסיים" hint="שם, תחום, בועת סטטוס ואודות" defaultOpen>
             <BasicsFields form={form} update={update} categories={categories} />
+          </Panel>
+          <Panel icon={BadgePercent} title="מבצע" hint="מופיע ב״מבצעים השבוע״ בדף הבית">
+            <DealFields form={form} update={update} />
           </Panel>
           <Panel icon={Phone} title="יצירת קשר" hint="טלפון, וואטסאפ ורשתות">
             <ContactFields form={form} update={update} />

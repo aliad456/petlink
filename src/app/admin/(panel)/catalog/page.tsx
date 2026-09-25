@@ -18,7 +18,7 @@ export default async function CatalogPage({ searchParams }: PageProps<"/admin/ca
   const [{ data: categories }, { data: filterRows }] = await Promise.all([
     supabase
       .from("categories")
-      .select("id, slug, name, description, icon, is_visible")
+      .select("id, slug, name, description, icon, is_visible, is_emergency")
       .order("sort_order")
       .returns<CatalogCategory[]>(),
     supabase

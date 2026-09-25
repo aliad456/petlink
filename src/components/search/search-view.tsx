@@ -22,6 +22,7 @@ export function SearchView({
   topAds = [],
   inlineAds = [],
   preview = false,
+  favoriteIds,
 }: {
   state: SearchState;
   params: RawParams;
@@ -29,6 +30,8 @@ export function SearchView({
   topAds?: BannerAd[];
   inlineAds?: BannerAd[];
   preview?: boolean;
+  /** Saved businesses; null = signed out; undefined = no hearts (preview). */
+  favoriteIds?: string[] | null;
 }) {
   const { category, city, near, results, total } = state;
   const title = category ? category.name : state.q ? `תוצאות עבור „${state.q}”` : "כל השירותים";
@@ -108,7 +111,7 @@ export function SearchView({
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {results.map((r, i) => (
                       <Fragment key={r.id}>
-                        <ResultCard r={r} index={i} />
+                        <ResultCard r={r} index={i} saved={favoriteIds === undefined ? undefined : favoriteIds ? favoriteIds.includes(r.id) : null} />
                         {inlineAds.length > 0 && results.length >= 3 && i === Math.min(AD_AFTER, results.length) - 1 && (
                           <div className="sm:col-span-2 lg:col-span-3">
                             <AdBanner ads={inlineAds} preview={preview} />

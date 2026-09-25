@@ -77,6 +77,15 @@ export async function setCategoryVisible(id: string, visible: boolean): Promise<
   return done(visible ? "הקטגוריה מוצגת באתר" : "הקטגוריה הוסתרה");
 }
 
+// One category (e.g. vets) powers the "emergency" button on the home page.
+export async function setCategoryEmergency(id: string, value: boolean): Promise<ActionResult> {
+  if (!isUuid(id)) return { error: "מזהה לא תקין" };
+  const supabase = await db();
+  const { error } = await supabase.rpc("admin_set_category_emergency", { p_id: id, p_value: value });
+  if (error) return dbError(error);
+  return done(value ? "הקטגוריה תופיע בכפתור החירום בדף הבית" : "הקטגוריה הוסרה מכפתור החירום");
+}
+
 export async function reorderCategories(ids: string[]): Promise<ActionResult> {
   if (!ids.every(isUuid)) return { error: "מזהה לא תקין" };
   const supabase = await db();

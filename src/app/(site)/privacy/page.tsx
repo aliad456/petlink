@@ -12,7 +12,7 @@ const sections: LegalSection[] = [
     title: "מי אנחנו",
     body: (
       <p>
-        {OPERATOR.legalName} ({OPERATOR.registrationId}), {OPERATOR.address} (&quot;המפעיל&quot;, &quot;אנחנו&quot;), מפעיל את{" "}
+        {OPERATOR.legalName} ({OPERATOR.registrationId ?? "עוסק מורשה"}){OPERATOR.address && `, ${OPERATOR.address}`} (&quot;המפעיל&quot;, &quot;אנחנו&quot;), מפעיל את{" "}
         {SITE_NAME} והוא האחראי על המידע האישי הנאסף באתר (&quot;בעל השליטה במאגר&quot; לפי חוק הגנת הפרטיות, התשמ״א-1981,
         ו&quot;בקר המידע&quot; (Controller) לפי ה-GDPR, ככל שהוא חל). לפניות בנושא פרטיות: {OPERATOR.privacyEmail}.
       </p>

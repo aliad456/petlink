@@ -25,6 +25,8 @@ export type FormState = {
   hours: Hours;
   open_on_holidays: boolean;
   price_list: PriceItem[];
+  deal_text: string;
+  deal_until: string;
   design: Design;
   filter_values: Record<string, { bool?: boolean; options?: string[] }>;
 };
@@ -52,6 +54,8 @@ export function toForm(b: BusinessRow): FormState {
     hours: b.hours,
     open_on_holidays: b.open_on_holidays,
     price_list: b.price_list,
+    deal_text: b.deal_text ?? "",
+    deal_until: b.deal_until ?? "",
     design: b.design,
     filter_values: Object.fromEntries(
       b.values.map((v) => [v.filter_id, { bool: v.bool_value ?? undefined, options: v.option_values }]),
@@ -74,6 +78,9 @@ export function toSaveInput(f: FormState): SaveInput {
     languages: f.languages as SaveInput["languages"],
     certifications: f.certifications.map((c) => c.trim()).filter(Boolean),
     price_list: f.price_list.filter((p) => p.title.trim() || p.price.trim()),
+    // No text = no deal (the date alone means nothing).
+    deal_text: f.deal_text.trim(),
+    deal_until: f.deal_text.trim() ? f.deal_until : "",
   };
 }
 
@@ -105,6 +112,8 @@ export function previewView(
     animals_served: input.animals_served ?? null,
     certifications: input.certifications,
     price_list: input.price_list,
+    deal_text: input.deal_text || null,
+    deal_until: input.deal_until || null,
     category,
     photos: [...business.photos]
       .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at))

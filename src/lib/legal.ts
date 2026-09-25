@@ -10,10 +10,12 @@ export const LEGAL_UPDATED = "25 בספטמבר 2026";
 
 export const OPERATOR = {
   // שם המפעיל כפי שהוא רשום (עוסק מורשה / חברה בע"מ)
-  legalName: "[שם המפעיל / החברה]",
-  // מספר עוסק או ח.פ.
-  registrationId: "[מספר עוסק / ח.פ.]",
-  address: "[כתובת למשלוח דואר]",
+  legalName: "א.ב פתרונות",
+  // עוסק מורשה: מספר העוסק הוא ת.ז., ולכן לא מפורסם באתר (אין חובה באתר חינמי).
+  // כשתהיה מכירה לצרכנים, חוק הגנת הצרכן (ס' 14ג) מחייב למסור אותו לפני העסקה.
+  registrationId: null as string | null,
+  // כתובת למשלוח דואר (לא חובה כרגע)
+  address: null as string | null,
   email: "[support@kami.co.il]",
   privacyEmail: "[privacy@kami.co.il]",
   accessibility: {

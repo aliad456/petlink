@@ -13,8 +13,8 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          ברוכים הבאים ל-{SITE_NAME} (&quot;האתר&quot; או &quot;השירות&quot;). האתר מופעל ע״י {OPERATOR.legalName},{" "}
-          {OPERATOR.registrationId} (&quot;המפעיל&quot;, &quot;אנחנו&quot;). תנאים אלה מסדירים את השימוש שלך באתר,
+          ברוכים הבאים ל-{SITE_NAME} (&quot;האתר&quot; או &quot;השירות&quot;). האתר מופעל ע״י {OPERATOR.legalName}
+          {OPERATOR.registrationId ? `, ${OPERATOR.registrationId}` : " (עוסק מורשה)"} (&quot;המפעיל&quot;, &quot;אנחנו&quot;). תנאים אלה מסדירים את השימוש שלך באתר,
           בכל גרסה שלו (לרבות גרסת מובייל או אפליקציה, אם תהיה).
         </p>
         <p>
@@ -327,8 +327,8 @@ const sections: LegalSection[] = [
     title: "יצירת קשר",
     body: (
       <p>
-        שאלות על התנאים? אפשר לפנות דרך <Link href="/contact">עמוד צור קשר</Link>, במייל {OPERATOR.email}, או בדואר:{" "}
-        {OPERATOR.legalName}, {OPERATOR.address}.
+        שאלות על התנאים? אפשר לפנות דרך <Link href="/contact">עמוד צור קשר</Link> או במייל {OPERATOR.email}
+        {OPERATOR.address && `, או בדואר: ${OPERATOR.legalName}, ${OPERATOR.address}`}.
       </p>
     ),
   },

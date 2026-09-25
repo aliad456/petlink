@@ -8,9 +8,9 @@ import { PageTransition } from "@/components/page-transition";
 import { ReviewsPanel, type PublicReview } from "@/components/reviews/reviews-panel";
 import { buttonClass } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { getFavoriteIds } from "@/lib/favorites";
 import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
 import { getBusinessFilters } from "@/lib/catalog";
-import { mediaUrl } from "@/lib/business/media";
 import { REVIEW_COLUMNS, type Review } from "@/lib/reviews/types";
 import { SITE_NAME } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
@@ -34,11 +34,11 @@ export async function generateMetadata({ params }: PageProps<"/b/[publicId]">): 
   const { view } = result;
   const description =
     view.tagline || view.bio?.slice(0, 160) || `${view.category.name}${view.city ? ` ב${view.city}` : ""}`;
-  const image = mediaUrl(view.cover_path) ?? mediaUrl(view.avatar_path);
+  // The share picture comes from ./opengraph-image.tsx.
   return {
     title: view.name,
     description,
-    openGraph: { title: view.name, description, images: image ? [image] : undefined, locale: "he_IL" },
+    openGraph: { title: view.name, description, locale: "he_IL" },
     robots: view.status === "approved" ? undefined : { index: false },
   };
 }
@@ -58,7 +58,7 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
   const isOwner = profile?.id === row.owner_id;
 
   const supabase = await createClient();
-  const [{ data: reviewRows }, { data: mine }] = await Promise.all([
+  const [{ data: reviewRows }, { data: mine }, favorites] = await Promise.all([
     supabase
       .from("reviews")
       .select(REVIEW_COLUMNS)
@@ -75,6 +75,7 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           .eq("user_id", profile.id)
           .maybeSingle<Review>()
       : Promise.resolve({ data: null }),
+    getFavoriteIds(),
   ]);
   // user_id stays on the server; the browser only learns which review is "mine".
   const toPublic = ({ user_id, ...r }: Review): PublicReview => ({ ...r, mine: user_id === profile?.id });
@@ -127,6 +128,7 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           )}
           <BusinessPage
             business={view}
+            saved={favorites ? favorites.includes(row.id) : null}
             reviews={
               <ReviewsPanel
                 businessId={row.id}

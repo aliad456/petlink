@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Siren } from "lucide-react";
 import { useState, useTransition, ViewTransition, type CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { Dialog } from "@/components/dialog";
@@ -8,7 +8,7 @@ import { toast } from "@/components/toast";
 import { Badge, Button, cn, FormMessage, Input, Label, Switch, Textarea } from "@/components/ui";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
 import { siteHost } from "@/lib/site";
-import { reorderCategories, saveCategory, setCategoryVisible } from "./actions";
+import { reorderCategories, saveCategory, setCategoryEmergency, setCategoryVisible } from "./actions";
 import { RowControls } from "./row-controls";
 import type { CatalogCategory } from "./types";
 import { useReorder } from "./use-reorder";
@@ -21,6 +21,13 @@ export function CategoryList({ categories }: { categories: CatalogCategory[] }) 
   const toggle = (c: CatalogCategory) =>
     startTransition(async () => {
       const r = await setCategoryVisible(c.id, !c.is_visible);
+      if (r.error) toast.error(r.error);
+      else if (r.ok) toast.success(r.ok);
+    });
+
+  const toggleEmergency = (c: CatalogCategory) =>
+    startTransition(async () => {
+      const r = await setCategoryEmergency(c.id, !c.is_emergency);
       if (r.error) toast.error(r.error);
       else if (r.ok) toast.success(r.ok);
     });
@@ -46,11 +53,25 @@ export function CategoryList({ categories }: { categories: CatalogCategory[] }) 
                 <span className="flex items-center gap-2 font-semibold">
                   <span className="truncate">{c.name}</span>
                   {!c.is_visible && <Badge tone="neutral">מוסתר</Badge>}
+                  {c.is_emergency && <Badge tone="danger">חירום</Badge>}
                 </span>
                 <span dir="ltr" className="truncate text-end text-xs text-muted">
                   /{c.slug}
                 </span>
               </div>
+              <button
+                type="button"
+                aria-pressed={c.is_emergency}
+                onClick={() => toggleEmergency(c)}
+                title={c.is_emergency ? "הסרה מכפתור החירום" : "כפתור חירום בדף הבית (למשל וטרינרים)"}
+                aria-label={c.is_emergency ? `הסרת ${c.name} מכפתור החירום` : `${c.name} בכפתור החירום`}
+                className={cn(
+                  "pressable focus-ring inline-flex size-9 items-center justify-center rounded-xl",
+                  c.is_emergency ? "bg-rose-500/15 text-rose-600 dark:text-rose-400" : "text-muted hover:bg-[var(--glass-bg-strong)] hover:text-rose-500",
+                )}
+              >
+                <Siren className="size-4" />
+              </button>
               <RowControls
                 index={i}
                 count={items.length}

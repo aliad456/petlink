@@ -131,6 +131,58 @@ export function BasicsFields({
   );
 }
 
+// ─── מבצע ───────────────────────────────────────────────────
+
+function israelDay(offset = 0) {
+  const d = new Date(Date.now() + offset * 86_400_000);
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(d);
+}
+
+export function DealFields({ form, update }: Props) {
+  const bad = useProfanity(form.deal_text);
+  const expired = form.deal_text.trim() && form.deal_until && form.deal_until < israelDay();
+
+  return (
+    <>
+      <Label>
+        <span className="flex items-center justify-between">
+          המבצע
+          <Counter value={form.deal_text} max={80} />
+        </span>
+        <Input
+          value={form.deal_text}
+          onChange={(e) => update("deal_text", e.target.value)}
+          maxLength={80}
+          placeholder="למשל: 20% הנחה על חיסון ראשון"
+        />
+        <ProfanityWarning show={bad} />
+      </Label>
+      <Label>
+        בתוקף עד
+        <Input
+          type="date"
+          dir="ltr"
+          value={form.deal_until}
+          min={israelDay()}
+          max={israelDay(60)}
+          onChange={(e) => update("deal_until", e.target.value)}
+          required={!!form.deal_text.trim()}
+        />
+      </Label>
+      <p className="text-xs text-muted">
+        מבצע פעיל מופיע בעמוד שלכם וב״מבצעים השבוע״ בדף הבית של Kami. עד 60 יום, ואחרי תאריך הסיום הוא יורד לבד.
+      </p>
+      {expired && <p className="text-sm font-medium text-warning">המבצע הסתיים. עדכנו תאריך או מחקו את הטקסט.</p>}
+      {form.deal_text.trim() && (
+        <Button type="button" variant="glass" size="sm" className="self-start" onClick={() => { update("deal_text", ""); update("deal_until", ""); }}>
+          <Trash2 className="size-4" />
+          הסרת המבצע
+        </Button>
+      )}
+    </>
+  );
+}
+
 // ─── יצירת קשר ──────────────────────────────────────────────
 
 export function ContactFields({ form, update }: Props) {

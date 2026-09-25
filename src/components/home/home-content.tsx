@@ -1,4 +1,4 @@
-import { Clock, Navigation, Sparkles } from "lucide-react";
+import { BadgePercent, Clock, Navigation, Siren, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -7,6 +7,8 @@ import { PageTransition } from "@/components/page-transition";
 import { ResultCard } from "@/components/search/result-card";
 import { SearchBar } from "@/components/search/search-bar";
 import { getFreshBusinesses } from "@/lib/catalog";
+import { getDeals } from "@/lib/deals";
+import { DealCard } from "@/components/deal-card";
 import { loadSearchContext } from "@/lib/search/load";
 
 // Tints cycle through the category tiles so the grid doesn't read as one flat block.
@@ -28,12 +30,22 @@ function filterHref(f: Featured) {
 }
 
 // The home page body. Also rendered by the ad preview with a draft ad.
-export async function HomeContent({ ads, preview = false }: { ads: BannerAd[]; preview?: boolean }) {
-  const [{ categories, filters }, businesses] = await Promise.all([
+export async function HomeContent({
+  ads,
+  preview = false,
+  favoriteIds,
+}: {
+  ads: BannerAd[];
+  preview?: boolean;
+  favoriteIds?: string[] | null;
+}) {
+  const [{ categories, filters }, businesses, deals] = await Promise.all([
     loadSearchContext(),
     getFreshBusinesses().catch(() => []),
+    getDeals(8),
   ]);
   const featured: Featured[] = filters.filter((f) => f.is_featured);
+  const emergency = categories.find((c) => c.is_emergency);
 
   return (
     <>
@@ -60,6 +72,25 @@ export async function HomeContent({ ads, preview = false }: { ads: BannerAd[]; p
             <div className="animate-rise relative z-20 mt-2 w-full max-w-xl" style={{ "--i": 3 } as CSSProperties}>
               <SearchBar />
             </div>
+
+            {/* חירום: הקטגוריה שסומנה בפאנל, פתוחים עכשיו וממוינים לפי מרחק */}
+            {emergency && (
+              <Link
+                href={`/${emergency.slug}?open=1&near=me`}
+                transitionTypes={["nav-forward"]}
+                className="animate-rise pressable focus-ring group inline-flex items-center gap-3 rounded-full bg-[linear-gradient(135deg,#f43f5e,#e11d48)] py-2 pe-5 ps-2 text-white shadow-[0_10px_30px_rgb(225_29_72/0.35)]"
+                style={{ "--i": 3 } as CSSProperties}
+              >
+                <span className="relative inline-flex size-9 items-center justify-center rounded-full bg-white/20">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-white/25 motion-reduce:hidden" aria-hidden />
+                  <Siren className="size-5" />
+                </span>
+                <span className="text-start leading-tight">
+                  <span className="block text-sm font-extrabold">חירום? {emergency.name} פתוחים עכשיו</span>
+                  <span className="block text-xs text-white/85">הכי קרובים אליך, בלחיצה אחת</span>
+                </span>
+              </Link>
+            )}
 
             {/* קטגוריות: שורת קיצורים מתחת לחיפוש, בלי כותרת. גוללת לרוחב בטלפון. */}
             <nav aria-label="קטגוריות" className="animate-rise -mx-4 w-screen max-w-5xl overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:w-full" style={{ "--i": 4 } as CSSProperties}>
@@ -100,6 +131,29 @@ export async function HomeContent({ ads, preview = false }: { ads: BannerAd[]; p
             </ul>
           </section>
 
+          {deals.length > 0 && (
+            <section aria-labelledby="deals-heading" className="flex flex-col gap-4">
+              <div className="flex items-end justify-between">
+                <h2 id="deals-heading" className="flex items-center gap-2 text-xl font-bold">
+                  <BadgePercent className="size-5 text-orange-500" />
+                  מבצעים השבוע
+                </h2>
+                <Link href="/deals" className="text-sm font-semibold text-brand-strong hover:underline dark:text-brand">
+                  לכל המבצעים
+                </Link>
+              </div>
+              <div className="-mx-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none]">
+                <ul className="flex w-max gap-3">
+                  {deals.map((d, i) => (
+                    <li key={d.id} className="w-64 shrink-0">
+                      <DealCard deal={d} index={i} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
+
           {businesses.length > 0 && (
             <section aria-labelledby="new-heading" className="flex flex-col gap-4">
               <div className="flex items-end justify-between">
@@ -112,7 +166,12 @@ export async function HomeContent({ ads, preview = false }: { ads: BannerAd[]; p
               </div>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {businesses.map((r, i) => (
-                  <ResultCard key={r.id} r={r} index={i} />
+                  <ResultCard
+                    key={r.id}
+                    r={r}
+                    index={i}
+                    saved={favoriteIds === undefined ? undefined : favoriteIds ? favoriteIds.includes(r.id) : null}
+                  />
                 ))}
               </div>
             </section>

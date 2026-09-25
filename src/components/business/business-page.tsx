@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   Award,
   BadgeCheck,
+  BadgePercent,
   CalendarDays,
   CircleCheck,
   Clock,
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { CategoryIcon } from "@/components/category-icon";
+import { FavoriteButton } from "@/components/favorite-button";
 import { toast } from "@/components/toast";
 import { cn } from "@/components/ui";
 import { DAY_NAMES, hasAnyHours, israelNow, openState } from "@/lib/business/hours";
@@ -46,10 +48,13 @@ export function BusinessPage({
   business,
   preview = false,
   reviews,
+  saved,
 }: {
   business: BusinessView;
   preview?: boolean;
   reviews?: ReactNode;
+  /** Saved to the viewer's favorites; null = signed out, undefined = hide (preview). */
+  saved?: boolean | null;
 }) {
   const design = resolveDesign(business.design);
   const [tab, setTab] = useState<Tab>("all");
@@ -84,6 +89,9 @@ export function BusinessPage({
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
         <ShareButton name={business.name} />
+        {saved !== undefined && (
+          <FavoriteButton businessId={business.id} saved={saved} variant="overlay" className="absolute start-3 top-3 z-20 size-11" />
+        )}
       </div>
 
       {/* כרטיס */}
@@ -170,6 +178,7 @@ export function BusinessPage({
         </header>
 
         <ActionButtons business={business} />
+        <DealTicket business={business} />
 
         {/* לשוניות */}
         <nav className="mt-6 flex gap-1.5 overflow-x-auto [scrollbar-width:none]" aria-label="חלקי העמוד">
@@ -245,6 +254,24 @@ function OpenBadge({ business }: { business: BusinessView }) {
   );
 }
 
+// The running deal, as a "ticket" under the buttons.
+function DealTicket({ business }: { business: BusinessView }) {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+  if (!business.deal_text || !business.deal_until || business.deal_until < today) return null;
+  const [, m, d] = business.deal_until.split("-").map(Number);
+  return (
+    <div className="mt-4 flex items-center gap-3 rounded-2xl border-2 border-dashed border-[color-mix(in_oklab,var(--accent-to)_45%,transparent)] bg-[color-mix(in_oklab,var(--accent-from)_10%,transparent)] px-4 py-3">
+      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-white">
+        <BadgePercent className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-bold leading-snug">{business.deal_text}</p>
+        <p className="text-xs text-muted">מבצע · בתוקף עד {d}/{m}</p>
+      </div>
+    </div>
+  );
+}
+
 function whatsappLink(number: string) {
   const digits = number.replace(/\D/g, "");
   return `https://wa.me/${digits.startsWith("0") ? `972${digits.slice(1)}` : digits}`;
@@ -310,7 +337,7 @@ function ShareButton({ name }: { name: string }) {
       type="button"
       onClick={share}
       aria-label="שיתוף"
-      className="pressable focus-ring absolute end-3 top-3 inline-flex size-11 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-black/40"
+      className="pressable focus-ring absolute end-3 top-3 z-20 inline-flex size-11 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md hover:bg-black/40"
     >
       <Share2 className="size-5" />
     </button>
