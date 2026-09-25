@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { AdPopup } from "@/components/ads/ad-popup";
 import { BetaBanner } from "@/components/beta";
+import { InstallPrompt } from "@/components/install-prompt";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getActiveAds } from "@/lib/ads";
@@ -18,6 +19,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       {children}
       <SiteFooter />
       <AdPopup ad={popup[0] ?? null} />
+      <InstallPrompt />
     </>
   );
 }

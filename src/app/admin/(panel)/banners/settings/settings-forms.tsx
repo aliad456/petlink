@@ -181,9 +181,15 @@ function PlacementRowForm({ p }: { p: PlacementRow }) {
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
-        <SizeInput label="רוחב" value={w} onChange={(v) => setW(num(v))} />
-        <span className="pb-2.5 text-muted">×</span>
-        <SizeInput label="גובה" value={h} onChange={(v) => setH(num(v))} />
+        {p.kind === "gallery" ? (
+          <p className="pb-2 text-sm text-muted">פוסטרים בכל גודל, זה מתחת לזה.</p>
+        ) : (
+          <>
+            <SizeInput label="רוחב" value={w} onChange={(v) => setW(num(v))} />
+            <span className="pb-2.5 text-muted">×</span>
+            <SizeInput label="גובה" value={h} onChange={(v) => setH(num(v))} />
+          </>
+        )}
         {p.kind === "banner" && (
           <Label className="flex-row items-center gap-2 pb-2 text-sm">
             <input type="checkbox" checked={phone} onChange={(e) => setPhone(e.target.checked)} className="size-4 accent-[var(--brand)]" />
@@ -192,7 +198,7 @@ function PlacementRowForm({ p }: { p: PlacementRow }) {
         )}
         <Label className="ms-auto w-24 text-sm">
           מודעות ביום
-          <Input value={capacity} onChange={(e) => setCapacity(num(e.target.value).slice(0, 2))} inputMode="numeric" dir="ltr" className="h-10 text-center" />
+          <Input value={capacity} onChange={(e) => setCapacity(num(e.target.value).slice(0, 3))} inputMode="numeric" dir="ltr" className="h-10 text-center" />
         </Label>
       </div>
       {phone && p.kind === "banner" && (
@@ -204,7 +210,7 @@ function PlacementRowForm({ p }: { p: PlacementRow }) {
       )}
 
       {/* איך הצורה תיראה, יחסית */}
-      <div className="flex items-center gap-3 text-xs text-muted">
+      <div className={cn("flex items-center gap-3 text-xs text-muted", p.kind === "gallery" && "hidden")}>
         <span
           className="block max-h-16 max-w-[12rem] rounded-md bg-[linear-gradient(135deg,#22d3ee55,#3b82f655)] ring-1 ring-[var(--border)]"
           style={{ aspectRatio: `${w || 1} / ${h || 1}`, width: ratio >= 1 ? "12rem" : undefined, height: ratio < 1 ? "4rem" : undefined }}

@@ -27,13 +27,22 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
   const category = await findCategory((await params).category);
   if (!category) notFound();
   const sp = await searchParams;
-  const [state, topAds, inlineAds, favoriteIds] = await Promise.all([
+  const [state, topAds, inlineAds, favoriteIds, gallery] = await Promise.all([
     runSearch(sp, { category }),
     getActiveAds("category"),
     getActiveAds("search"),
     getFavoriteIds(),
+    category.is_adoption ? getActiveAds("adoption") : undefined,
   ]);
   return (
-    <SearchView state={state} params={sp} basePath={`/${category.slug}`} topAds={topAds} inlineAds={inlineAds} favoriteIds={favoriteIds} />
+    <SearchView
+      state={state}
+      params={sp}
+      basePath={`/${category.slug}`}
+      topAds={topAds}
+      inlineAds={inlineAds}
+      favoriteIds={favoriteIds}
+      gallery={gallery}
+    />
   );
 }

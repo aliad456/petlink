@@ -13,6 +13,7 @@ const WHERE: Record<string, string> = {
   category: "בראש עמודי הקטגוריה",
   search: "בין תוצאות החיפוש",
   popup: "כפופאפ בכניסה לאתר",
+  adoption: "בעמוד ימי האימוץ",
 };
 
 // The link sent to an advertiser: how their ad will look on Kami, on a phone

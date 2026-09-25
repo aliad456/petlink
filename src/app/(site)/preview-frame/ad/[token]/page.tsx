@@ -4,7 +4,7 @@ import { AdPopup } from "@/components/ads/ad-popup";
 import type { BannerAd } from "@/components/ads/ad-banner";
 import { HomeContent } from "@/components/home/home-content";
 import { SearchView } from "@/components/search/search-view";
-import { getAdPreview, type Placement } from "@/lib/ads";
+import { getActiveAds, getAdPreview, type Placement } from "@/lib/ads";
 import { getStaffContext } from "@/lib/auth/session";
 import { loadSearchContext, runSearch } from "@/lib/search/load";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +12,7 @@ import { isUuid } from "@/lib/uuid";
 
 export const metadata: Metadata = { title: "תצוגה מקדימה", robots: { index: false, follow: false } };
 
-const PLACEMENTS: Placement[] = ["home", "category", "search", "popup"];
+const PLACEMENTS: Placement[] = ["home", "category", "search", "popup", "adoption"];
 
 // The real page with one ad in its place. Shown inside an iframe by the ad
 // editor (token "draft" + the unsaved values, staff only) and by the link
@@ -65,6 +65,15 @@ export default async function AdPreviewFrame({ params, searchParams }: PageProps
         <AdPopup ad={ad} preview />
       </>
     );
+  }
+  if (placement === "adoption") {
+    const { categories } = await loadSearchContext();
+    const category = categories.find((c) => c.is_adoption) ?? categories[0];
+    if (!category) return <HomeContent ads={[]} preview />;
+    const [state, others] = await Promise.all([runSearch({}, { category }), getActiveAds("adoption")]);
+    // The poster first, then whatever else is running, as visitors will see it.
+    const gallery = [ad, ...others.filter((o) => o.id !== ad.id)];
+    return <SearchView state={state} params={{}} basePath={`/${category.slug}`} gallery={gallery} preview />;
   }
   if (placement === "category") {
     const { categories } = await loadSearchContext();

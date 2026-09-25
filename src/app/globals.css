@@ -484,3 +484,71 @@ dialog.sheet[open]::backdrop {
 @utility animate-pop {
   animation: pop 500ms var(--ease-spring) both;
 }
+
+/* ───────────────────────────────────────────────────────────
+   תפריט נגישות (src/components/accessibility-menu.tsx)
+   ─────────────────────────────────────────────────────────── */
+
+html.a11y-text-1 { font-size: 112.5%; }
+html.a11y-text-2 { font-size: 125%; }
+html.a11y-text-3 { font-size: 137.5%; }
+
+html.a11y-contrast {
+  --foreground: #000000;
+  --muted: #1f2937;
+  --border: rgb(0 0 0 / 0.55);
+  --glass-bg: #ffffff;
+  --glass-bg-strong: #ffffff;
+  --glass-lite-bg: #ffffff;
+  --glass-border: #000000;
+  --brand: #0b3fbf;
+  --brand-strong: #0b3fbf;
+  --doodle: transparent;
+}
+html.a11y-contrast body { background: #ffffff; }
+@media (prefers-color-scheme: dark) {
+  html.a11y-contrast {
+    --foreground: #ffffff;
+    --muted: #e5e7eb;
+    --border: rgb(255 255 255 / 0.6);
+    --glass-bg: #000000;
+    --glass-bg-strong: #000000;
+    --glass-lite-bg: #000000;
+    --glass-border: #ffffff;
+    --brand: #7dd3fc;
+    --brand-strong: #7dd3fc;
+  }
+  html.a11y-contrast body { background: #000000; }
+}
+html.a11y-contrast .glass,
+html.a11y-contrast .glass-lite,
+html.a11y-contrast .glass-strong {
+  backdrop-filter: none;
+  border: 1.5px solid var(--glass-border);
+}
+
+html.a11y-no-motion *,
+html.a11y-no-motion *::before,
+html.a11y-no-motion *::after,
+html.a11y-no-motion::view-transition-group(*),
+html.a11y-no-motion::view-transition-old(*),
+html.a11y-no-motion::view-transition-new(*) {
+  animation-duration: 1ms !important;
+  animation-iteration-count: 1 !important;
+  animation-delay: 0ms !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+html.a11y-links a {
+  text-decoration: underline !important;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 2px;
+}
+
+html.a11y-readable body {
+  font-family: Arial, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  word-spacing: 0.05em;
+  line-height: 1.7;
+}
