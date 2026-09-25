@@ -178,6 +178,13 @@ export function parseHours(text: string): Hours | null {
 // ─── שורות ─────────────────────────────────────────────────
 
 const PHONE = /^(\+972|0)[\d\s-]{8,13}$/;
+const LIMITS: [FieldKey, string, number][] = [
+  ["name", "השם", 60],
+  ["city", "שם העיר", 60],
+  ["address", "הכתובת", 120],
+  ["website", "כתובת האתר", 200],
+  ["bio", "התיאור", 1500],
+];
 const YES = new Set(["כן", "v", "✓", "✔", "x", "1", "yes", "true", "y"]);
 
 function fixPhone(v: string) {
@@ -226,6 +233,10 @@ export function buildRows(table: string[][], categories: ImportCategory[], filte
     if (whatsapp && !PHONE.test(whatsapp)) errors.push(`וואטסאפ לא תקין: ${whatsapp}`);
     const hours = parseHours(get("hours"));
     if (!hours) errors.push(`לא הבנתי את השעות: ${get("hours")}`);
+    // Same limits the server enforces, so the row is flagged here instead of failing the whole import.
+    for (const [key, label, max] of LIMITS) {
+      if (get(key).length > max) errors.push(`${label} ארוך מדי (עד ${max} תווים)`);
+    }
 
     const filterValues: FilterInput[] = [];
     columns.forEach((c, idx) => {
