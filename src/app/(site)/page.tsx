@@ -41,6 +41,9 @@ export default async function HomePage() {
             <span className="glass animate-rise inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand-strong dark:text-brand">
               <Sparkles className="size-3.5" />
               המדריך לחיות מחמד בישראל
+              <span className="ms-1 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-2 py-0.5 text-[10px] tracking-wide">
+                גרסת בטא
+              </span>
             </span>
             <h1
               className="animate-rise max-w-2xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl"

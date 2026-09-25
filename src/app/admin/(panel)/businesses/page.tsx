@@ -10,6 +10,7 @@ import { formatRelative } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { FilterTabs } from "../users/filter-tabs";
 import { BusinessActions } from "./business-actions";
+import { UnclaimedBusinessButton } from "./unclaimed-dialog";
 
 export const metadata: Metadata = { title: "עסקים" };
 
@@ -25,6 +26,13 @@ type Row = {
   pro_waitlist_at: string | null;
   submitted_at: string | null;
   created_at: string;
+  owner_id: string | null;
+  category_id: string;
+  address: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  website: string | null;
+  bio: string | null;
   category: { name: string } | null;
   owner: { full_name: string; email: string | null } | null;
 };
@@ -43,17 +51,18 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
   const status = TABS.find((t) => t.value === raw)?.value ?? "pending";
 
   const supabase = await createClient();
-  const [{ data: rows }, { data: counts }] = await Promise.all([
+  const [{ data: rows }, { data: counts }, { data: categories }] = await Promise.all([
     supabase
       .from("businesses")
       .select(
-        "id, public_id, name, city, status, status_reason, is_featured, avatar_path, pro_waitlist_at, submitted_at, created_at, category:categories(name), owner:profiles!businesses_owner_id_fkey(full_name, email)",
+        "id, public_id, name, city, status, status_reason, is_featured, avatar_path, pro_waitlist_at, submitted_at, created_at, owner_id, category_id, address, phone, whatsapp, website, bio, category:categories(name), owner:profiles!businesses_owner_id_fkey(full_name, email)",
       )
       .eq("status", status)
       .order(status === "pending" ? "submitted_at" : "created_at", { ascending: status === "pending" })
       .limit(100)
       .returns<Row[]>(),
     supabase.from("businesses").select("status").returns<{ status: BusinessStatus }[]>(),
+    supabase.from("categories").select("id, name").order("sort_order").returns<{ id: string; name: string }[]>(),
   ]);
 
   const count = (s: BusinessStatus) => counts?.filter((c) => c.status === s).length ?? 0;
@@ -62,9 +71,12 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
   return (
     <PageTransition>
       <div className="flex max-w-4xl flex-col gap-5">
-        <header>
-          <h1 className="text-3xl font-extrabold tracking-tight">עסקים</h1>
-          <p className="mt-1 text-muted">אישור עסקים חדשים, השהיה, הסרה וסימון כמומלץ.</p>
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">עסקים</h1>
+            <p className="mt-1 text-muted">אישור עסקים חדשים, השהיה, הסרה וסימון כמומלץ.</p>
+          </div>
+          {has("businesses.edit") && <UnclaimedBusinessButton categories={categories ?? []} />}
         </header>
 
         <FilterTabs
@@ -97,6 +109,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="truncate font-bold">{b.name}</span>
                       {b.is_featured && <Badge tone="warning">★ מומלץ</Badge>}
+                      {!b.owner_id && <Badge>לא מנוהל</Badge>}
                       {b.pro_waitlist_at && (
                         <Badge tone="brand">
                           <Crown className="size-3" />
@@ -108,7 +121,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
                       {[b.category?.name, b.city].filter(Boolean).join(" · ")}
                     </span>
                     <span className="truncate text-xs text-muted">
-                      {b.owner?.full_name || b.owner?.email}
+                      {b.owner ? b.owner.full_name || b.owner.email : "נוצר ע״י הצוות"}
                       {" · "}
                       {b.status === "pending" && b.submitted_at
                         ? `נשלח ${formatRelative(b.submitted_at)}`
@@ -117,10 +130,28 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
                     {b.status_reason && <span className="text-xs text-danger">{b.status_reason}</span>}
                   </div>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                {!b.owner_id && has("businesses.edit") && b.status !== "removed" && (
+                  <UnclaimedBusinessButton
+                    categories={categories ?? []}
+                    initial={{
+                      id: b.id,
+                      name: b.name,
+                      category_id: b.category_id,
+                      city: b.city,
+                      address: b.address,
+                      phone: b.phone,
+                      whatsapp: b.whatsapp,
+                      website: b.website,
+                      bio: b.bio,
+                    }}
+                  />
+                )}
                 <BusinessActions
                   business={{ id: b.id, publicId: b.public_id, name: b.name, status: b.status, featured: b.is_featured }}
                   can={{ approve: has("businesses.approve"), remove: has("businesses.remove"), feature: has("businesses.feature") }}
                 />
+                </div>
               </li>
             ))}
           </ul>

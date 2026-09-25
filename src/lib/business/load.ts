@@ -14,7 +14,7 @@ export type FilterDef = {
 export type FilterValueRow = { filter_id: string; bool_value: boolean | null; option_values: string[] };
 
 export type BusinessRow = Omit<BusinessView, "photos" | "features" | "category"> & {
-  owner_id: string;
+  owner_id: string | null;
   category_id: string;
   status_reason: string | null;
   is_featured: boolean;
@@ -53,6 +53,7 @@ export function resolveFeatures(
 export function toView(row: BusinessRow, filters: FilterDef[]): BusinessView {
   return {
     ...row,
+    unclaimed: row.owner_id === null,
     photos: [...row.photos]
       .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at))
       .map(({ id, path, caption }) => ({ id, path, caption })),

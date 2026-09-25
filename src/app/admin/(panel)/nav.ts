@@ -10,7 +10,9 @@ export type NavIcon =
   | "megaphone"
   | "wallet"
   | "history"
-  | "shield";
+  | "shield"
+  | "claim"
+  | "inbox";
 
 export type NavItem = {
   href: string;
@@ -26,6 +28,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/admin", label: "ראשי", icon: "home", anyOf: [] },
   { href: "/admin/users", label: "משתמשים", icon: "users", anyOf: ["users.view"] },
   { href: "/admin/businesses", label: "עסקים", icon: "store", anyOf: ["businesses.view"] },
+  { href: "/admin/claims", label: "בקשות בעלות", icon: "claim", anyOf: ["businesses.approve"] },
+  { href: "/admin/inbox", label: "פניות", icon: "inbox", anyOf: ["inbox.manage"] },
   { href: "/admin/reviews", label: "ביקורות", icon: "star", anyOf: ["reviews.moderate"], soon: true },
   { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"] },
   { href: "/admin/adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["adoption.manage"], soon: true },

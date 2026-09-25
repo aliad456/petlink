@@ -1,10 +1,12 @@
 "use client";
 
 import {
+  BadgeCheck,
   CreditCard,
   Heart,
   History,
   House,
+  Inbox,
   Megaphone,
   ShieldCheck,
   Star,
@@ -29,6 +31,8 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   wallet: CreditCard,
   history: History,
   shield: ShieldCheck,
+  claim: BadgeCheck,
+  inbox: Inbox,
 };
 
 export function AdminNav({ items }: { items: NavItem[] }) {

@@ -36,6 +36,13 @@ Stack rationale: `docs/STACK.md`. **Current status, next steps and decisions:
   audits in one transaction); only then may a server action call the Auth Admin
   API (ban, reset email, delete). See `src/app/admin/(panel)/users/[id]/actions.ts`.
 
+- Businesses may have no owner (`owner_id is null`, `source = 'staff'`): "unclaimed" pages staff
+  create from public info. Ownership moves only via `admin_review_claim` after manual verification.
+- Legal pages live in `src/app/(site)/{terms,privacy,business-terms,accessibility}`; operator
+  details and `TERMS_VERSION` in `src/lib/legal.ts`. Bump the version when terms change materially.
+- Don't export non-component values from `"use client"` files or non-functions from `"use server"`
+  files for server use — put shared constants in `src/lib/*`.
+
 ## Design ("Liquid Glass")
 - Tokens and utilities live in `src/app/globals.css`: `glass`, `glass-strong`,
   `glass-glow` (pointer-following highlight), `pressable` (spring hover/press),

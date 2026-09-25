@@ -88,8 +88,11 @@ export function BusinessPage({ business, preview = false }: { business: Business
             {business.tagline && (
               <p
                 className={cn(
-                  "glass glass-strong animate-rise absolute bottom-full z-10 mb-3 w-max max-w-[16rem] rounded-2xl px-4 py-2.5 text-sm font-medium leading-snug",
-                  "after:absolute after:top-full after:size-3 after:-translate-y-1.5 after:rotate-45 after:rounded-sm after:bg-inherit after:border-b after:border-e after:border-[var(--glass-border)]",
+                  // Solid, not glass: it sits on the cover photo, which can be any colour.
+                  "animate-rise absolute bottom-full z-10 mb-3 w-max max-w-[16rem] rounded-2xl px-4 py-2.5 text-sm font-semibold leading-snug",
+                  "bg-white text-[#0b1215] shadow-[0_8px_24px_rgb(0_0_0/0.28)] ring-1 ring-black/5",
+                  "dark:bg-[#1e2a36] dark:text-white dark:ring-white/10",
+                  "after:absolute after:top-full after:size-3 after:-translate-y-1.5 after:rotate-45 after:rounded-sm after:bg-inherit",
                   side ? "start-0 after:start-8" : "left-1/2 -translate-x-1/2 after:left-1/2 after:-ml-1.5",
                 )}
               >
@@ -117,7 +120,7 @@ export function BusinessPage({ business, preview = false }: { business: Business
           <div className={cn("flex flex-col gap-1.5", side ? "items-start" : "items-center")}>
             <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight">
               {business.name}
-              {business.status === "approved" && (
+              {business.status === "approved" && !business.unclaimed && (
                 <BadgeCheck
                   className="size-6 shrink-0 text-[var(--accent-to)] dark:text-[var(--accent-from)]"
                   aria-label="עסק מאושר"
@@ -226,7 +229,9 @@ function whatsappLink(number: string) {
 
 function ActionButtons({ business }: { business: BusinessView }) {
   const place = [business.address, business.city].filter(Boolean).join(", ");
-  const whatsapp = business.whatsapp || business.phone;
+  // An unclaimed page only links WhatsApp if staff entered a number for it
+  // (a public business phone is often a landline).
+  const whatsapp = business.whatsapp || (business.unclaimed ? null : business.phone);
   const secondary =
     "pressable focus-ring glass glass-glow flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold aria-disabled:pointer-events-none aria-disabled:opacity-40";
 

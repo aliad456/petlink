@@ -63,6 +63,9 @@ export async function createBusiness(_: CreateState, formData: FormData): Promis
   );
   const parsed = createSchema.safeParse(fields);
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
+  if (formData.get("business_terms") !== "on") {
+    return { error: "כדי לפתוח עמוד צריך לאשר את תנאי השימוש לבעלי עסקים.", fields };
+  }
   if (profile.account_type !== "business_owner") {
     return { error: "רק חשבון של בעל/ת עסק יכול ליצור עמוד עסק.", fields };
   }
@@ -73,6 +76,7 @@ export async function createBusiness(_: CreateState, formData: FormData): Promis
     owner_id: profile.id,
     ...parsed.data,
     whatsapp: parsed.data.phone,
+    business_terms_accepted_at: new Date().toISOString(),
   });
   if (error) return { ...dbError(error), fields };
   redirect("/business/edit?welcome=1");

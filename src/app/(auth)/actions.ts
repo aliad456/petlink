@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth/redirect";
+import { TERMS_VERSION } from "@/lib/legal";
 import { siteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -66,12 +67,15 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
 
   const { full_name, account_type } = parsed.data;
+  // Stored on the profile by handle_new_user(): proof of consent (terms version)
+  // and a separate, optional opt-in for marketing (Communications Law §30A).
+  const marketing_consent = formData.get("marketing") === "on";
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { full_name, account_type },
+      data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent },
       emailRedirectTo: `${siteUrl()}/auth/callback?next=/account`,
     },
   });

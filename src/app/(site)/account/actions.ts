@@ -44,3 +44,13 @@ export async function markMessagesRead(): Promise<void> {
     .eq("user_id", profile.id)
     .is("read_at", null);
 }
+
+// Opt in/out of marketing email (Communications Law §30A: opting out must be easy).
+export async function setMarketingConsent(consent: boolean): Promise<{ error?: string }> {
+  await requireUser();
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_marketing_consent", { p_consent: consent });
+  if (error) return { error: "השמירה נכשלה. נסו שוב." };
+  revalidatePath("/account");
+  return {};
+}

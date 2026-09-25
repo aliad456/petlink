@@ -33,6 +33,8 @@ export type SearchResult = {
   distance_km: number | null;
   features: string[];
   total_count: number;
+  /** Staff-created page not managed by the business yet. */
+  unclaimed: boolean;
 };
 
 // Reference data for search: visible categories and filters, and the city list (cached).

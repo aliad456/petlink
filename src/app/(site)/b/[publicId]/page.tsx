@@ -1,4 +1,4 @@
-import { Eye, Pencil } from "lucide-react";
+import { BadgeCheck, Eye, Info, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,6 +10,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
 import { getBusinessFilters } from "@/lib/catalog";
 import { mediaUrl } from "@/lib/business/media";
+import { SITE_NAME } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 // RLS decides who sees what: everyone sees approved businesses; the owner and
@@ -76,6 +77,27 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
                   עריכת העמוד
                 </Link>
               )}
+            </div>
+          )}
+          {row.owner_id === null && row.status === "approved" && (
+            <div className="mx-auto mt-3 w-full max-w-3xl px-4">
+              <div className="glass-lite flex flex-col gap-3 rounded-2xl p-4 text-sm sm:flex-row sm:items-center">
+                <p className="flex flex-1 items-start gap-2.5 leading-relaxed text-muted">
+                  <Info className="mt-0.5 size-4 shrink-0 text-brand" />
+                  <span>
+                    <strong className="font-semibold text-foreground">עמוד לא מנוהל.</strong> העמוד נוצר ע״י צוות {SITE_NAME}{" "}
+                    מתוך מידע ציבורי, ואינו מנוהל ע״י בעל העסק. ייתכן שחלק מהפרטים אינם מעודכנים.
+                  </span>
+                </p>
+                <Link
+                  href={`/claim/${row.public_id}`}
+                  transitionTypes={["nav-forward"]}
+                  className={buttonClass({ size: "sm", className: "shrink-0" })}
+                >
+                  <BadgeCheck className="size-4" />
+                  זה העסק שלך?
+                </Link>
+              </div>
             </div>
           )}
           <BusinessPage business={view} />

@@ -429,33 +429,42 @@ export function PriceFields({ form, update }: Props) {
   return (
     <>
       {form.price_list.map((p, i) => (
-        <div key={i} className="flex flex-col gap-2 rounded-2xl bg-[var(--glass-bg)] p-3">
-          <div className="flex gap-2">
-            <Input
-              value={p.title}
-              onChange={(e) => set(i, { title: e.target.value })}
-              maxLength={60}
-              placeholder="שירות, למשל: חיסון משושה"
-              aria-label={`שירות ${i + 1}`}
-            />
-            <Input
-              value={p.price}
-              onChange={(e) => set(i, { price: e.target.value })}
-              maxLength={20}
-              placeholder="₪"
-              aria-label={`מחיר ${i + 1}`}
-              className="w-28 shrink-0 text-center"
-            />
+        <div key={i} className="flex flex-col gap-2.5 rounded-2xl bg-[var(--glass-bg)] p-3">
+          {/* Row 1: service name + remove. Row 2: price + optional note. */}
+          <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <Input
+                value={p.title}
+                onChange={(e) => set(i, { title: e.target.value })}
+                maxLength={60}
+                placeholder="שם השירות"
+                aria-label={`שירות ${i + 1}`}
+              />
+            </div>
             <RemoveButton onClick={() => update("price_list", form.price_list.filter((_, j) => j !== i))} />
           </div>
-          <Input
-            value={p.note ?? ""}
-            onChange={(e) => set(i, { note: e.target.value })}
-            maxLength={120}
-            placeholder="הערה (לא חובה), למשל: כולל בדיקה"
-            aria-label={`הערה ${i + 1}`}
-            className="h-10 text-sm"
-          />
+          <div className="flex gap-2">
+            <div className="w-32 shrink-0">
+              <Input
+                value={p.price}
+                onChange={(e) => set(i, { price: e.target.value })}
+                maxLength={20}
+                inputMode="decimal"
+                placeholder="מחיר ₪"
+                aria-label={`מחיר ${i + 1}`}
+                className="text-center"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <Input
+                value={p.note ?? ""}
+                onChange={(e) => set(i, { note: e.target.value })}
+                maxLength={120}
+                placeholder="הערה (לא חובה)"
+                aria-label={`הערה ${i + 1}`}
+              />
+            </div>
+          </div>
         </div>
       ))}
       {form.price_list.length < 40 && (

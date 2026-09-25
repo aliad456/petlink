@@ -10,3 +10,6 @@ export function siteHost() {
     return "localhost:3000";
   }
 }
+
+// Set when a visitor closes the beta banner (read on the server, so no flash).
+export const BETA_COOKIE = "kami_beta_seen";
