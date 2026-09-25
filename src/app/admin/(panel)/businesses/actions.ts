@@ -4,6 +4,7 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { BUSINESSES_TAG } from "@/lib/catalog";
 import { requireStaff } from "@/lib/auth/session";
+import { MAX_IMPORT_ROWS } from "@/lib/business/import";
 import type { BusinessStatus } from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
@@ -71,6 +72,19 @@ const unclaimedSchema = z.object({
   bio: z.string().trim().max(1500),
 });
 
+const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const hoursSchema = z.partialRecord(z.enum(["0", "1", "2", "3", "4", "5", "6"]), z.array(z.tuple([time, time])).max(3));
+const filtersSchema = z
+  .array(
+    z.object({
+      filter_id: z.string().refine(isUuid),
+      bool_value: z.boolean().nullable(),
+      option_values: z.array(z.string().max(40)).max(30),
+    }),
+  )
+  .max(40);
+const detailsSchema = z.object({ hours: hoursSchema, open_on_holidays: z.boolean(), filters: filtersSchema });
+
 export type UnclaimedState = Result & { fields?: Record<string, string> };
 
 export async function saveUnclaimedBusiness(_: UnclaimedState, formData: FormData): Promise<UnclaimedState> {
@@ -84,9 +98,15 @@ export async function saveUnclaimedBusiness(_: UnclaimedState, formData: FormDat
   const parsed = unclaimedSchema.safeParse(fields);
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
   const d = parsed.data;
+  let rawDetails: unknown = null;
+  try {
+    rawDetails = JSON.parse(String(formData.get("details") ?? "null"));
+  } catch {}
+  const details = detailsSchema.safeParse(rawDetails);
+  if (!details.success) return { error: "שעות הפעילות לא תקינות", fields };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_save_unclaimed_business", {
+  const { data: id, error } = await supabase.rpc("admin_save_unclaimed_business", {
     p_id: d.id || null,
     p_name: d.name,
     p_category: d.category_id,
@@ -103,9 +123,51 @@ export async function saveUnclaimedBusiness(_: UnclaimedState, formData: FormDat
     if (error.code === "P0002") return { error: "העמוד כבר שויך לבעלים ואי אפשר לערוך אותו מכאן.", fields };
     return { ...dbError(error), fields };
   }
+  const { error: detailsError } = await supabase.rpc("admin_set_unclaimed_details", {
+    p_business: id as string,
+    p_hours: details.data.hours,
+    p_open_on_holidays: details.data.open_on_holidays,
+    p_filters: details.data.filters,
+  });
   revalidateTag(BUSINESSES_TAG, { expire: 0 });
   revalidatePath("/admin/businesses");
+  if (detailsError) return { error: "העמוד נשמר, אבל השעות והמאפיינים לא נשמרו. נסו שוב.", fields };
   return { ok: d.id ? "העמוד עודכן" : "העמוד נוצר ועלה לאוויר" };
+}
+
+// ─── ייבוא מטבלה ────────────────────────────────────────────
+
+const importRowSchema = z.object({
+  name: z.string().trim().min(2).max(60),
+  category_id: z.string().refine(isUuid),
+  city: z.string().trim().min(2).max(60),
+  address: z.string().trim().max(120),
+  phone,
+  whatsapp: phone,
+  website: z.string().trim().max(200),
+  bio: z.string().trim().max(1500),
+  hours: hoursSchema,
+  open_on_holidays: z.boolean(),
+  filters: filtersSchema,
+});
+
+export async function importUnclaimedBusinesses(rows: unknown): Promise<Result> {
+  await requireStaff();
+  const parsed = z.array(importRowSchema).min(1).max(MAX_IMPORT_ROWS).safeParse(rows);
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    const line = typeof issue.path[0] === "number" ? ` (שורה ${issue.path[0] + 2})` : "";
+    return { error: `יש שורה לא תקינה${line}: ${issue.message}` };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("admin_import_unclaimed_businesses", { p_rows: parsed.data });
+  if (error) {
+    if (error.hint === "profanity") return { error: "נמצאה מילה לא מתאימה באחת השורות. שום עסק לא נוסף." };
+    return dbError(error);
+  }
+  revalidateTag(BUSINESSES_TAG, { expire: 0 });
+  revalidatePath("/admin/businesses");
+  return { ok: `נוספו ${data} עסקים` };
 }
 
 // ─── בקשות בעלות / הסרה ─────────────────────────────────────

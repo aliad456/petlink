@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Heebo } from "next/font/google";
 import { AccessibilityMenu } from "@/components/accessibility-menu";
 import { PointerGlow } from "@/components/pointer-glow";
+import { SiteTracker } from "@/components/site-tracker";
 import { Toaster } from "@/components/toast";
 import { A11Y_BOOT } from "@/lib/a11y";
+import { siteUrl } from "@/lib/supabase/env";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -11,14 +13,26 @@ const heebo = Heebo({
   subsets: ["hebrew", "latin"],
 });
 
+const DESCRIPTION = "וטרינרים, מאלפים, ספרים, חנויות וימי אימוץ — עם פילטרים שגוגל מפות לא נותן.";
+
 export const metadata: Metadata = {
+  // Absolute URLs for share images, canonical links and the sitemap.
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "Kami — כל השירותים לחיות מחמד במקום אחד",
     template: "%s | Kami",
   },
-  description:
-    "וטרינרים, מאלפים, ספרים, חנויות וימי אימוץ — עם פילטרים שגוגל מפות לא נותן.",
+  description: DESCRIPTION,
   applicationName: "Kami",
+  // The share picture comes from ./opengraph-image.tsx.
+  openGraph: {
+    type: "website",
+    siteName: "Kami",
+    locale: "he_IL",
+    title: "Kami — כל השירותים לחיות מחמד במקום אחד",
+    description: DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image" },
   appleWebApp: { capable: true, title: "Kami", statusBarStyle: "default" },
 };
 
@@ -44,6 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Toaster />
         <PointerGlow />
         <AccessibilityMenu />
+        <SiteTracker />
       </body>
     </html>
   );

@@ -4,8 +4,11 @@ import { Pencil, Plus } from "lucide-react";
 import { useActionState, useEffect, useState } from "react";
 import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
+import { FeaturesEditor, HoursEditor, type FeatureValues } from "@/components/business/detail-editors";
 import { Button, FormMessage, Input, Label, Textarea } from "@/components/ui";
 import { CITIES } from "@/lib/business/cities";
+import { filtersForCategory, type FilterDef, type FilterValueRow } from "@/lib/business/load";
+import type { Hours } from "@/lib/business/types";
 import { saveUnclaimedBusiness, type UnclaimedState } from "./actions";
 
 export type UnclaimedInitial = {
@@ -18,6 +21,9 @@ export type UnclaimedInitial = {
   whatsapp: string | null;
   website: string | null;
   bio: string | null;
+  hours: Hours;
+  open_on_holidays: boolean;
+  values: FilterValueRow[];
 };
 
 const SELECT =
@@ -27,9 +33,11 @@ const SELECT =
 // at once, marked "not managed", until the owner claims it.
 export function UnclaimedBusinessButton({
   categories,
+  filters,
   initial,
 }: {
   categories: { id: string; name: string }[];
+  filters: FilterDef[];
   initial?: UnclaimedInitial;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +65,13 @@ export function UnclaimedBusinessButton({
         title={initial ? `עריכת עמוד: ${initial.name}` : "הוספת עסק קיים"}
         description="רק מידע ציבורי (שם, עיר, טלפון, אתר). העמוד יסומן כ״לא מנוהל״ עד שבעל העסק יבקש בעלות ותאשרו."
       >
-        <UnclaimedForm key={key} categories={categories} initial={initial} onDone={() => setOpen(false)} />
+        <UnclaimedForm
+          key={key}
+          categories={categories}
+          filters={filters}
+          initial={initial}
+          onDone={() => setOpen(false)}
+        />
       </Dialog>
     </>
   );
@@ -65,10 +79,12 @@ export function UnclaimedBusinessButton({
 
 function UnclaimedForm({
   categories,
+  filters,
   initial,
   onDone,
 }: {
   categories: { id: string; name: string }[];
+  filters: FilterDef[];
   initial?: UnclaimedInitial;
   onDone: () => void;
 }) {
@@ -91,9 +107,31 @@ function UnclaimedForm({
     bio: initial?.bio ?? "",
   };
 
+  const [categoryId, setCategoryId] = useState(f.category_id);
+  const [hours, setHours] = useState<Hours>(initial?.hours ?? {});
+  const [holidays, setHolidays] = useState(initial?.open_on_holidays ?? false);
+  const [values, setValues] = useState<FeatureValues>(() =>
+    Object.fromEntries(
+      (initial?.values ?? []).map((v) => [v.filter_id, { bool: v.bool_value ?? undefined, options: v.option_values }]),
+    ),
+  );
+  const relevant = categoryId ? filtersForCategory(filters, categoryId) : [];
+  const details = JSON.stringify({
+    hours,
+    open_on_holidays: holidays,
+    filters: relevant
+      .map((flt) => ({
+        filter_id: flt.id,
+        bool_value: flt.kind === "boolean" ? !!values[flt.id]?.bool : null,
+        option_values: flt.kind === "multi_select" ? (values[flt.id]?.options ?? []) : [],
+      }))
+      .filter((v) => v.bool_value || v.option_values.length),
+  });
+
   return (
     <form action={action} className="flex flex-col gap-4">
       <input type="hidden" name="id" value={initial?.id ?? ""} />
+      <input type="hidden" name="details" value={details} />
       <Label>
         שם העסק
         <Input name="name" defaultValue={f.name} maxLength={60} required autoFocus />
@@ -101,7 +139,13 @@ function UnclaimedForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <Label>
           תחום
-          <select name="category_id" defaultValue={f.category_id} required className={SELECT}>
+          <select
+            name="category_id"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            required
+            className={SELECT}
+          >
             <option value="" disabled>
               בחירה…
             </option>
@@ -144,6 +188,16 @@ function UnclaimedForm({
         תיאור קצר (לא חובה, עובדתי בלבד)
         <Textarea name="bio" defaultValue={f.bio} maxLength={1500} className="min-h-20" />
       </Label>
+      <fieldset className="flex flex-col gap-3 border-t border-border pt-4">
+        <legend className="float-start mb-2 text-[15px] font-bold">שעות פעילות (לא חובה)</legend>
+        <HoursEditor hours={hours} onChange={setHours} holidays={holidays} onHolidaysChange={setHolidays} />
+      </fieldset>
+      {relevant.length > 0 && (
+        <fieldset className="flex flex-col gap-3 border-t border-border pt-4">
+          <legend className="float-start mb-2 text-[15px] font-bold">מאפיינים</legend>
+          <FeaturesEditor filters={relevant} values={values} onChange={setValues} />
+        </fieldset>
+      )}
       <FormMessage error={state.error} />
       <Button type="submit" loading={pending}>
         {initial ? "שמירה" : "יצירת העמוד"}

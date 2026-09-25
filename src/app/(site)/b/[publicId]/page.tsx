@@ -11,10 +11,12 @@ import { buttonClass } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { getFavoriteIds } from "@/lib/favorites";
 import type { Species } from "@/lib/pets";
+import { businessJsonLd } from "@/lib/business/json-ld";
 import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
 import { getBusinessFilters } from "@/lib/catalog";
 import { REVIEW_COLUMNS, type Review } from "@/lib/reviews/types";
 import { SITE_NAME } from "@/lib/site";
+import { siteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 // RLS decides who sees what: everyone sees approved businesses; the owner and
@@ -40,7 +42,8 @@ export async function generateMetadata({ params }: PageProps<"/b/[publicId]">): 
   return {
     title: view.name,
     description,
-    openGraph: { title: view.name, description, locale: "he_IL" },
+    alternates: { canonical: `/b/${view.public_id}` },
+    openGraph: { title: view.name, description, locale: "he_IL", type: "website", siteName: SITE_NAME },
     robots: view.status === "approved" ? undefined : { index: false },
   };
 }
@@ -137,6 +140,12 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
                 </Link>
               </div>
             </div>
+          )}
+          {row.status === "approved" && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: businessJsonLd(view, `${siteUrl()}/b/${row.public_id}`) }}
+            />
           )}
           <BusinessPage
             business={{ ...view, adopted_count: (adopted as number | null) ?? 0 }}

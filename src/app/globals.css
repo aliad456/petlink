@@ -20,6 +20,10 @@
   --warning: #d97706;
   --success: #059669;
 
+  /* גרפים (נבדקו לעיוורון צבעים מול הרקע) */
+  --chart-1: #0891b2;
+  --chart-2: #7c3aed;
+
   /* זכוכית */
   --glass-bg: rgb(255 255 255 / 0.48);
   --glass-bg-strong: rgb(255 255 255 / 0.72);
@@ -56,6 +60,9 @@
     --danger: #fb7185;
     --warning: #fbbf24;
     --success: #34d399;
+
+    --chart-1: #0ea5c0;
+    --chart-2: #8b5cf6;
 
     --glass-bg: rgb(255 255 255 / 0.06);
     --glass-bg-strong: rgb(255 255 255 / 0.1);
