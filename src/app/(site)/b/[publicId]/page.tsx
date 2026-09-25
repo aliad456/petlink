@@ -5,11 +5,13 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { BusinessPage } from "@/components/business/business-page";
 import { PageTransition } from "@/components/page-transition";
+import { ReviewsPanel, type PublicReview } from "@/components/reviews/reviews-panel";
 import { buttonClass } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
 import { getBusinessFilters } from "@/lib/catalog";
 import { mediaUrl } from "@/lib/business/media";
+import { REVIEW_COLUMNS, type Review } from "@/lib/reviews/types";
 import { SITE_NAME } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
@@ -54,6 +56,29 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
   const { row, view } = result;
   const profile = await getCurrentProfile();
   const isOwner = profile?.id === row.owner_id;
+
+  const supabase = await createClient();
+  const [{ data: reviewRows }, { data: mine }] = await Promise.all([
+    supabase
+      .from("reviews")
+      .select(REVIEW_COLUMNS)
+      .eq("business_id", row.id)
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(200)
+      .returns<Review[]>(),
+    profile
+      ? supabase
+          .from("reviews")
+          .select(REVIEW_COLUMNS)
+          .eq("business_id", row.id)
+          .eq("user_id", profile.id)
+          .maybeSingle<Review>()
+      : Promise.resolve({ data: null }),
+  ]);
+  // user_id stays on the server; the browser only learns which review is "mine".
+  const toPublic = ({ user_id, ...r }: Review): PublicReview => ({ ...r, mine: user_id === profile?.id });
+  const reviews = (reviewRows ?? []).map(toPublic);
 
   return (
     <>
@@ -100,7 +125,20 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
               </div>
             </div>
           )}
-          <BusinessPage business={view} />
+          <BusinessPage
+            business={view}
+            reviews={
+              <ReviewsPanel
+                businessId={row.id}
+                publicId={row.public_id}
+                businessName={row.name}
+                unclaimed={row.owner_id === null}
+                reviews={reviews}
+                myReview={mine ? toPublic(mine) : null}
+                viewer={!profile ? { kind: "anon" } : isOwner ? { kind: "owner" } : { kind: "user" }}
+              />
+            }
+          />
         </main>
       </PageTransition>
     </>

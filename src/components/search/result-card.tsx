@@ -96,6 +96,14 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
             {!r.unclaimed && <BadgeCheck className="size-[18px] shrink-0 text-brand" aria-label="עסק מאושר" />}
           </h3>
           <p className="flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
+            {r.review_count > 0 && r.rating_avg != null && (
+              <span className="inline-flex items-center gap-0.5 font-semibold text-amber-600 dark:text-amber-400">
+                <Star className="size-3.5 fill-current" />
+                {Number(r.rating_avg).toFixed(1)}
+                <span className="font-normal text-muted">({r.review_count})</span>
+                <span className="text-muted">·</span>
+              </span>
+            )}
             <span>{r.category_name}</span>
             {r.city && <span>· {r.city}</span>}
             {r.distance_km != null && <span>· {r.distance_km < 1 ? "פחות מק״מ" : `${r.distance_km.toLocaleString("he-IL")} ק״מ`}</span>}

@@ -27,6 +27,7 @@ import { cn } from "@/components/ui";
 import { DAY_NAMES, hasAnyHours, israelNow, openState } from "@/lib/business/hours";
 import { mediaUrl } from "@/lib/business/media";
 import { resolveDesign, type BusinessView, type SectionId } from "@/lib/business/types";
+import { reviewsLabel } from "@/lib/reviews/types";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "./brand-icons";
 import { useCountUp } from "./use-count-up";
 
@@ -40,7 +41,16 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 // In preview mode (the owner's editor) empty sections show a hint instead of hiding.
-export function BusinessPage({ business, preview = false }: { business: BusinessView; preview?: boolean }) {
+// `reviews` is rendered by the server page (it needs the viewer's session).
+export function BusinessPage({
+  business,
+  preview = false,
+  reviews,
+}: {
+  business: BusinessView;
+  preview?: boolean;
+  reviews?: ReactNode;
+}) {
   const design = resolveDesign(business.design);
   const [tab, setTab] = useState<Tab>("all");
   const cover = mediaUrl(business.cover_path);
@@ -142,7 +152,20 @@ export function BusinessPage({ business, preview = false }: { business: Business
                 </>
               )}
             </p>
-            <OpenBadge business={business} />
+            <div className={cn("flex flex-wrap items-center gap-2", side ? "justify-start" : "justify-center")}>
+              <OpenBadge business={business} />
+              {!!business.review_count && business.rating_avg != null && (
+                <button
+                  type="button"
+                  onClick={() => setTab("reviews")}
+                  className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full bg-amber-400/15 px-3 py-1 text-sm font-semibold text-amber-700 dark:text-amber-300"
+                >
+                  <Star className="size-4 fill-current" />
+                  {Number(business.rating_avg).toFixed(1)}
+                  <span className="font-medium text-muted">({reviewsLabel(business.review_count)})</span>
+                </button>
+              )}
+            </div>
           </div>
         </header>
 
@@ -170,7 +193,7 @@ export function BusinessPage({ business, preview = false }: { business: Business
 
         <div className="mt-5 flex flex-col gap-7">
           {tab === "reviews" ? (
-            <Placeholder icon={Star} text="ביקורות יגיעו בקרוב" />
+            (reviews ?? <Placeholder icon={Star} text="כאן יופיעו הביקורות של הלקוחות שלכם" />)
           ) : (
             visibleSections.map((id) => (
               <Section key={id} id={id} business={business} preview={preview} />

@@ -57,6 +57,9 @@ export type BusinessView = {
   status: BusinessStatus;
   /** Created by staff from public info and not managed by the owner yet. */
   unclaimed?: boolean;
+  /** Average of published reviews (null when there are none). */
+  rating_avg?: number | null;
+  review_count?: number;
   name: string;
   tagline: string | null;
   bio: string | null;
