@@ -16,7 +16,7 @@ export default async function NewCampaignPage({ searchParams }: PageProps<"/admi
 
   return (
     <PageTransition>
-      <div className="flex max-w-3xl flex-col gap-5">
+      <div className="flex max-w-6xl flex-col gap-5">
         <header>
           <Link href="/admin/banners" className="text-sm text-muted hover:text-foreground">
             ← מודעות

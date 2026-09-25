@@ -21,12 +21,14 @@ export function SearchView({
   basePath,
   topAds = [],
   inlineAds = [],
+  preview = false,
 }: {
   state: SearchState;
   params: RawParams;
   basePath: string;
   topAds?: BannerAd[];
   inlineAds?: BannerAd[];
+  preview?: boolean;
 }) {
   const { category, city, near, results, total } = state;
   const title = category ? category.name : state.q ? `תוצאות עבור „${state.q}”` : "כל השירותים";
@@ -56,7 +58,7 @@ export function SearchView({
             </p>
           </header>
 
-          {topAds.length > 0 && <AdBanner ads={topAds} />}
+          {topAds.length > 0 && <AdBanner ads={topAds} preview={preview} />}
 
           <CategoryPills
             categories={state.categories}
@@ -109,7 +111,7 @@ export function SearchView({
                         <ResultCard r={r} index={i} />
                         {inlineAds.length > 0 && results.length >= 3 && i === Math.min(AD_AFTER, results.length) - 1 && (
                           <div className="sm:col-span-2 lg:col-span-3">
-                            <AdBanner ads={inlineAds} />
+                            <AdBanner ads={inlineAds} preview={preview} />
                           </div>
                         )}
                       </Fragment>

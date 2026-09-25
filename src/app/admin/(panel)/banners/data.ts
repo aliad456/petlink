@@ -30,12 +30,13 @@ export type CampaignRow = {
   status: "active" | "paused";
   notes: string | null;
   created_at: string;
+  preview_token: string;
   days: { day: string }[];
   stats: { day: string; impressions: number; clicks: number }[];
 };
 
 export const CAMPAIGN_COLUMNS =
-  "id, kind, placement, advertiser, contact_name, contact_phone, contact_email, link_url, alt_text, image_path, mobile_image_path, status, notes, created_at, days:ad_campaign_days(day), stats:ad_stats(day, impressions, clicks)";
+  "id, kind, placement, advertiser, contact_name, contact_phone, contact_email, link_url, alt_text, image_path, mobile_image_path, status, notes, created_at, preview_token, days:ad_campaign_days(day), stats:ad_stats(day, impressions, clicks)";
 
 // Everything the calendar and forms need: placements, reserved-day rules and
 // all campaigns (small table — one row per ad deal).

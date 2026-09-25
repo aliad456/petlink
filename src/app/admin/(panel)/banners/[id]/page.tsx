@@ -9,6 +9,7 @@ import { isUuid } from "@/lib/uuid";
 import { CampaignForm } from "../campaign-form";
 import { campaignRange, loadAdsContext, occupancy, totals } from "../data";
 import { PrintButton } from "./print-button";
+import { SharePreview } from "./share-preview";
 
 export const metadata: Metadata = { title: "מודעה" };
 
@@ -29,13 +30,15 @@ export default async function CampaignPage({ params }: PageProps<"/admin/banners
 
   return (
     <PageTransition>
-      <div className="flex max-w-3xl flex-col gap-6">
+      <div className="flex max-w-6xl flex-col gap-6">
         <header className="print:hidden">
           <Link href="/admin/banners" className="text-sm text-muted hover:text-foreground">
             ← מודעות
           </Link>
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight">{c.advertiser}</h1>
         </header>
+
+        <SharePreview token={c.preview_token} advertiser={c.advertiser} phone={c.contact_phone} />
 
         {/* דוח למפרסם */}
         <Card className="flex flex-col gap-4 p-5 print:border-0 print:shadow-none">

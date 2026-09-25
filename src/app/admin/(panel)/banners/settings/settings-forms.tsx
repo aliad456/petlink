@@ -164,35 +164,83 @@ export function PlacementSettings({ placements }: { placements: PlacementRow[] }
 function PlacementRowForm({ p }: { p: PlacementRow }) {
   const [capacity, setCapacity] = useState(String(p.capacity));
   const [active, setActive] = useState(p.is_active);
+  const [w, setW] = useState(String(p.image_width));
+  const [h, setH] = useState(String(p.image_height));
+  const [phone, setPhone] = useState(p.mobile_width != null);
+  const [mw, setMw] = useState(String(p.mobile_width ?? 800));
+  const [mh, setMh] = useState(String(p.mobile_height ?? 300));
   const [pending, run] = useRun();
+  const num = (v: string) => v.replace(/\D/g, "").slice(0, 4);
+  const ratio = Number(w) / Number(h) || 1;
 
   return (
-    <li className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--border)] px-4 py-3">
-      <div className="min-w-0 flex-1">
-        <p className="font-medium">{p.label}</p>
-        <p className="text-xs text-muted" dir="rtl">
-          תמונה <span dir="ltr">{p.image_width}×{p.image_height}</span>
-          {p.mobile_width && (
-            <>
-              {" "}· טלפון <span dir="ltr">{p.mobile_width}×{p.mobile_height}</span>
-            </>
-          )}
-        </p>
+    <li className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] p-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="min-w-0 flex-1 font-medium">{p.label}</p>
+        <Switch checked={active} onChange={setActive} label="פעיל" />
       </div>
-      <Label className="flex-row items-center gap-2 text-sm">
-        מודעות ביום
-        <Input
-          value={capacity}
-          onChange={(e) => setCapacity(e.target.value.replace(/\D/g, "").slice(0, 2))}
-          inputMode="numeric"
-          dir="ltr"
-          className="h-9 w-14 text-center"
+
+      <div className="flex flex-wrap items-end gap-3">
+        <SizeInput label="רוחב" value={w} onChange={(v) => setW(num(v))} />
+        <span className="pb-2.5 text-muted">×</span>
+        <SizeInput label="גובה" value={h} onChange={(v) => setH(num(v))} />
+        {p.kind === "banner" && (
+          <Label className="flex-row items-center gap-2 pb-2 text-sm">
+            <input type="checkbox" checked={phone} onChange={(e) => setPhone(e.target.checked)} className="size-4 accent-[var(--brand)]" />
+            תמונה נפרדת לטלפון
+          </Label>
+        )}
+        <Label className="ms-auto w-24 text-sm">
+          מודעות ביום
+          <Input value={capacity} onChange={(e) => setCapacity(num(e.target.value).slice(0, 2))} inputMode="numeric" dir="ltr" className="h-10 text-center" />
+        </Label>
+      </div>
+      {phone && p.kind === "banner" && (
+        <div className="flex flex-wrap items-end gap-3">
+          <SizeInput label="רוחב בטלפון" value={mw} onChange={(v) => setMw(num(v))} />
+          <span className="pb-2.5 text-muted">×</span>
+          <SizeInput label="גובה בטלפון" value={mh} onChange={(v) => setMh(num(v))} />
+        </div>
+      )}
+
+      {/* איך הצורה תיראה, יחסית */}
+      <div className="flex items-center gap-3 text-xs text-muted">
+        <span
+          className="block max-h-16 max-w-[12rem] rounded-md bg-[linear-gradient(135deg,#22d3ee55,#3b82f655)] ring-1 ring-[var(--border)]"
+          style={{ aspectRatio: `${w || 1} / ${h || 1}`, width: ratio >= 1 ? "12rem" : undefined, height: ratio < 1 ? "4rem" : undefined }}
         />
-      </Label>
-      <Switch checked={active} onChange={setActive} label="פעיל" />
-      <Button size="sm" variant="glass" loading={pending} onClick={() => run(() => updatePlacement(p.key, Number(capacity), active))}>
+        <span>
+          הצורה של המודעה: <span dir="ltr">{w}×{h}</span>
+        </span>
+      </div>
+
+      <Button
+        size="sm"
+        variant="glass"
+        className="self-start"
+        loading={pending}
+        onClick={() =>
+          run(() =>
+            updatePlacement(p.key, Number(capacity), active, {
+              width: Number(w),
+              height: Number(h),
+              mobileWidth: phone && p.kind === "banner" ? Number(mw) : null,
+              mobileHeight: phone && p.kind === "banner" ? Number(mh) : null,
+            }),
+          )
+        }
+      >
         שמירה
       </Button>
     </li>
+  );
+}
+
+function SizeInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <Label className="w-24 text-sm">
+      {label}
+      <Input value={value} onChange={(e) => onChange(e.target.value)} inputMode="numeric" dir="ltr" className="h-10 text-center" />
+    </Label>
   );
 }

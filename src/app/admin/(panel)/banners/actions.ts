@@ -117,14 +117,28 @@ export async function setDateRule(
   return { ok: reserved ? "התאריך נשמר" : "התאריך הוסר" };
 }
 
-export async function updatePlacement(key: string, capacity: number, active: boolean): Promise<AdResult> {
+export async function updatePlacement(
+  key: string,
+  capacity: number,
+  active: boolean,
+  size: { width: number; height: number; mobileWidth: number | null; mobileHeight: number | null },
+): Promise<AdResult> {
   await requireStaff();
-  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10) return { error: "מספר לא תקין" };
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 10) return { error: "מספר מודעות ביום: 1 עד 10" };
+  const ok = (n: number | null) => n === null || (Number.isInteger(n) && n >= 100 && n <= 4000);
+  if (!ok(size.width) || !ok(size.height) || !ok(size.mobileWidth) || !ok(size.mobileHeight)) {
+    return { error: "מידות בין 100 ל-4000 פיקסלים" };
+  }
+  if ((size.mobileWidth === null) !== (size.mobileHeight === null)) return { error: "לתמונת הטלפון צריך רוחב וגובה" };
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_update_placement", {
     p_key: key,
     p_capacity: capacity,
     p_active: active,
+    p_width: size.width,
+    p_height: size.height,
+    p_mobile_width: size.mobileWidth,
+    p_mobile_height: size.mobileHeight,
   });
   if (error) return { error: "השמירה נכשלה." };
   refresh();

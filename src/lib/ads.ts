@@ -18,6 +18,17 @@ export type ActiveAd = {
   image_path: string;
   mobile_image_path: string | null;
   has_link: boolean;
+  width: number;
+  height: number;
+  mobile_width: number | null;
+  mobile_height: number | null;
+};
+
+export type AdPreview = Omit<ActiveAd, "has_link"> & {
+  placement: Placement;
+  first_day: string | null;
+  last_day: string | null;
+  day_count: number;
 };
 
 export function israelDate(d = new Date()) {
@@ -43,4 +54,10 @@ export async function getActiveAds(placement: Placement): Promise<ActiveAd[]> {
   } catch {
     return [];
   }
+}
+
+// Shared preview link for an advertiser (not cached: rare, and must be fresh).
+export async function getAdPreview(token: string): Promise<AdPreview | null> {
+  const { data } = await createPublicClient().rpc("ad_preview", { p_token: token });
+  return ((data ?? []) as AdPreview[])[0] ?? null;
 }
