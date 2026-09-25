@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Heebo } from "next/font/google";
 import { AccessibilityMenu } from "@/components/accessibility-menu";
 import { PointerGlow } from "@/components/pointer-glow";
+import { SiteTracker } from "@/components/site-tracker";
 import { Toaster } from "@/components/toast";
 import { A11Y_BOOT } from "@/lib/a11y";
 import "./globals.css";
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Toaster />
         <PointerGlow />
         <AccessibilityMenu />
+        <SiteTracker />
       </body>
     </html>
   );
