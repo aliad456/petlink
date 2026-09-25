@@ -5,11 +5,14 @@ import { PageTransition } from "@/components/page-transition";
 import { Badge, Card } from "@/components/ui";
 import { requirePermission } from "@/lib/auth/session";
 import { mediaUrl } from "@/lib/business/media";
-import type { BusinessStatus } from "@/lib/business/types";
+import type { FilterValueRow } from "@/lib/business/load";
+import type { BusinessStatus, Hours } from "@/lib/business/types";
+import { getBusinessFilters } from "@/lib/catalog";
 import { formatRelative } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { FilterTabs } from "../users/filter-tabs";
 import { BusinessActions } from "./business-actions";
+import { ImportBusinessesButton } from "./import-dialog";
 import { UnclaimedBusinessButton } from "./unclaimed-dialog";
 
 export const metadata: Metadata = { title: "עסקים" };
@@ -33,6 +36,9 @@ type Row = {
   whatsapp: string | null;
   website: string | null;
   bio: string | null;
+  hours: Hours;
+  open_on_holidays: boolean;
+  values: FilterValueRow[];
   category: { name: string } | null;
   owner: { full_name: string; email: string | null } | null;
 };
@@ -51,18 +57,23 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
   const status = TABS.find((t) => t.value === raw)?.value ?? "pending";
 
   const supabase = await createClient();
-  const [{ data: rows }, { data: counts }, { data: categories }] = await Promise.all([
+  const [{ data: rows }, { data: counts }, { data: categories }, filters] = await Promise.all([
     supabase
       .from("businesses")
       .select(
-        "id, public_id, name, city, status, status_reason, is_featured, avatar_path, pro_waitlist_at, submitted_at, created_at, owner_id, category_id, address, phone, whatsapp, website, bio, category:categories(name), owner:profiles!businesses_owner_id_fkey(full_name, email)",
+        "id, public_id, name, city, status, status_reason, is_featured, avatar_path, pro_waitlist_at, submitted_at, created_at, owner_id, category_id, address, phone, whatsapp, website, bio, hours, open_on_holidays, values:business_filter_values(filter_id, bool_value, option_values), category:categories(name), owner:profiles!businesses_owner_id_fkey(full_name, email)",
       )
       .eq("status", status)
       .order(status === "pending" ? "submitted_at" : "created_at", { ascending: status === "pending" })
       .limit(100)
       .returns<Row[]>(),
     supabase.from("businesses").select("status").returns<{ status: BusinessStatus }[]>(),
-    supabase.from("categories").select("id, name").order("sort_order").returns<{ id: string; name: string }[]>(),
+    supabase
+      .from("categories")
+      .select("id, name, slug")
+      .order("sort_order")
+      .returns<{ id: string; name: string; slug: string }[]>(),
+    getBusinessFilters(),
   ]);
 
   const count = (s: BusinessStatus) => counts?.filter((c) => c.status === s).length ?? 0;
@@ -76,7 +87,12 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
             <h1 className="text-3xl font-extrabold tracking-tight">עסקים</h1>
             <p className="mt-1 text-muted">אישור עסקים חדשים, השהיה, הסרה וסימון כמומלץ.</p>
           </div>
-          {has("businesses.edit") && <UnclaimedBusinessButton categories={categories ?? []} />}
+          {has("businesses.edit") && (
+            <div className="flex flex-wrap gap-2">
+              <ImportBusinessesButton categories={categories ?? []} filters={filters} />
+              <UnclaimedBusinessButton categories={categories ?? []} filters={filters} />
+            </div>
+          )}
         </header>
 
         <FilterTabs
@@ -134,6 +150,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
                 {!b.owner_id && has("businesses.edit") && b.status !== "removed" && (
                   <UnclaimedBusinessButton
                     categories={categories ?? []}
+                    filters={filters}
                     initial={{
                       id: b.id,
                       name: b.name,
@@ -144,6 +161,9 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
                       whatsapp: b.whatsapp,
                       website: b.website,
                       bio: b.bio,
+                      hours: b.hours,
+                      open_on_holidays: b.open_on_holidays,
+                      values: b.values,
                     }}
                   />
                 )}
