@@ -64,9 +64,10 @@ export function DevicePreview({
       <div ref={box} className="flex w-full justify-center">
         {scale > 0 && (
           <div
+            dir="ltr"
             style={{ width: d.width * scale, height: d.height * scale }}
             className={cn(
-              "overflow-hidden bg-[var(--background)] shadow-[0_20px_60px_rgb(0_0_0/0.25)] ring-1 ring-black/10",
+              "relative overflow-hidden bg-[var(--background)] shadow-[0_20px_60px_rgb(0_0_0/0.25)] ring-1 ring-black/10",
               device === "phone" ? "rounded-[2rem] ring-[6px] ring-[#1f2937]" : "rounded-xl",
             )}
           >
@@ -75,7 +76,10 @@ export function DevicePreview({
               src={src}
               title={`תצוגה מקדימה ב${d.label}`}
               style={{ width: d.width, height: d.height, transform: `scale(${scale})`, transformOrigin: "top left" }}
-              className="border-0"
+              // Pinned to the corner: in a right-to-left page an inline iframe
+              // wider than its box lines up from the right, and the scaled page
+              // would slide out of view.
+              className="absolute left-0 top-0 border-0"
             />
           </div>
         )}

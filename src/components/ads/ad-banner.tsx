@@ -60,6 +60,11 @@ export function AdBanner({ ads, className, preview = false }: { ads: BannerAd[];
     return () => io.disconnect();
   }, []);
 
+  // In a preview, bring the ad into view (it may sit at the bottom of the page).
+  useEffect(() => {
+    if (preview) ref.current?.scrollIntoView({ block: "center" });
+  }, [preview]);
+
   useEffect(() => {
     if (!preview && visible && ads[index]) trackImpression(ads[index].id);
   }, [visible, index, ads, preview]);
