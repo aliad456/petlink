@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { PageTransition } from "@/components/page-transition";
 import { Card } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { OPERATOR } from "@/lib/legal";
 import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = { title: "צור קשר" };
@@ -30,9 +29,6 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
             defaults={{ kind, page_url: page, name: profile?.full_name, email: profile?.email ?? undefined }}
           />
         </Card>
-        <p className="text-center text-sm text-muted">
-          אפשר גם במייל: <a href={`mailto:${OPERATOR.email}`} dir="ltr" className="font-medium text-foreground">{OPERATOR.email}</a>
-        </p>
       </main>
     </PageTransition>
   );

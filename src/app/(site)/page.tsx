@@ -1,4 +1,4 @@
-import { ArrowLeft, Clock, Navigation, Sparkles } from "lucide-react";
+import { Clock, Navigation, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -59,7 +59,30 @@ export default async function HomePage() {
               <SearchBar />
             </div>
 
-            <ul className="animate-rise flex flex-wrap justify-center gap-2" style={{ "--i": 4 } as CSSProperties}>
+            {/* קטגוריות: שורת קיצורים מתחת לחיפוש, בלי כותרת. גוללת לרוחב בטלפון. */}
+            <nav aria-label="קטגוריות" className="animate-rise -mx-4 w-screen max-w-5xl overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:w-full" style={{ "--i": 4 } as CSSProperties}>
+              <ul className="mx-auto flex w-max gap-3 py-1 sm:gap-5">
+                {categories.map((c, i) => (
+                  <li key={c.id}>
+                    <Link
+                      href={`/${c.slug}`}
+                      prefetch
+                      transitionTypes={["nav-forward"]}
+                      className="focus-ring pressable group flex w-20 flex-col items-center gap-2 rounded-2xl text-center"
+                    >
+                      <span
+                        className={`glass-lite inline-flex size-16 items-center justify-center rounded-[1.4rem] bg-gradient-to-br transition-transform duration-300 ease-spring group-hover:-translate-y-0.5 ${TINTS[i % TINTS.length]}`}
+                      >
+                        <CategoryIcon name={c.icon} className="size-7" />
+                      </span>
+                      <span className="text-[13px] font-semibold leading-tight">{c.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <ul className="animate-rise flex flex-wrap justify-center gap-2" style={{ "--i": 5 } as CSSProperties}>
               {featured?.map((f) => (
                 <li key={f.id}>
                   <Link
@@ -69,34 +92,6 @@ export default async function HomePage() {
                     {f.kind === "open_now" && <Clock className="size-3.5 text-success" />}
                     {f.kind === "distance" && <Navigation className="size-3.5 text-brand" />}
                     {f.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby="categories-heading" className="flex flex-col gap-4">
-            <h2 id="categories-heading" className="text-xl font-bold">
-              קטגוריות
-            </h2>
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-              {categories.map((c, i) => (
-                <li key={c.id} className="animate-rise" style={{ "--i": i + 5 } as CSSProperties}>
-                  <Link
-                    href={`/${c.slug}`}
-                    prefetch
-                    transitionTypes={["nav-forward"]}
-                    className="focus-ring glass-lite glass-glow pressable group flex h-full flex-col items-start gap-4 rounded-[1.75rem] p-5"
-                  >
-                    <span
-                      className={`inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${TINTS[i % TINTS.length]}`}
-                    >
-                      <CategoryIcon name={c.icon} className="size-6" />
-                    </span>
-                    <span className="flex w-full items-end justify-between gap-2 font-semibold leading-snug">
-                      {c.name}
-                      <ArrowLeft className="size-4 shrink-0 text-muted transition-transform duration-300 ease-spring group-hover:-translate-x-1" />
-                    </span>
                   </Link>
                 </li>
               ))}

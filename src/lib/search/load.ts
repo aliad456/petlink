@@ -35,6 +35,8 @@ export type SearchResult = {
   total_count: number;
   /** Staff-created page not managed by the business yet. */
   unclaimed: boolean;
+  rating_avg: number | null;
+  review_count: number;
 };
 
 // Reference data for search: visible categories and filters, and the city list (cached).
