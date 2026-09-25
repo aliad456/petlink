@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
 import { CITIES } from "@/lib/business/cities";
-import { createBusiness, type CreateState } from "../actions";
+import { createBusiness, type CreateState } from "@/app/business/actions";
 
 export function NewBusinessForm({
   categories,

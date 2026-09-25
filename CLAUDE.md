@@ -46,6 +46,19 @@ Stack rationale: `docs/STACK.md`. **Current status, next steps and decisions:
   `transitionTypes={["nav-forward"]}` / `["nav-back"]`. In RTL, forward moves left.
 - Every screen must work in light and dark mode and at 390px width.
 
+## Performance (the owner wants navigation to feel instant)
+- Vercel functions run in `fra1` (vercel.json), next to Supabase in Frankfurt. Keep them together.
+- Public pages live in `src/app/(site)/` under a layout that renders the header once.
+  Every route there has a `loading.tsx` skeleton (`src/components/skeletons.tsx`).
+- Reference data (categories, filters, cities, "new on Kami") is cached with
+  `unstable_cache` in `src/lib/catalog.ts` via a cookie-less client; call
+  `revalidateTag(CATALOG_TAG | BUSINESSES_TAG, { expire: 0 })` after changing it.
+- The proxy skips Supabase entirely when there's no auth cookie.
+- Lists use `glass-lite` (no backdrop-filter); keep `glass` for single surfaces.
+  Don't animate `filter`/blur; animate `transform`/`opacity` only.
+- Business photos go through `next/image` with `sizes`.
+- Category links use `prefetch`; `staleTimes` keeps visited pages for 30s.
+
 ## Workflow
 - Work on the session's branch; after every push make sure an open PR exists
   (a merged PR can't take new commits — open a new one) and send the owner its link.

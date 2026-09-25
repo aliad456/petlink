@@ -5,10 +5,10 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { BusinessPage } from "@/components/business/business-page";
 import { PageTransition } from "@/components/page-transition";
-import { SiteHeader } from "@/components/site-header";
 import { buttonClass } from "@/components/ui";
 import { getCurrentProfile } from "@/lib/auth/session";
-import { BUSINESS_COLUMNS, loadFilters, toView, type BusinessRow } from "@/lib/business/load";
+import { BUSINESS_COLUMNS, toView, type BusinessRow } from "@/lib/business/load";
+import { getBusinessFilters } from "@/lib/catalog";
 import { mediaUrl } from "@/lib/business/media";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,7 +20,7 @@ const load = cache(async (publicId: string) => {
   const supabase = await createClient();
   const [{ data }, filters] = await Promise.all([
     supabase.from("businesses").select(BUSINESS_COLUMNS).eq("public_id", id).maybeSingle<BusinessRow>(),
-    loadFilters(supabase),
+    getBusinessFilters(),
   ]);
   return data ? { row: data, view: toView(data, filters) } : null;
 });
@@ -56,7 +56,6 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
 
   return (
     <>
-      <SiteHeader />
       <PageTransition>
         <main className="flex flex-1 flex-col pb-16">
           {(row.status !== "approved" || isOwner) && (

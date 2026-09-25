@@ -85,7 +85,7 @@ export default async function BusinessesPage({ searchParams }: PageProps<"/admin
         ) : (
           <ul className="flex flex-col gap-3">
             {rows.map((b, i) => (
-              <li key={b.id} className="glass animate-rise flex flex-col gap-4 rounded-[1.75rem] p-4 sm:flex-row sm:items-center" style={{ "--i": i } as CSSProperties}>
+              <li key={b.id} className="glass-lite animate-rise flex flex-col gap-4 rounded-[1.75rem] p-4 sm:flex-row sm:items-center" style={{ "--i": i } as CSSProperties}>
                 <div className="flex min-w-0 flex-1 items-center gap-3.5">
                   <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-kami">
                     {b.avatar_path && (

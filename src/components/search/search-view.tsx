@@ -1,10 +1,10 @@
 import { SearchX, Store } from "lucide-react";
 import Link from "next/link";
 import { PageTransition } from "@/components/page-transition";
-import { SiteHeader } from "@/components/site-header";
 import { buttonClass, Card } from "@/components/ui";
 import { first, PAGE, type RawParams } from "@/lib/search/params";
 import type { SearchState } from "@/lib/search/load";
+import { CategoryPills } from "./category-pills";
 import { FilterBar } from "./filter-bar";
 import { ResultCard } from "./result-card";
 import { SearchBar } from "./search-bar";
@@ -38,7 +38,6 @@ export function SearchView({
 
   return (
     <>
-      <SiteHeader />
       <PageTransition>
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 pb-16 pt-6">
           <header className="flex flex-col gap-1">
@@ -47,6 +46,12 @@ export function SearchView({
               {total > 0 ? `${total.toLocaleString("he-IL")} ${total === 1 ? "עסק" : "עסקים"}${where}` : `אין תוצאות${where}`}
             </p>
           </header>
+
+          <CategoryPills
+            categories={state.categories}
+            current={category?.id ?? null}
+            carry={Object.fromEntries(Object.entries(keep).filter(([k]) => ["city", "near", "open"].includes(k)))}
+          />
 
           <SearchBar
             key={`${basePath}?${state.q}`}

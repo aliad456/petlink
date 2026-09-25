@@ -27,6 +27,7 @@
   --glass-highlight: rgb(255 255 255 / 0.9);
   --glass-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 32px rgb(15 23 42 / 0.08);
   --glass-glow: rgb(255 255 255 / 0.55);
+  --glass-lite-bg: rgb(255 255 255 / 0.8);
 
   /* רקע */
   --blob-1: rgb(34 211 238 / 0.5);
@@ -62,6 +63,7 @@
     --glass-highlight: rgb(255 255 255 / 0.22);
     --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
     --glass-glow: rgb(255 255 255 / 0.12);
+    --glass-lite-bg: rgb(22 28 34 / 0.78);
 
     --blob-1: rgb(6 182 212 / 0.26);
     --blob-2: rgb(59 130 246 / 0.22);
@@ -111,8 +113,16 @@ body::before {
     radial-gradient(30vmax 30vmax at 100% 80%, var(--blob-4), transparent 70%),
     radial-gradient(30vmax 30vmax at 20% 100%, var(--blob-3), transparent 70%),
     radial-gradient(25vmax 25vmax at 50% 55%, var(--blob-2), transparent 70%);
-  filter: blur(40px);
+  /* No filter: radial gradients are already soft, and a blurred full-screen
+     layer is one of the most expensive things a phone GPU can be asked to draw. */
+  will-change: transform;
   animation: drift 40s ease-in-out infinite alternate;
+}
+
+@media (max-width: 768px) {
+  body::before {
+    animation: none;
+  }
 }
 
 @keyframes drift {
@@ -172,6 +182,23 @@ body::after {
   -webkit-backdrop-filter: blur(24px) saturate(180%);
 }
 
+/* Same look without backdrop-filter, for things that repeat in lists
+   (result cards, tiles, chips): cheap to scroll on phones. */
+@utility glass-lite {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--glass-lite-bg);
+  background-image: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--glass-highlight) 30%, transparent),
+    transparent 45%
+  );
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    var(--glass-shadow);
+}
+
 @utility glass-strong {
   background-color: var(--glass-bg-strong);
 }
@@ -229,6 +256,26 @@ body::after {
   }
 }
 
+/* שלד טעינה: משטח שמנצנץ בזמן שהתוכן בדרך */
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@utility skeleton {
+  border-radius: 0.75rem;
+  background: linear-gradient(
+      90deg,
+      transparent 0%,
+      color-mix(in oklab, var(--glass-highlight) 55%, transparent) 50%,
+      transparent 100%
+    )
+    0 0 / 200% 100%,
+    color-mix(in oklab, var(--muted) 14%, transparent);
+  animation: shimmer 1.4s linear infinite;
+}
+
 /* ───────────────────────────────────────────────────────────
    אנימציות כניסה
    ─────────────────────────────────────────────────────────── */
@@ -236,19 +283,17 @@ body::after {
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.98);
-    filter: blur(4px);
+    transform: translateY(10px) scale(0.985);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
 @utility animate-rise {
-  animation: rise 600ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 45ms);
+  animation: rise 500ms var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 8) * 35ms);
 }
 
 @keyframes spin {
@@ -319,11 +364,9 @@ dialog.sheet[open]::backdrop {
 @keyframes vt-fade {
   from {
     opacity: 0;
-    filter: blur(4px);
   }
   to {
     opacity: 1;
-    filter: blur(0);
   }
 }
 
@@ -337,28 +380,37 @@ dialog.sheet[open]::backdrop {
 }
 
 ::view-transition-old(.nav-forward) {
-  --vt-offset: 48px;
+  --vt-offset: 32px;
   animation:
-    160ms ease-in both vt-fade reverse,
-    420ms var(--ease-out) both vt-slide reverse;
+    120ms ease-in both vt-fade reverse,
+    300ms var(--ease-out) both vt-slide reverse;
 }
 ::view-transition-new(.nav-forward) {
-  --vt-offset: -48px;
+  --vt-offset: -32px;
   animation:
-    240ms ease-out 120ms both vt-fade,
-    480ms var(--ease-out) both vt-slide;
+    200ms ease-out 60ms both vt-fade,
+    380ms var(--ease-out) both vt-slide;
 }
 ::view-transition-old(.nav-back) {
-  --vt-offset: -48px;
+  --vt-offset: -32px;
   animation:
-    160ms ease-in both vt-fade reverse,
-    420ms var(--ease-out) both vt-slide reverse;
+    120ms ease-in both vt-fade reverse,
+    300ms var(--ease-out) both vt-slide reverse;
 }
 ::view-transition-new(.nav-back) {
-  --vt-offset: 48px;
+  --vt-offset: 32px;
   animation:
-    240ms ease-out 120ms both vt-fade,
-    480ms var(--ease-out) both vt-slide;
+    200ms ease-out 60ms both vt-fade,
+    380ms var(--ease-out) both vt-slide;
+}
+
+/* בלי צילום של כל המסך: הרקע והציורים קבועים ממילא. מצלמים רק את התוכן
+   שמשתנה (ה-<ViewTransition> של העמוד) ואת ה-header, וזה חוסך זמן בכל מעבר. */
+:root {
+  view-transition-name: none;
+}
+::view-transition {
+  pointer-events: none;
 }
 
 /* אלמנט משותף שעובר בין עמודים (למשל תמונת פרופיל) */

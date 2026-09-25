@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
-import { loadFilters } from "@/lib/business/load";
+import { getBusinessFilters } from "@/lib/catalog";
 import { getOwnBusiness } from "@/lib/business/own";
 import { createClient } from "@/lib/supabase/server";
 import { Editor } from "./editor";
@@ -21,7 +21,7 @@ export default async function EditBusinessPage({ searchParams }: PageProps<"/bus
       .eq("is_visible", true)
       .order("sort_order")
       .returns<{ id: string; name: string; icon: string | null }[]>(),
-    loadFilters(supabase),
+    getBusinessFilters(),
     searchParams,
   ]);
 

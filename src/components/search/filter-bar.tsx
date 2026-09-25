@@ -167,7 +167,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
         "pressable focus-ring inline-flex h-10 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-sm font-semibold",
         active
           ? "bg-[linear-gradient(135deg,#0891b2,#2563eb)] text-white shadow-[0_4px_14px_rgb(37_99_235/0.3)]"
-          : "glass glass-glow text-foreground/85 hover:text-foreground",
+          : "glass-lite text-foreground/85 hover:text-foreground",
       )}
     >
       {children}

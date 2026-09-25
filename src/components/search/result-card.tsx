@@ -1,6 +1,7 @@
 "use client";
 
 import { BadgeCheck, MessageCircle, Phone, Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore, type CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -30,13 +31,18 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
 
   return (
     <article
-      className="glass glass-glow animate-rise group relative flex flex-col overflow-hidden rounded-[1.75rem] transition-transform duration-500 ease-spring hover:-translate-y-1"
+      className="glass-lite glass-glow animate-rise group relative flex flex-col overflow-hidden rounded-[1.75rem] transition-transform duration-500 ease-spring hover:-translate-y-1"
       style={{ "--i": Math.min(index, 10) } as CSSProperties}
     >
       <div className="relative h-24 overflow-hidden">
         {cover ? (
-          // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
-          <img src={cover} alt="" loading="lazy" className="size-full object-cover transition-transform duration-700 ease-out-soft group-hover:scale-105" />
+          <Image
+            src={cover}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 330px, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-105"
+          />
         ) : (
           <div className="bg-kami relative size-full opacity-90">
             <div aria-hidden className="absolute inset-0 bg-white/25 [mask:url(/doodles.svg)_0_0/300px_300px_repeat]" />
@@ -52,10 +58,9 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
 
       <div className="flex flex-1 flex-col gap-2.5 px-4 pb-4">
         <div className="-mt-8 flex items-end gap-3">
-          <span className="size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-[var(--background)] bg-[var(--background)] shadow-lg">
+          <span className="relative size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-[var(--background)] bg-[var(--background)] shadow-lg">
             {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
-              <img src={avatar} alt="" loading="lazy" className="size-full object-cover" />
+              <Image src={avatar} alt="" fill sizes="64px" className="object-cover" />
             ) : (
               <span className="bg-kami flex size-full items-center justify-center text-white">
                 <CategoryIcon name={r.category_icon} className="size-7" />

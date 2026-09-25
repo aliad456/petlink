@@ -5,9 +5,8 @@ import { CategoryIcon } from "@/components/category-icon";
 import { PageTransition } from "@/components/page-transition";
 import { ResultCard } from "@/components/search/result-card";
 import { SearchBar } from "@/components/search/search-bar";
-import { SiteHeader } from "@/components/site-header";
-import { loadSearchContext, type SearchResult } from "@/lib/search/load";
-import { createClient } from "@/lib/supabase/server";
+import { getFreshBusinesses } from "@/lib/catalog";
+import { loadSearchContext } from "@/lib/search/load";
 
 // Tints cycle through the category tiles so the grid doesn't read as one flat block.
 const TINTS = [
@@ -28,23 +27,14 @@ function filterHref(f: Featured) {
 }
 
 export default async function HomePage() {
-  const supabase = await createClient();
-  const [{ categories }, { data: featured }, { data: fresh }] = await Promise.all([
+  const [{ categories, filters }, businesses] = await Promise.all([
     loadSearchContext(),
-    supabase
-      .from("filters")
-      .select("id, key, name, kind")
-      .eq("is_featured", true)
-      .eq("is_visible", true)
-      .order("sort_order")
-      .returns<Featured[]>(),
-    supabase.rpc("search_businesses", { p_limit: 6 }),
+    getFreshBusinesses().catch(() => []),
   ]);
-  const businesses = (fresh ?? []) as SearchResult[];
+  const featured: Featured[] = filters.filter((f) => f.is_featured);
 
   return (
     <>
-      <SiteHeader />
       <PageTransition>
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-12 px-4 pb-16 pt-10 sm:pt-16">
           <section className="flex flex-col items-center gap-5 text-center">
@@ -71,7 +61,7 @@ export default async function HomePage() {
                 <li key={f.id}>
                   <Link
                     href={filterHref(f)}
-                    className="pressable focus-ring glass glass-glow inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium"
+                    className="pressable focus-ring glass-lite inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium"
                   >
                     {f.kind === "open_now" && <Clock className="size-3.5 text-success" />}
                     {f.kind === "distance" && <Navigation className="size-3.5 text-brand" />}
@@ -91,8 +81,9 @@ export default async function HomePage() {
                 <li key={c.id} className="animate-rise" style={{ "--i": i + 5 } as CSSProperties}>
                   <Link
                     href={`/${c.slug}`}
+                    prefetch
                     transitionTypes={["nav-forward"]}
-                    className="focus-ring glass glass-glow pressable group flex h-full flex-col items-start gap-4 rounded-[1.75rem] p-5"
+                    className="focus-ring glass-lite glass-glow pressable group flex h-full flex-col items-start gap-4 rounded-[1.75rem] p-5"
                   >
                     <span
                       className={`inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br ${TINTS[i % TINTS.length]}`}

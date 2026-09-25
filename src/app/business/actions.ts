@@ -1,7 +1,8 @@
 "use server";
 
 import type { PostgrestError } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { BUSINESSES_TAG } from "@/lib/catalog";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
@@ -34,6 +35,7 @@ async function ownBusinessOrThrow() {
 }
 
 function revalidate(publicId: number) {
+  revalidateTag(BUSINESSES_TAG, { expire: 0 }); // result cards on the home page
   revalidatePath("/business/edit");
   revalidatePath(`/b/${publicId}`);
 }

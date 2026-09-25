@@ -1,4 +1,3 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
 import type { BusinessView, FeatureValue } from "./types";
 
 export const BUSINESS_COLUMNS =
@@ -26,21 +25,6 @@ export type BusinessRow = Omit<BusinessView, "photos" | "features" | "category">
   photos: (BusinessView["photos"][number] & { sort_order: number; created_at: string })[];
   values: FilterValueRow[];
 };
-
-// Visible, editable filters: booleans and multi-selects that apply to the category.
-export async function loadFilters(supabase: SupabaseClient): Promise<FilterDef[]> {
-  const { data } = await supabase
-    .from("filters")
-    .select("id, name, kind, options, category_filters(category_id)")
-    .eq("is_visible", true)
-    .in("kind", ["boolean", "multi_select"])
-    .order("sort_order")
-    .returns<(Omit<FilterDef, "category_ids"> & { category_filters: { category_id: string }[] })[]>();
-  return (data ?? []).map(({ category_filters, ...f }) => ({
-    ...f,
-    category_ids: category_filters.map((c) => c.category_id),
-  }));
-}
 
 export function filtersForCategory(filters: FilterDef[], categoryId: string) {
   return filters.filter((f) => f.category_ids.length === 0 || f.category_ids.includes(categoryId));

@@ -1,7 +1,8 @@
 "use server";
 
 import type { PostgrestError } from "@supabase/supabase-js";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { BUSINESSES_TAG } from "@/lib/catalog";
 import { requireStaff } from "@/lib/auth/session";
 import type { BusinessStatus } from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/server";
@@ -33,8 +34,8 @@ export async function setBusinessStatus(id: string, status: BusinessStatus, reas
     p_reason: reason?.trim() || null,
   });
   if (error) return dbError(error);
+  revalidateTag(BUSINESSES_TAG, { expire: 0 });
   revalidatePath("/admin/businesses");
-  revalidatePath("/");
   return { ok: MESSAGES[status] };
 }
 
@@ -44,6 +45,7 @@ export async function setBusinessFeatured(id: string, featured: boolean): Promis
   const supabase = await createClient();
   const { error } = await supabase.rpc("admin_set_business_featured", { p_id: id, p_featured: featured });
   if (error) return dbError(error);
+  revalidateTag(BUSINESSES_TAG, { expire: 0 });
   revalidatePath("/admin/businesses");
   return { ok: featured ? "סומן כמומלץ" : "הוסר מהמומלצים" };
 }

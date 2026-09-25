@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PageTransition } from "@/components/page-transition";
 import { SignOutButton } from "@/components/sign-out-button";
-import { SiteHeader } from "@/components/site-header";
 import { Avatar, Badge, buttonClass, Card, FormMessage, SectionTitle } from "@/components/ui";
 import { getStaffContext, requireUser } from "@/lib/auth/session";
 import { mediaUrl } from "@/lib/business/media";
@@ -45,7 +44,6 @@ export default async function AccountPage() {
 
   return (
     <>
-      <SiteHeader />
       <PageTransition>
         <main className="mx-auto flex w-full max-w-2xl flex-col gap-5 px-4 pb-16 pt-8">
           <section className="animate-rise flex items-center gap-4">

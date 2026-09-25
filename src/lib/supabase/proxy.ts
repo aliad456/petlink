@@ -8,6 +8,16 @@ const PROTECTED_PREFIXES = ["/account", "/admin"];
 // visitors away from protected pages. This is only an optimistic check:
 // pages and server actions still verify the user and permissions themselves.
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isProtected = PROTECTED_PREFIXES.some((p) => pathname.startsWith(p));
+
+  // Most visitors aren't signed in: no auth cookie means nothing to refresh,
+  // so skip the Supabase round-trip entirely.
+  const hasSession = request.cookies.getAll().some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+  if (!hasSession) {
+    return isProtected ? redirectToLogin(request) : NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl(), supabasePublishableKey(), {
@@ -34,14 +44,14 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims?.sub);
 
-  const { pathname } = request.nextUrl;
-  if (!signedIn && PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = "";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
-  }
-
+  if (!signedIn && isProtected) return redirectToLogin(request);
   return response;
+}
+
+function redirectToLogin(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.pathname = "/login";
+  url.search = "";
+  url.searchParams.set("next", request.nextUrl.pathname);
+  return NextResponse.redirect(url);
 }

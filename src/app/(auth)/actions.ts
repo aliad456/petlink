@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth/redirect";
@@ -46,6 +47,8 @@ export async function signIn(_: FormState, formData: FormData): Promise<FormStat
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ...authError(error.code), fields };
 
+  // The header (in a shared layout) shows who's signed in.
+  revalidatePath("/", "layout");
   redirect(safeNextPath(formData.get("next")));
 }
 
@@ -75,7 +78,10 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   if (error) return { ...authError(error.code), fields };
 
   // With email confirmation off (local dev) the user is signed in immediately.
-  if (data.session) redirect("/account");
+  if (data.session) {
+    revalidatePath("/", "layout");
+    redirect("/account");
+  }
 
   return { message: "שלחנו לכם מייל לאישור החשבון. לחצו על הקישור כדי להמשיך." };
 }

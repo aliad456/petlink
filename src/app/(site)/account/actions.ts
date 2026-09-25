@@ -31,7 +31,7 @@ export async function updateProfile(
     .eq("id", profile.id);
   if (error) return { error: "השמירה נכשלה. נסו שוב." };
 
-  revalidatePath("/account");
+  revalidatePath("/", "layout"); // the header shows the first name
   return { message: "הפרטים נשמרו" };
 }
 

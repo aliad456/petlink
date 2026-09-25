@@ -1,5 +1,6 @@
 import "server-only";
 import { cache } from "react";
+import { getCatalog } from "@/lib/catalog";
 import { createClient } from "@/lib/supabase/server";
 import { first, PAGE, parseNear, type RawParams } from "./params";
 
@@ -34,27 +35,16 @@ export type SearchResult = {
   total_count: number;
 };
 
-// Reference data for search: visible categories and filters, and the city list.
+// Reference data for search: visible categories and filters, and the city list (cached).
+// If the database is unreachable the page still renders (empty), instead of failing.
 export const loadSearchContext = cache(async () => {
-  const supabase = await createClient();
-  const [{ data: categories }, { data: filters }, { data: cities }] = await Promise.all([
-    supabase.from("categories").select("id, slug, name, icon").eq("is_visible", true).order("sort_order").returns<SearchCategory[]>(),
-    supabase
-      .from("filters")
-      .select("id, key, name, kind, options, category_filters(category_id)")
-      .eq("is_visible", true)
-      .order("sort_order")
-      .returns<(Omit<SearchFilter, "category_ids"> & { category_filters: { category_id: string }[] })[]>(),
-    supabase.from("cities").select("name, aliases, lat, lng").order("name").returns<City[]>(),
-  ]);
-  return {
-    categories: categories ?? [],
-    filters: (filters ?? []).map(({ category_filters, ...f }) => ({
-      ...f,
-      category_ids: category_filters.map((c) => c.category_id),
-    })),
-    cities: cities ?? [],
-  };
+  try {
+    const { categories, filters, cities } = await getCatalog();
+    return { categories, filters, cities };
+  } catch (error) {
+    console.error("catalog unavailable", error);
+    return { categories: [], filters: [], cities: [] };
+  }
 });
 
 export function filtersFor(filters: SearchFilter[], categoryId: string | null) {
