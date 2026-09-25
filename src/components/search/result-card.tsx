@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSyncExternalStore, type CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
+import { FavoriteButton } from "@/components/favorite-button";
 import { cn } from "@/components/ui";
 import { hasAnyHours, openState } from "@/lib/business/hours";
 import { mediaUrl } from "@/lib/business/media";
@@ -22,7 +23,8 @@ function whatsapp(n: string) {
   return `https://wa.me/${d.startsWith("0") ? `972${d.slice(1)}` : d}`;
 }
 
-export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
+// `saved`: in the viewer's favorites (null = signed out, undefined = no heart).
+export function ResultCard({ r, index, saved }: { r: SearchResult; index: number; saved?: boolean | null }) {
   const client = useClient();
   const cover = mediaUrl(r.cover_path);
   const avatar = mediaUrl(r.avatar_path);
@@ -48,6 +50,9 @@ export function ResultCard({ r, index }: { r: SearchResult; index: number }) {
           <div className="bg-kami relative size-full opacity-90">
             <div aria-hidden className="absolute inset-0 bg-white/25 [mask:url(/doodles.svg)_0_0/300px_300px_repeat]" />
           </div>
+        )}
+        {saved !== undefined && (
+          <FavoriteButton businessId={r.id} saved={saved} variant="overlay" className="absolute end-3 top-3 z-10 size-9" />
         )}
         {r.is_featured && (
           <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-400/95 px-2.5 py-1 text-xs font-bold text-amber-950 shadow">

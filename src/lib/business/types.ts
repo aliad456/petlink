@@ -60,6 +60,9 @@ export type BusinessView = {
   /** Average of published reviews (null when there are none). */
   rating_avg?: number | null;
   review_count?: number;
+  /** Running deal ("מבצע") and its last day (YYYY-MM-DD). */
+  deal_text?: string | null;
+  deal_until?: string | null;
   name: string;
   tagline: string | null;
   bio: string | null;

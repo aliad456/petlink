@@ -1,7 +1,8 @@
-import { ExternalLink, Pencil, ShieldCheck, Store } from "lucide-react";
+import { ExternalLink, Heart, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CategoryIcon } from "@/components/category-icon";
 import { PageTransition } from "@/components/page-transition";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar, Badge, buttonClass, Card, FormMessage, SectionTitle } from "@/components/ui";
@@ -23,6 +24,15 @@ const BUSINESS_STATUS = {
   removed: { label: "הוסר", tone: "danger" },
 } as const;
 
+type SavedBusiness = {
+  id: string;
+  public_id: number;
+  name: string;
+  city: string | null;
+  avatar_path: string | null;
+  category: { name: string; icon: string | null } | null;
+};
+
 const ACCOUNT_TYPE_LABEL = {
   pet_owner: "בעל/ת חיית מחמד",
   business_owner: "בעל/ת עסק",
@@ -31,7 +41,7 @@ const ACCOUNT_TYPE_LABEL = {
 export default async function AccountPage() {
   const profile = await requireUser();
   const supabase = await createClient();
-  const [staff, business, { data: messages }, { data: consent }] = await Promise.all([
+  const [staff, business, { data: messages }, { data: consent }, { data: saved }] = await Promise.all([
     getStaffContext(),
     profile.account_type === "business_owner" ? getOwnBusiness() : null,
     supabase
@@ -42,7 +52,14 @@ export default async function AccountPage() {
       .limit(20)
       .returns<Message[]>(),
     supabase.from("profiles").select("marketing_consent").eq("id", profile.id).single<{ marketing_consent: boolean }>(),
+    supabase
+      .from("favorites")
+      .select("business:businesses(id, public_id, name, city, avatar_path, category:categories(name, icon))")
+      .order("created_at", { ascending: false })
+      .limit(50)
+      .returns<{ business: SavedBusiness | null }[]>(),
   ]);
+  const savedBusinesses = (saved ?? []).map((r) => r.business).filter((b): b is SavedBusiness => !!b);
 
   return (
     <>
@@ -107,6 +124,49 @@ export default async function AccountPage() {
                 </Link>
               </Card>
             ))}
+
+          <Card className="animate-rise flex flex-col gap-4" style={{ "--i": 2 } as CSSProperties}>
+            <SectionTitle>העסקים ששמרתי</SectionTitle>
+            {savedBusinesses.length === 0 ? (
+              <p className="flex items-center gap-2 text-sm text-muted">
+                <Heart className="size-4" />
+                לחצו על הלב בעמוד של עסק כדי לשמור אותו כאן.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {savedBusinesses.map((b) => {
+                  const avatar = mediaUrl(b.avatar_path);
+                  return (
+                    <li key={b.id}>
+                      <Link
+                        href={`/b/${b.public_id}`}
+                        transitionTypes={["nav-forward"]}
+                        className="pressable focus-ring flex items-center gap-3 rounded-2xl p-2 hover:bg-[var(--glass-bg)]"
+                      >
+                        <span className="relative size-11 shrink-0 overflow-hidden rounded-xl bg-kami text-white">
+                          {avatar ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- small thumbnail
+                            <img src={avatar} alt="" className="size-full object-cover" />
+                          ) : (
+                            <span className="flex size-full items-center justify-center">
+                              <CategoryIcon name={b.category?.icon ?? null} className="size-5" />
+                            </span>
+                          )}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold">{b.name}</span>
+                          <span className="block truncate text-sm text-muted">
+                            {[b.category?.name, b.city].filter(Boolean).join(" · ")}
+                          </span>
+                        </span>
+                        <Heart className="size-4 shrink-0 fill-rose-500 text-rose-500" />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Card>
 
           <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 2 } as CSSProperties}>
             <SectionTitle>פרטים אישיים</SectionTitle>

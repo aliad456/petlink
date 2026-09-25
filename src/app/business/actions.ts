@@ -22,6 +22,7 @@ function dbError(error: PostgrestError): Result {
   if (error.hint === "profanity" || error.message.startsWith("profanity")) {
     return { error: "נמצאה מילה לא מתאימה באחד השדות. נסו לנסח אחרת." };
   }
+  if (error.hint === "deal_until") return { error: "המבצע יכול לרוץ עד 60 יום קדימה. בחרו תאריך סיום קרוב יותר." };
   if (error.hint === "gallery_limit") return { error: "הגעתם למקסימום 12 תמונות בגלריה." };
   if (error.code === "42501") return { error: "אין הרשאה לבצע את הפעולה. אם העמוד הושהה, פנו לשירות הלקוחות." };
   return { error: "השמירה נכשלה. נסו שוב." };
@@ -117,6 +118,12 @@ const saveSchema = z.object({
       }),
     )
     .max(40, "עד 40 שורות במחירון"),
+  deal_text: optionalText(80),
+  deal_until: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .or(z.literal(""))
+    .transform((v) => v || null),
   design: z.object({
     mode: z.enum(["default", "personal"]),
     accent: z.enum(Object.keys(ACCENTS) as [keyof typeof ACCENTS, ...(keyof typeof ACCENTS)[]]).optional(),
@@ -136,6 +143,7 @@ export async function saveBusiness(input: SaveInput): Promise<Result> {
   const parsed = saveSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const { filter_values, ...fields } = parsed.data;
+  if (fields.deal_text && !fields.deal_until) return { error: "למבצע צריך תאריך סיום" };
 
   const supabase = await createClient();
   const { error } = await supabase.from("businesses").update(fields).eq("id", business.id);

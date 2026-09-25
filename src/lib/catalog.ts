@@ -8,7 +8,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 
 export const CATALOG_TAG = "catalog";
 
-export type CatalogCategory = { id: string; slug: string; name: string; icon: string | null };
+export type CatalogCategory = { id: string; slug: string; name: string; icon: string | null; is_emergency: boolean };
 export type CatalogFilter = {
   id: string;
   key: string;
@@ -24,7 +24,7 @@ export const getCatalog = unstable_cache(
   async () => {
     const supabase = createPublicClient();
     const [categories, filters, cities] = await Promise.all([
-      supabase.from("categories").select("id, slug, name, icon").eq("is_visible", true).order("sort_order"),
+      supabase.from("categories").select("id, slug, name, icon, is_emergency").eq("is_visible", true).order("sort_order"),
       supabase
         .from("filters")
         .select("id, key, name, kind, options, is_featured, category_filters(category_id)")
@@ -43,7 +43,7 @@ export const getCatalog = unstable_cache(
       cities: (cities.data ?? []) as CatalogCity[],
     };
   },
-  ["catalog-v1"],
+  ["catalog-v2"],
   { tags: [CATALOG_TAG], revalidate: 3600 },
 );
 

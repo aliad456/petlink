@@ -1,7 +1,7 @@
 import type { BusinessView, FeatureValue } from "./types";
 
 export const BUSINESS_COLUMNS =
-  "id, public_id, owner_id, category_id, status, rating_avg, review_count, status_reason, is_featured, name, tagline, bio, phone, whatsapp, email, website, instagram, facebook, tiktok, city, address, service_area, years_experience, animals_served, languages, certifications, hours, open_on_holidays, price_list, avatar_path, cover_path, design, plan, pro_waitlist_at, submitted_at, created_at, category:categories(id, name, icon), photos:business_photos(id, path, caption, sort_order, created_at), values:business_filter_values(filter_id, bool_value, option_values)";
+  "id, public_id, owner_id, category_id, status, rating_avg, review_count, deal_text, deal_until, status_reason, is_featured, name, tagline, bio, phone, whatsapp, email, website, instagram, facebook, tiktok, city, address, service_area, years_experience, animals_served, languages, certifications, hours, open_on_holidays, price_list, avatar_path, cover_path, design, plan, pro_waitlist_at, submitted_at, created_at, category:categories(id, name, icon), photos:business_photos(id, path, caption, sort_order, created_at), values:business_filter_values(filter_id, bool_value, option_values)";
 
 export type FilterDef = {
   id: string;
