@@ -15,6 +15,9 @@ export function SiteFooter() {
             <BetaTag />
           </div>
           <nav aria-label="מידע משפטי" className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/plans" className="focus-ring rounded font-medium text-foreground hover:text-brand">
+              תוכניות לעסקים
+            </Link>
             {LEGAL_LINKS.map((l) => (
               <Link key={l.href} href={l.href} className="focus-ring rounded hover:text-foreground">
                 {l.label}
