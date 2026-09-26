@@ -1,3 +1,4 @@
+import { MaintenanceGate } from "@/components/maintenance";
 import type { Metadata } from "next";
 import { SearchView } from "@/components/search/search-view";
 import { getActiveAds } from "@/lib/ads";
@@ -14,5 +15,9 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
     getActiveAds("search"),
     getFavoriteIds(),
   ]);
-  return <SearchView state={state} params={params} basePath="/search" inlineAds={inlineAds} favoriteIds={favoriteIds} />;
+  return (
+    <MaintenanceGate path="/search">
+      <SearchView state={state} params={params} basePath="/search" inlineAds={inlineAds} favoriteIds={favoriteIds} />
+    </MaintenanceGate>
+  );
 }

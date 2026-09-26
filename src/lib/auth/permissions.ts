@@ -23,6 +23,7 @@ export const PERMISSIONS = [
   "subscriptions.view",
   "coupons.manage",
   "inbox.manage",
+  "site.maintenance",
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];

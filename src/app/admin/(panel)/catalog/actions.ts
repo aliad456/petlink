@@ -2,7 +2,8 @@
 
 import type { PostgrestError } from "@supabase/supabase-js";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { CATALOG_TAG } from "@/lib/catalog";
+import { CATALOG_TAG, getCatalog } from "@/lib/catalog";
+import { MAINTAINABLE_PAGES, MAINTENANCE_TAG } from "@/lib/maintenance";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth/session";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
@@ -156,4 +157,19 @@ export async function reorderFilters(ids: string[]): Promise<ActionResult> {
   const { error } = await supabase.rpc("admin_reorder_filters", { p_ids: ids });
   if (error) return dbError(error);
   return done("הסדר עודכן");
+}
+
+// Maintenance mode for a public page (see src/lib/maintenance.ts). Authorized
+// and audited by admin_set_page_maintenance (permission site.maintenance).
+export async function setPageMaintenance(path: string, enabled: boolean): Promise<ActionResult> {
+  await requirePermission("site.maintenance");
+  const { categories } = await getCatalog();
+  const known = [...MAINTAINABLE_PAGES.map((p) => p.path), ...categories.map((c) => `/${c.slug}`)];
+  if (!known.includes(path)) return { error: "דף לא מוכר" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_set_page_maintenance", { p_path: path, p_enabled: enabled });
+  if (error) return { error: error.code === "42501" ? "אין לך הרשאה למצב תחזוקה." : "השמירה נכשלה. נסו שוב." };
+  revalidateTag(MAINTENANCE_TAG, { expire: 0 });
+  revalidatePath("/admin/catalog");
+  return { ok: enabled ? "הדף במצב תחזוקה. גולשים רואים \"בקרוב חוזרים\"." : "הדף פתוח שוב לכולם" };
 }
