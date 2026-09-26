@@ -32,9 +32,10 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/admin/inbox", label: "פניות", icon: "inbox", anyOf: ["inbox.manage"] },
   { href: "/admin/reviews", label: "ביקורות", icon: "star", anyOf: ["reviews.moderate"] },
   { href: "/admin/catalog", label: "קטגוריות ופילטרים", icon: "tags", anyOf: ["catalog.manage"] },
-  { href: "/admin/adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["adoption.manage"], soon: true },
+  // Adoption-day posters are ads in the "adoption" placement: a shortcut into the ads calendar.
+  { href: "/admin/banners?p=adoption", label: "ימי אימוץ", icon: "heart", anyOf: ["banners.manage", "banners.reports"] },
   { href: "/admin/banners", label: "מודעות", icon: "megaphone", anyOf: ["banners.manage", "banners.reports"] },
   { href: "/admin/billing", label: "מנויים ותשלומים", icon: "wallet", anyOf: ["subscriptions.view", "coupons.manage"], soon: true },
-  { href: "/admin/audit", label: "יומן פעולות", icon: "history", anyOf: ["audit.view"], soon: true },
+  { href: "/admin/audit", label: "יומן פעולות", icon: "history", anyOf: ["audit.view"] },
   { href: "/admin/staff", label: "מנהלים והרשאות", icon: "shield", anyOf: null, soon: true },
 ];

@@ -2,7 +2,7 @@
 
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
 import { signUp, type FormState } from "../actions";
 
@@ -14,6 +14,11 @@ export function SignupForm({
   next?: string;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signUp, {});
+  const errorRef = useRef<HTMLDivElement>(null);
+  // On a phone the message sits below the fold: bring it into view.
+  useEffect(() => {
+    if (state.error) errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [state]);
 
   if (state.message) {
     return (
@@ -85,7 +90,7 @@ export function SignupForm({
       </Label>
       <div className="flex flex-col gap-3">
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
-          <input type="checkbox" name="terms" required className="mt-0.5 size-4 shrink-0 accent-[var(--brand)]" />
+          <input type="checkbox" name="terms" required defaultChecked={state.fields?.terms === "on"} className="mt-0.5 size-4 shrink-0 accent-[var(--brand)]" />
           <span>
             קראתי ואני מסכים/ה ל
             <Link href="/terms" target="_blank" className="font-medium text-brand-strong underline underline-offset-2 dark:text-brand">
@@ -99,11 +104,15 @@ export function SignupForm({
           </span>
         </label>
         <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
-          <input type="checkbox" name="marketing" className="mt-0.5 size-4 shrink-0 accent-[var(--brand)]" />
+          <input type="checkbox" name="marketing" defaultChecked={state.fields?.marketing === "on"} className="mt-0.5 size-4 shrink-0 accent-[var(--brand)]" />
           <span>אשמח לקבל עדכונים, טיפים והטבות במייל (לא חובה, אפשר לבטל בכל רגע)</span>
         </label>
       </div>
-      <FormMessage error={state.error} />
+      {state.error && (
+        <div ref={errorRef}>
+          <FormMessage error={state.error} />
+        </div>
+      )}
       <Button type="submit" size="lg" loading={pending}>
         יצירת חשבון
       </Button>

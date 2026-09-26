@@ -28,10 +28,21 @@ const AUTH_ERRORS: Record<string, string> = {
   over_email_send_rate_limit: "נשלחו יותר מדי מיילים. נסו שוב בעוד כמה דקות.",
   over_request_rate_limit: "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
   user_banned: "החשבון נעול או חסום. לפרטים פנו לשירות הלקוחות.",
+  // The email provider refused to send (e.g. Supabase's built-in mailer only sends to the team).
+  email_address_not_authorized: "לא הצלחנו לשלוח מייל אישור לכתובת הזו. נסו שוב מאוחר יותר או כתבו לנו דרך עמוד צור קשר.",
+  email_address_invalid: "כתובת המייל לא תקינה.",
+  signup_disabled: "ההרשמה סגורה כרגע. נסו שוב מאוחר יותר.",
 };
 
-function authError(code: string | undefined): FormState {
-  return { error: (code && AUTH_ERRORS[code]) || "משהו השתבש. נסו שוב." };
+function authError(error: { code?: string; message?: string; status?: number } | null | undefined): FormState {
+  const code = error?.code;
+  if (code && AUTH_ERRORS[code]) return { error: AUTH_ERRORS[code] };
+  // Unknown failures are logged (visible in Vercel → Logs) so they can be diagnosed.
+  console.error("auth error", error?.status, code, error?.message);
+  if (error?.message?.toLowerCase().includes("sending")) {
+    return { error: "לא הצלחנו לשלוח את מייל האישור. נסו שוב בעוד כמה דקות." };
+  }
+  return { error: "משהו השתבש. נסו שוב." };
 }
 
 const email = z.email("כתובת מייל לא תקינה").trim().toLowerCase();
@@ -46,7 +57,7 @@ export async function signIn(_: FormState, formData: FormData): Promise<FormStat
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { ...authError(error.code), fields };
+  if (error) return { ...authError(error), fields };
 
   // The header (in a shared layout) shows who's signed in.
   revalidatePath("/", "layout");
@@ -63,7 +74,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
       terms: z.literal("on", { error: "יש לאשר את תנאי השימוש ומדיניות הפרטיות" }),
     })
     .safeParse(Object.fromEntries(formData));
-  const fields = echo(formData, "full_name", "email", "account_type");
+  const fields = echo(formData, "full_name", "email", "account_type", "terms", "marketing");
   if (!parsed.success) return { error: parsed.error.issues[0].message, fields };
 
   const { full_name, account_type } = parsed.data;
@@ -81,7 +92,7 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
-  if (error) return { ...authError(error.code), fields };
+  if (error) return { ...authError(error), fields };
 
   // With email confirmation off (local dev) the user is signed in immediately.
   if (data.session) {
@@ -103,7 +114,7 @@ export async function requestPasswordReset(
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
     redirectTo: `${siteUrl()}/auth/callback?next=/reset-password`,
   });
-  if (error?.code?.startsWith("over_")) return authError(error.code);
+  if (error?.code?.startsWith("over_")) return authError(error);
 
   // Same answer whether or not the address exists, so accounts can't be probed.
   return { message: "אם קיים חשבון עם המייל הזה, שלחנו אליו קישור לאיפוס סיסמה." };
@@ -119,7 +130,7 @@ export async function updatePassword(
 
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password: parsed.data });
-  if (error) return authError(error.code);
+  if (error) return authError(error);
 
   redirect("/account");
 }
