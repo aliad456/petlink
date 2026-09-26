@@ -11,7 +11,8 @@ Logo assets: `public/brand/` (cut from the owner's artwork), favicon/app icons i
 Hebrew-only (RTL), mobile-first directory of pet services in Israel. Read
 `docs/SPEC.md` (product spec, Hebrew) before building a feature — items marked
 **[פתוח]** are undecided and must be confirmed with the owner first.
-Stack rationale: `docs/STACK.md`. **Current status, next steps and decisions:
+Stack rationale: `docs/STACK.md`. **Marketing rules and lessons: `docs/MARKETING.md`** — before recommending any
+paid promotion, give the owner an honest pre-spend review first (the budget is very small). **Current status, next steps and decisions:
 `docs/ROADMAP.md`** — read it first and update it when a stage finishes.
 
 ## Stack
