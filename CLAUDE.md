@@ -76,6 +76,8 @@ paid promotion, give the owner an honest pre-spend review first (the budget is v
 - Work on the session's branch; after every push make sure an open PR exists
   (a merged PR can't take new commits — open a new one) and send the owner its link.
 - A PR that adds a migration must say so: the owner runs it in Supabase → SQL Editor before merging.
+  The owner often pastes from a phone, and long pastes get cut off. Send the SQL split into parts of
+  at most ~70 lines, each idempotent, ending with `-- סוף חלק N`, and tell them to run the parts in order.
 
 ## Commands
 - `npm run db:start` — local Supabase (Docker); applies migrations.
