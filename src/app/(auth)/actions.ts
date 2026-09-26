@@ -27,7 +27,7 @@ const AUTH_ERRORS: Record<string, string> = {
   same_password: "הסיסמה החדשה זהה לישנה.",
   over_email_send_rate_limit: "נשלחו יותר מדי מיילים. נסו שוב בעוד כמה דקות.",
   over_request_rate_limit: "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.",
-  user_banned: "החשבון נעול או חסום. לפרטים פנו לשירות הלקוחות.",
+  user_banned: "החשבון נעול או חסום. נעילה זמנית משתחררת לבד בסוף הזמן; לפרטים פנו אלינו דרך עמוד צור קשר.",
   // The email provider refused to send (e.g. Supabase's built-in mailer only sends to the team).
   email_address_not_authorized: "לא הצלחנו לשלוח מייל אישור לכתובת הזו. נסו שוב מאוחר יותר או כתבו לנו דרך עמוד צור קשר.",
   email_address_invalid: "כתובת המייל לא תקינה.",

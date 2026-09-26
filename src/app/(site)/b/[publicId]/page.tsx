@@ -36,11 +36,14 @@ export async function generateMetadata({ params }: PageProps<"/b/[publicId]">): 
   const result = await load((await params).publicId);
   if (!result) return { title: "העסק לא נמצא" };
   const { view } = result;
-  const description =
-    view.tagline || view.bio?.slice(0, 160) || `${view.category.name}${view.city ? ` ב${view.city}` : ""}`;
+  const where = `${view.category.name}${view.city ? ` ב${view.city}` : ""}`;
+  const intro = (view.tagline || view.bio || "").replace(/\s+/g, " ").trim();
+  const description = `${intro ? `${intro.slice(0, 110)}${intro.length > 110 ? "…" : ""} · ` : ""}${where}. טלפון, שעות פעילות וביקורות ב-Kami.`;
+  // "שם העסק · וטרינרים בבאר שבע | Kami", so the result says what and where.
+  const title = `${view.name} · ${where}`;
   // The share picture comes from ./opengraph-image.tsx.
   return {
-    title: view.name,
+    title,
     description,
     alternates: { canonical: `/b/${view.public_id}` },
     openGraph: { title: view.name, description, locale: "he_IL", type: "website", siteName: SITE_NAME },
