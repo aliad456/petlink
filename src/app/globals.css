@@ -1,5 +1,17 @@
 @import "tailwindcss";
 
+/* dark: follows the theme choice (html.theme-dark / theme-light), else the device. */
+@custom-variant dark {
+  &:where(.theme-dark, .theme-dark *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not(.theme-light), :root:not(.theme-light) *) {
+      @slot;
+    }
+  }
+}
+
 /* ───────────────────────────────────────────────────────────
    Kami — מערכת עיצוב "Liquid Glass"
    משטחי זכוכית שקופים מעל רקע צבעוני רך, עם תנועה קפיצית.
@@ -45,8 +57,43 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Dark tokens: an explicit choice (html.theme-dark) or the device setting, unless
+   the visitor picked light (html.theme-light). Keep both copies identical. */
+:root.theme-dark {
+  color-scheme: dark;
+
+  --background: #05080b;
+  --foreground: #eef4f6;
+  --muted: #8fa1a9;
+  --border: rgb(255 255 255 / 0.08);
+
+  --brand: #22d3ee;
+  --brand-strong: #60a5fa;
+  --brand-foreground: #06243a;
+  --danger: #fb7185;
+  --warning: #fbbf24;
+  --success: #34d399;
+
+  --chart-1: #0ea5c0;
+  --chart-2: #8b5cf6;
+
+  --glass-bg: rgb(255 255 255 / 0.06);
+  --glass-bg-strong: rgb(255 255 255 / 0.1);
+  --glass-border: rgb(255 255 255 / 0.12);
+  --glass-highlight: rgb(255 255 255 / 0.22);
+  --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
+  --glass-glow: rgb(255 255 255 / 0.12);
+  --glass-lite-bg: rgb(22 28 34 / 0.78);
+
+  --blob-1: rgb(6 182 212 / 0.26);
+  --blob-2: rgb(59 130 246 / 0.22);
+  --blob-3: rgb(34 197 94 / 0.12);
+  --blob-4: rgb(139 92 246 / 0.2);
+  --doodle: rgb(165 243 252 / 0.07);
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.theme-light) {
     color-scheme: dark;
 
     --background: #05080b;
@@ -472,8 +519,9 @@ dialog.sheet[open]::backdrop {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.theme-dark .legal-prose a { color: var(--brand); }
 @media (prefers-color-scheme: dark) {
-  .legal-prose a { color: var(--brand); }
+  :root:not(.theme-light) .legal-prose a { color: var(--brand); }
 }
 .legal-prose strong { font-weight: 600; }
 .legal-prose h3 { font-weight: 700; margin-top: 0.5rem; }
@@ -513,8 +561,21 @@ html.a11y-contrast {
   --doodle: transparent;
 }
 html.a11y-contrast body { background: #ffffff; }
+html.theme-dark.a11y-contrast {
+  --foreground: #ffffff;
+  --muted: #e5e7eb;
+  --border: rgb(255 255 255 / 0.6);
+  --glass-bg: #000000;
+  --glass-bg-strong: #000000;
+  --glass-lite-bg: #000000;
+  --glass-border: #ffffff;
+  --brand: #7dd3fc;
+  --brand-strong: #7dd3fc;
+  --doodle: transparent;
+}
+html.theme-dark.a11y-contrast body { background: #000000; }
 @media (prefers-color-scheme: dark) {
-  html.a11y-contrast {
+  html.a11y-contrast:not(.theme-light) {
     --foreground: #ffffff;
     --muted: #e5e7eb;
     --border: rgb(255 255 255 / 0.6);
@@ -524,8 +585,9 @@ html.a11y-contrast body { background: #ffffff; }
     --glass-border: #ffffff;
     --brand: #7dd3fc;
     --brand-strong: #7dd3fc;
+    --doodle: transparent;
   }
-  html.a11y-contrast body { background: #000000; }
+  html.a11y-contrast:not(.theme-light) body { background: #000000; }
 }
 html.a11y-contrast .glass,
 html.a11y-contrast .glass-lite,
