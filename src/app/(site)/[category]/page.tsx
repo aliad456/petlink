@@ -1,3 +1,4 @@
+import { MaintenanceGate } from "@/components/maintenance";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SearchView } from "@/components/search/search-view";
@@ -59,7 +60,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
       : []),
   ];
   return (
-    <>
+    <MaintenanceGate path={`/${category.slug}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd(crumbs) }} />
       {state.results.length > 0 && (
         <script
@@ -78,6 +79,6 @@ export default async function CategoryPage({ params, searchParams }: PageProps<"
         favoriteIds={favoriteIds}
         gallery={gallery}
       />
-    </>
+    </MaintenanceGate>
   );
 }

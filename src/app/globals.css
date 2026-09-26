@@ -311,6 +311,17 @@ body::after {
 }
 
 /* שלד טעינה: משטח שמנצנץ בזמן שהתוכן בדרך */
+/* Maintenance crew (src/components/maintenance.tsx): tool wiggle, hard-hat bob. */
+@keyframes kami-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-12deg); }
+}
+
+@keyframes kami-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
 @keyframes shimmer {
   to {
     background-position: -200% 0;

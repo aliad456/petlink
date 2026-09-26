@@ -101,6 +101,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/admin/audi
       const u = userById.get(r.target_id);
       return { label: u?.full_name || u?.email || "משתמש", href: `/admin/users/${r.target_id}` };
     }
+    if (r.target_type === "page" && r.target_id) return { label: r.target_id, href: "/admin/catalog?tab=maintenance" };
     return null;
   };
 

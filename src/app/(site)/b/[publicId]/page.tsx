@@ -1,3 +1,4 @@
+import { MaintenanceGate } from "@/components/maintenance";
 import { BadgeCheck, Eye, Info, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -100,7 +101,7 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
   const reviews = (reviewRows ?? []).map(toPublic);
 
   return (
-    <>
+    <MaintenanceGate path="/b/*">
       <PageTransition>
         <main className="flex flex-1 flex-col pb-16">
           {(row.status !== "approved" || isOwner) && (
@@ -189,6 +190,6 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           />
         </main>
       </PageTransition>
-    </>
+    </MaintenanceGate>
   );
 }

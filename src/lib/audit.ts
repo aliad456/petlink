@@ -18,11 +18,13 @@ export const GROUP_PREFIXES: Record<AuditGroup, string[]> = {
   user: ["user.", "owner."],
   review: ["review."],
   ads: ["ads."],
-  catalog: ["category.", "filter."],
+  catalog: ["category.", "filter.", "page."],
   contact: ["contact."],
 };
 
 const LABELS: Record<string, string> = {
+  "page.maintenance_on": "סגר דף לתחזוקה",
+  "page.maintenance_off": "פתח דף מתחזוקה",
   "owner.bootstrap": "הוגדר בעלים לאתר",
   "business.approved": "אישר עסק",
   "business.suspended": "השהה עסק",
