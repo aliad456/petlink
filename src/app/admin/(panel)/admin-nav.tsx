@@ -16,7 +16,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/components/ui";
 import type { NavIcon, NavItem } from "./nav";
 
@@ -37,8 +37,19 @@ const ICONS: Record<NavIcon, LucideIcon> = {
 
 export function AdminNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const isActive = (href: string) =>
-    href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+  const search = useSearchParams();
+  // An item whose href has a query (?p=adoption) is active only when that query matches;
+  // a plain item on the same path then steps aside.
+  const queryMatches = (href: string) => {
+    const [path, query] = href.split("?");
+    if (!pathname.startsWith(path)) return false;
+    return [...new URLSearchParams(query)].every(([k, v]) => search.get(k) === v);
+  };
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    if (href.includes("?")) return queryMatches(href);
+    return pathname.startsWith(href) && !items.some((i) => i.href.startsWith(`${href}?`) && queryMatches(i.href));
+  };
 
   return (
     <nav className="flex gap-1 overflow-x-auto px-2 pb-2 [scrollbar-width:none] md:flex-col md:overflow-visible md:px-3 md:pb-3">
