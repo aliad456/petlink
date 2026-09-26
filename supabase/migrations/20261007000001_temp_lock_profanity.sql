@@ -140,35 +140,39 @@ as $$
     '[01!|oil@*]+(?=[א-ת])', p_letter, 'g');
 $$;
 
+-- הטקסט נבדק בכמה גרסאות (רגיל, ספרות→ו, ספרות→י, בלי סימנים). מילים תקינות
+-- שמכילות מילה אסורה ("מזונה של החתולה", "מזונות") מוצאות מהבדיקה.
 create or replace function public.find_profanity(p_text text)
 returns text[]
-language sql
+language plpgsql
 stable
 security definer
 set search_path = ''
-as $$
-  with raw as (
-    select public.normalize_for_profanity(p_text) as v
-    union
-    select public.normalize_for_profanity(public.hebraize_lookalikes(p_text, 'ו'))
-    union
-    select public.normalize_for_profanity(public.hebraize_lookalikes(p_text, 'י'))
-    union
-    select public.normalize_for_profanity(public.hebraize_lookalikes(p_text, ''))
-  ),
-  -- מילים תקינות שמכילות מילה אסורה ("מזונה של החתולה", "מזונות") יוצאות מהבדיקה.
-  variants as (
-    select regexp_replace(v, '(^| )[הובלשכ]{0,2}(מזונה|מזונות|מזונמ|מזונכמ)(?= |$)', ' ', 'g') as v from raw
-  )
-  select coalesce(array_agg(distinct t.term), '{}')
+as $fn$
+declare
+  v_variants text[] := array[
+    public.normalize_for_profanity(p_text),
+    public.normalize_for_profanity(public.hebraize_lookalikes(p_text, 'ו')),
+    public.normalize_for_profanity(public.hebraize_lookalikes(p_text, 'י')),
+    public.normalize_for_profanity(public.hebraize_lookalikes(p_text, ''))
+  ];
+  v_found text[];
+  i       int;
+begin
+  for i in 1 .. cardinality(v_variants) loop
+    v_variants[i] := regexp_replace(v_variants[i],
+      '(^| )[הובלשכ]{0,2}(מזונה|מזונות|מזונמ|מזונכמ)(?= |$)', ' ', 'g');
+  end loop;
+
+  select coalesce(array_agg(distinct t.term), '{}') into v_found
   from public.banned_terms t
   where exists (
-    select 1 from variants
-    where variants.v ~ (
-      '(^| )' || case when t.allow_prefix then '[הובלמשכ]{0,2}' else '' end || t.term || '( |$)'
-    )
+    select 1 from unnest(v_variants) as x(v)
+    where x.v ~ ('(^| )' || case when t.allow_prefix then '[הובלמשכ]{0,2}' else '' end || t.term || '( |$)')
   );
-$$;
+  return v_found;
+end;
+$fn$;
 
 grant execute on function public.hebraize_lookalikes(text, text) to anon, authenticated;
 
