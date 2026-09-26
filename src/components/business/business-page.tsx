@@ -26,7 +26,7 @@ import { CategoryIcon } from "@/components/category-icon";
 import { FavoriteButton } from "@/components/favorite-button";
 import { toast } from "@/components/toast";
 import { cn } from "@/components/ui";
-import { DAY_NAMES, hasAnyHours, israelNow, openState } from "@/lib/business/hours";
+import { DAY_NAMES, hasAnyHours, isClosingSoon, israelNow, openLabel, openState } from "@/lib/business/hours";
 import { mediaUrl } from "@/lib/business/media";
 import { resolveDesign, type BusinessView, type SectionId } from "@/lib/business/types";
 import { reviewsLabel } from "@/lib/reviews/types";
@@ -243,17 +243,15 @@ function OpenBadge({ business }: { business: BusinessView }) {
     <span
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold",
-        state.open
-          ? "bg-[color-mix(in_oklab,var(--success)_15%,transparent)] text-success"
-          : "bg-[color-mix(in_oklab,var(--muted)_14%,transparent)] text-muted",
+        isClosingSoon(state)
+          ? "bg-[color-mix(in_oklab,var(--warning)_18%,transparent)] text-warning"
+          : state.open
+            ? "bg-[color-mix(in_oklab,var(--success)_15%,transparent)] text-success"
+            : "bg-[color-mix(in_oklab,var(--muted)_14%,transparent)] text-muted",
       )}
     >
       <span className="size-2 rounded-full bg-current shadow-[0_0_8px_currentColor]" />
-      {state.open
-        ? `פתוח עכשיו · עד ${state.closesAt}`
-        : state.opensAt
-          ? `סגור · נפתח ${state.opensDay === now.day ? "היום" : `ביום ${DAY_NAMES[state.opensDay!]}`} ב-${state.opensAt}`
-          : "סגור"}
+      {openLabel(state, now)}
     </span>
   );
 }
