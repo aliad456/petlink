@@ -7,7 +7,7 @@ import { useSyncExternalStore, type CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { FavoriteButton } from "@/components/favorite-button";
 import { cn } from "@/components/ui";
-import { hasAnyHours, openState } from "@/lib/business/hours";
+import { hasAnyHours, isClosingSoon, openLabel, openState } from "@/lib/business/hours";
 import { mediaUrl } from "@/lib/business/media";
 import type { SearchResult } from "@/lib/search/load";
 
@@ -77,13 +77,15 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
             <span
               className={cn(
                 "mb-1 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold",
-                state.open
-                  ? "bg-[color-mix(in_oklab,var(--success)_15%,transparent)] text-success"
-                  : "bg-[color-mix(in_oklab,var(--muted)_14%,transparent)] text-muted",
+                isClosingSoon(state)
+                  ? "bg-[color-mix(in_oklab,var(--warning)_18%,transparent)] text-warning"
+                  : state.open
+                    ? "bg-[color-mix(in_oklab,var(--success)_15%,transparent)] text-success"
+                    : "bg-[color-mix(in_oklab,var(--muted)_14%,transparent)] text-muted",
               )}
             >
               <span className="size-1.5 rounded-full bg-current" />
-              {state.open ? `פתוח · עד ${state.closesAt}` : "סגור עכשיו"}
+              {openLabel(state, undefined, true)}
             </span>
           )}
         </div>

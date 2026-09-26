@@ -23,7 +23,8 @@ const toMinutes = (hhmm: string) => {
 };
 
 export type OpenState =
-  | { open: true; closesAt: string }
+  // closesIn: minutes until closing (null when it runs on into the next day).
+  | { open: true; closesAt: string; closesIn: number | null; always: boolean }
   | { open: false; opensAt: string | null; opensDay: number | null };
 
 export function openState(hours: Hours, now = israelNow()): OpenState {
@@ -32,7 +33,14 @@ export function openState(hours: Hours, now = israelNow()): OpenState {
     const start = toMinutes(from);
     let end = toMinutes(to);
     if (end <= start) end += 24 * 60; // closes after midnight
-    if (now.minutes >= start && now.minutes < end) return { open: true, closesAt: to };
+    if (now.minutes >= start && now.minutes < end) {
+      const tomorrow = hours[String((now.day + 1) % 7) as keyof Hours] ?? [];
+      const continues = end >= toMinutes("23:59") && tomorrow.some(([f]) => toMinutes(f) === 0);
+      const always = [0, 1, 2, 3, 4, 5, 6].every((d) =>
+        (hours[String(d) as keyof Hours] ?? []).some(([f, t]) => toMinutes(f) === 0 && toMinutes(t) >= toMinutes("23:59")),
+      );
+      return { open: true, closesAt: to, closesIn: continues ? null : end - now.minutes, always };
+    }
   }
   // Next opening: later today, then the following days.
   for (let offset = 0; offset < 7; offset++) {
@@ -47,4 +55,32 @@ export function openState(hours: Hours, now = israelNow()): OpenState {
 
 export function hasAnyHours(hours: Hours) {
   return Object.values(hours).some((r) => r && r.length > 0);
+}
+
+// Closing within the hour: shown as a warning ("נסגר בעוד 25 דק׳").
+export const CLOSING_SOON_MINUTES = 60;
+
+export function isClosingSoon(state: OpenState) {
+  return state.open && state.closesIn !== null && state.closesIn <= CLOSING_SOON_MINUTES;
+}
+
+// "פתוח · עד 19:00" · "נסגר בעוד 25 דק׳" · "סגור · נפתח מחר ב-09:00".
+// short: the result cards (no "עכשיו", and only the day name further ahead).
+export function openLabel(state: OpenState, now = israelNow(), short = false) {
+  if (state.open) {
+    if (state.always) return "פתוח 24/7";
+    if (isClosingSoon(state)) return `נסגר בעוד ${Math.max(1, state.closesIn!)} דק׳`;
+    const open = short ? "פתוח" : "פתוח עכשיו";
+    return state.closesIn === null ? open : `${open} · עד ${state.closesAt}`;
+  }
+  if (!state.opensAt || state.opensDay === null) return short ? "סגור עכשיו" : "סגור";
+  const when =
+    state.opensDay === now.day
+      ? `היום ב-${state.opensAt}`
+      : state.opensDay === (now.day + 1) % 7
+        ? `מחר ב-${state.opensAt}`
+        : short
+          ? `ביום ${DAY_NAMES[state.opensDay]}`
+          : `ביום ${DAY_NAMES[state.opensDay]} ב-${state.opensAt}`;
+  return `סגור · נפתח ${when}`;
 }
