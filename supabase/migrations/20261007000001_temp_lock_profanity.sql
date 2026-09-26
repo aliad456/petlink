@@ -1,5 +1,7 @@
 -- Kami — נעילה זמנית של משתמשים + חיזוק סינון המילים
 --
+-- אפשר להריץ את הקובץ כמה פעמים (בטוח להריץ שוב אחרי שגיאה).
+--
 -- 1. נעילה לזמן מוגבל (למשל 48 שעות אחרי ביקורת פוגענית שהוסרה). locked_until
 --    נשמר בפרופיל, Auth חוסם את ההתחברות לאותו זמן, ומשימה מתוזמנת (pg_cron)
 --    משחררת את הנעילה כשהזמן עובר ורושמת את זה ביומן הפעולות.
@@ -10,13 +12,14 @@
 -- נעילה זמנית
 -- ─────────────────────────────────────────────────────────────
 
-alter table public.profiles add column locked_until timestamptz;
+alter table public.profiles add column if not exists locked_until timestamptz;
 
-drop function public.admin_set_user_status(uuid, public.account_status, text);
+drop function if exists public.admin_set_user_status(uuid, public.account_status, text);
+drop function if exists public.admin_set_user_status(uuid, public.account_status, text, int);
 
 -- p_hours: רק לנעילה. null = עד שחרור ידני.
 -- מחזיר true אם המשתמש צריך להיות חסום להתחברות (השרת מעדכן את Auth בהתאם).
-create function public.admin_set_user_status(
+create or replace function public.admin_set_user_status(
   p_user_id uuid,
   p_status  public.account_status,
   p_reason  text default null,
@@ -84,30 +87,34 @@ grant execute on function public.admin_set_user_status(uuid, public.account_stat
 
 -- משחרר נעילות שהזמן שלהן עבר. רץ כל 5 דקות (למטה). ההתחברות עצמה משתחררת
 -- ב-Auth באותו זמן, כי החסימה שם נקבעה לאותו מספר שעות.
-create function public.release_expired_locks()
+create or replace function public.release_expired_locks()
 returns int
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $fn$
 declare
-  v_count int;
+  v_id    uuid;
+  v_count int := 0;
 begin
-  with released as (
+  for v_id in
+    select id from public.profiles
+    where status = 'locked' and locked_until is not null and locked_until <= now()
+    for update
+  loop
     update public.profiles
     set status = 'active', status_reason = null, locked_until = null
-    where status = 'locked' and locked_until is not null and locked_until <= now()
-    returning id
-  ), logged as (
+    where id = v_id;
+
     insert into public.audit_log (actor_id, action, target_type, target_id, details)
-    select null, 'user.unlock', 'user', id::text, jsonb_build_object('auto', true, 'reason', 'תם זמן הנעילה')
-    from released
-    returning 1
-  )
-  select count(*) into v_count from logged;
+    values (null, 'user.unlock', 'user', v_id::text,
+            jsonb_build_object('auto', true, 'reason', 'תם זמן הנעילה'));
+
+    v_count := v_count + 1;
+  end loop;
   return v_count;
 end;
-$$;
+$fn$;
 
 revoke execute on function public.release_expired_locks() from public, anon, authenticated;
 
@@ -122,7 +129,7 @@ select cron.schedule('kami-release-expired-locks', '*/5 * * * *', 'select public
 -- "ב1 ז1נה" → "בו זונה" / "בי זינה", "ש@רמוטה" → "שרמוטה". תו שנראה כמו ו/י
 -- (0 1 ! | o i l) או סימן (@ *) שצמוד לאות עברית מוחלף ב-p_letter ('ו', 'י' או ריק)
 -- לפני הנרמול הרגיל.
-create function public.hebraize_lookalikes(p_text text, p_letter text)
+create or replace function public.hebraize_lookalikes(p_text text, p_letter text)
 returns text
 language sql
 immutable
