@@ -13,14 +13,16 @@ export function MaintenanceScreen({ home = true }: { home?: boolean }) {
       {/* A temporary screen: keep it out of search results. React hoists this into <head>. */}
       <meta name="robots" content="noindex" />
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center gap-6 px-4 pb-16 pt-10 text-center">
+        {/* Transparent artwork (no frame), so the crew stands right on the page background. */}
         <Image
-          src="/images/maintenance.webp"
+          src="/images/maintenance-crew.webp"
           alt="כלב, חתול וארנב בקסדות ובאפודים כתומים מאחורי שלט: 404, העמוד כרגע בשיפוץ"
-          width={1254}
-          height={992}
+          width={1329}
+          height={978}
           priority
           sizes="(max-width: 640px) calc(100vw - 2rem), 36rem"
-          className="animate-rise h-auto w-full rounded-[2rem] shadow-[0_20px_50px_rgb(15_23_42/0.18)] ring-1 ring-black/5 dark:ring-white/10"
+          className="animate-rise h-auto w-full select-none"
+          draggable={false}
         />
 
         <div className="animate-rise flex flex-col gap-2" style={{ "--i": 1 } as CSSProperties}>
