@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth/redirect";
 import { TERMS_VERSION } from "@/lib/legal";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,7 +14,11 @@ export type FormState = {
   message?: string;
   // Echoed back so fields survive React's form reset after a failed submit.
   fields?: Record<string, string>;
+  // Why a locked / blocked account can't sign in (shown in a dialog).
+  lock?: LockNotice;
 };
+
+export type LockNotice = { status: "locked" | "blocked" | "deleted"; reason: string | null; until: string | null };
 
 function echo(formData: FormData, ...names: string[]): Record<string, string> {
   return Object.fromEntries(names.map((n) => [n, String(formData.get(n) ?? "")]));
@@ -57,11 +62,28 @@ export async function signIn(_: FormState, formData: FormData): Promise<FormStat
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  if (error?.code === "user_banned") {
+    const lock = await lockNotice(parsed.data.email, parsed.data.password);
+    if (lock) return { lock, fields };
+  }
   if (error) return { ...authError(error), fields };
 
   // The header (in a shared layout) shows who's signed in.
   revalidatePath("/", "layout");
   redirect(safeNextPath(formData.get("next")));
+}
+
+// Auth says "banned" even for a wrong password, so the reason is shown only after
+// lock_notice() checks the password. The admin client is needed because the function
+// reads auth.users; it runs only after Auth returned user_banned (Auth's rate limits apply).
+async function lockNotice(email: string, password: string): Promise<LockNotice | null> {
+  const { data, error } = await createAdminClient().rpc("lock_notice", { p_email: email, p_password: password });
+  if (error) {
+    console.error("lock_notice", error.message);
+    return null;
+  }
+  const row = (data as { status: LockNotice["status"]; reason: string | null; locked_until: string | null }[] | null)?.[0];
+  return row ? { status: row.status, reason: row.reason, until: row.locked_until } : null;
 }
 
 export async function signUp(_: FormState, formData: FormData): Promise<FormState> {

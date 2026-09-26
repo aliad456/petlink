@@ -12,7 +12,12 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
   const kind = typeof sp.kind === "string" ? sp.kind : undefined;
   const page = typeof sp.page === "string" ? sp.page.slice(0, 300) : undefined;
   // From "רוצה להסיר את העסק?" on an unclaimed business page.
-  const message = sp.topic === "removal" ? "אני בעל/ת העסק ומבקש/ת להסיר את העמוד מהאתר." : undefined;
+  const message =
+    sp.topic === "removal"
+      ? "אני בעל/ת העסק ומבקש/ת להסיר את העמוד מהאתר."
+      : sp.topic === "account"
+        ? "החשבון שלי ננעל ואני חושב/ת שזו טעות. המייל של החשבון: "
+        : undefined;
 
   return (
     <PageTransition>

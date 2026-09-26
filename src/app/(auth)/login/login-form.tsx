@@ -1,12 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button, FormMessage, Input, Label } from "@/components/ui";
 import { signIn, type FormState } from "../actions";
+import { LockDialog } from "./lock-dialog";
 
 export function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signIn, {});
+  // Reopen the lock dialog on every new answer (React's "adjust state during render").
+  const [shown, setShown] = useState<FormState>(state);
+  const [lockOpen, setLockOpen] = useState(false);
+  if (state !== shown) {
+    setShown(state);
+    setLockOpen(Boolean(state.lock));
+  }
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -42,6 +50,7 @@ export function LoginForm({ next }: { next?: string }) {
         />
       </Label>
       <FormMessage error={state.error} />
+      {state.lock && <LockDialog lock={state.lock} open={lockOpen} onClose={() => setLockOpen(false)} />}
       <Button type="submit" size="lg" loading={pending} className="mt-1">
         התחברות
       </Button>
