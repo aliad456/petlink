@@ -34,7 +34,8 @@ const TABS = [
 ] as const;
 
 export default async function ReviewsAdminPage({ searchParams }: PageProps<"/admin/reviews">) {
-  await requirePermission("reviews.moderate");
+  const staff = await requirePermission("reviews.moderate");
+  const canLock = staff.isOwner || staff.permissions.has("users.lock");
   const { view: raw } = await searchParams;
   const view = raw === "all" || raw === "removed" ? raw : null;
 
@@ -107,7 +108,7 @@ export default async function ReviewsAdminPage({ searchParams }: PageProps<"/adm
                     </ul>
                   )}
                   {r.status_reason && <p className="text-xs text-muted">סיבה: {r.status_reason}</p>}
-                  <ReviewModeration id={r.id} status={r.status} hasReports={open.length > 0} />
+                  <ReviewModeration id={r.id} status={r.status} hasReports={open.length > 0} canLock={canLock} />
                 </li>
               );
             })}

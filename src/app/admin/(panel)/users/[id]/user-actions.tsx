@@ -15,6 +15,7 @@ import { useState, useTransition, type ReactNode } from "react";
 import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
 import { Button, cn, FormMessage, Input, Label, Textarea } from "@/components/ui";
+import { DEFAULT_LOCK_HOURS, LOCK_DURATIONS } from "@/lib/admin/lock";
 import type { AccountStatus } from "@/lib/auth/session";
 import {
   deleteUserPermanently,
@@ -127,26 +128,28 @@ export function UserActions({
       </div>
 
       {/* נעילה / חסימה — עם סיבה */}
-      {(["lock", "block"] as const).map((kind) => (
-        <ReasonDialog
-          key={kind}
-          open={open === kind}
-          onClose={close}
-          title={kind === "lock" ? `נעילת ${user.name}` : `חסימת ${user.name}`}
-          description={
-            kind === "lock"
-              ? "המשתמש לא יוכל להתחבר עד שתשחררו את הנעילה. מתאים לבקשת המשתמש או לחשד לפריצה."
-              : "המשתמש לא יוכל להתחבר. מתאים להפרת תנאי השימוש."
-          }
-          confirmLabel={kind === "lock" ? "נעילה" : "חסימה"}
-          danger={kind === "block"}
-          pending={pending}
-          error={error}
-          onConfirm={(reason) =>
-            run(() => setUserStatus(user.id, kind === "lock" ? "locked" : "blocked", reason))
-          }
-        />
-      ))}
+      <ReasonDialog
+        open={open === "lock"}
+        onClose={close}
+        title={`נעילת ${user.name}`}
+        description="המשתמש לא יוכל להתחבר, לכתוב ביקורות או לדווח עד שהנעילה תסתיים. נעילה זמנית משתחררת לבד בסוף הזמן."
+        confirmLabel="נעילה"
+        withDuration
+        pending={pending}
+        error={error}
+        onConfirm={(reason, hours) => run(() => setUserStatus(user.id, "locked", reason, hours))}
+      />
+      <ReasonDialog
+        open={open === "block"}
+        onClose={close}
+        title={`חסימת ${user.name}`}
+        description="המשתמש לא יוכל להתחבר עד שתבטלו את החסימה. מתאים להפרה חמורה או חוזרת של תנאי השימוש."
+        confirmLabel="חסימה"
+        danger
+        pending={pending}
+        error={error}
+        onConfirm={(reason) => run(() => setUserStatus(user.id, "blocked", reason))}
+      />
 
       {/* שחרור / ביטול חסימה / איפוס / שחזור — אישור פשוט */}
       <ConfirmDialog
@@ -306,6 +309,7 @@ function ReasonDialog({
   description,
   confirmLabel,
   reasonOptional,
+  withDuration,
   danger,
   pending,
   error,
@@ -317,21 +321,50 @@ function ReasonDialog({
   description: string;
   confirmLabel: string;
   reasonOptional?: boolean;
+  withDuration?: boolean;
   danger?: boolean;
   pending: boolean;
   error?: string;
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string, hours: number | null) => void;
 }) {
   const [reason, setReason] = useResetOnOpen(open, "");
+  const [hours, setHours] = useResetOnOpen<number | null>(open, DEFAULT_LOCK_HOURS);
   return (
     <Dialog open={open} onClose={onClose} title={title} description={description}>
       <form
         className="flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
-          onConfirm(reason);
+          onConfirm(reason, withDuration ? hours : null);
         }}
       >
+        {withDuration && (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-sm font-semibold">משך הנעילה</legend>
+            <div className="grid grid-cols-3 gap-2">
+              {LOCK_DURATIONS.map((d) => (
+                <label
+                  key={d.label}
+                  className={cn(
+                    "focus-within:ring-2 focus-within:ring-brand/60 flex cursor-pointer items-center justify-center rounded-2xl border px-2 py-2.5 text-center text-sm font-semibold transition-colors",
+                    hours === d.hours
+                      ? "border-transparent bg-brand text-white"
+                      : "border-[var(--glass-border)] bg-[var(--glass-bg)] text-muted hover:text-foreground",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="lock-hours"
+                    className="sr-only"
+                    checked={hours === d.hours}
+                    onChange={() => setHours(d.hours)}
+                  />
+                  {d.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <Label>
           {reasonOptional ? "סיבה (לא חובה)" : "סיבה"}
           <Textarea

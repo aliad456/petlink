@@ -4,7 +4,8 @@ import { getActiveAds } from "@/lib/ads";
 import { getFavoriteIds } from "@/lib/favorites";
 import { runSearch } from "@/lib/search/load";
 
-export const metadata: Metadata = { title: "חיפוש" };
+// Internal search results stay out of Google (category pages are the indexed version).
+export const metadata: Metadata = { title: "חיפוש", robots: { index: false, follow: true } };
 
 export default async function SearchPage({ searchParams }: PageProps<"/search">) {
   const params = await searchParams;

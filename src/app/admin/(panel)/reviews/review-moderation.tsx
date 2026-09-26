@@ -5,16 +5,28 @@ import { useState, useTransition } from "react";
 import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
 import { Button, Label, Textarea } from "@/components/ui";
+import { DEFAULT_LOCK_HOURS } from "@/lib/admin/lock";
 import { moderateReview } from "./actions";
 
-export function ReviewModeration({ id, status, hasReports }: { id: string; status: string; hasReports: boolean }) {
+export function ReviewModeration({
+  id,
+  status,
+  hasReports,
+  canLock,
+}: {
+  id: string;
+  status: string;
+  hasReports: boolean;
+  canLock: boolean;
+}) {
   const [removing, setRemoving] = useState(false);
   const [reason, setReason] = useState("");
+  const [lockAuthor, setLockAuthor] = useState(false);
   const [pending, startTransition] = useTransition();
 
   const run = (action: "keep" | "remove") =>
     startTransition(async () => {
-      const r = await moderateReview(id, action, reason);
+      const r = await moderateReview(id, action, reason, action === "remove" && lockAuthor);
       if (r.error) return void toast.error(r.error);
       toast.success(r.ok!);
       setRemoving(false);
@@ -59,8 +71,24 @@ export function ReviewModeration({ id, status, hasReports }: { id: string; statu
               autoFocus
             />
           </Label>
+          {canLock && (
+            <label className="glass-lite flex cursor-pointer items-start gap-3 rounded-2xl p-3.5 text-sm">
+              <input
+                type="checkbox"
+                checked={lockAuthor}
+                onChange={(e) => setLockAuthor(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 accent-[var(--danger)]"
+              />
+              <span>
+                <b>נעילת הכותב ל-{DEFAULT_LOCK_HOURS} שעות</b>
+                <span className="block text-muted">
+                  להפרת תנאי הקהילה (קללות, השמצות, הטרדה). הכותב לא יוכל להתחבר, והנעילה משתחררת לבד.
+                </span>
+              </span>
+            </label>
+          )}
           <Button type="submit" variant="danger" loading={pending}>
-            הסרה
+            {lockAuthor ? "הסרה ונעילה" : "הסרה"}
           </Button>
         </form>
       </Dialog>

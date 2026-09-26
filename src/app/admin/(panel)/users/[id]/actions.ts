@@ -4,7 +4,9 @@ import type { PostgrestError } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { LOCK_DURATIONS } from "@/lib/admin/lock";
 import { requireStaff } from "@/lib/auth/session";
+import { setLoginBan } from "@/lib/auth/login-ban";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -14,9 +16,6 @@ import { isUuid } from "@/lib/uuid";
 // then (where needed) the Auth Admin API does what SQL can't.
 
 export type ActionResult = { ok?: string; error?: string };
-
-// ~100 years. Supabase has no "forever" ban; this is the documented idiom.
-const BAN_FOREVER = "876000h";
 
 function dbError(error: PostgrestError): ActionResult {
   switch (error.code) {
@@ -29,14 +28,6 @@ function dbError(error: PostgrestError): ActionResult {
     default:
       return { error: "הפעולה נכשלה. נסו שוב." };
   }
-}
-
-async function setLoginBan(userId: string, banned: boolean) {
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.updateUserById(userId, {
-    ban_duration: banned ? BAN_FOREVER : "none",
-  });
-  return error;
 }
 
 async function begin(userId: unknown) {
@@ -57,25 +48,31 @@ export async function setUserStatus(
   userId: string,
   status: "active" | "locked" | "blocked",
   reason?: string,
+  hours?: number | null,
 ): Promise<ActionResult> {
   const supabase = await begin(userId);
   const parsedReason = reasonSchema.safeParse(reason);
   if (!parsedReason.success) return { error: "הסיבה ארוכה מדי." };
+  const lockHours = status === "locked" && hours ? hours : null;
+  if (lockHours !== null && !LOCK_DURATIONS.some((d) => d.hours === lockHours)) {
+    return { error: "משך נעילה לא תקין." };
+  }
 
   const { data: shouldBan, error } = await supabase.rpc("admin_set_user_status", {
     p_user_id: userId,
     p_status: status,
     p_reason: parsedReason.data || null,
+    p_hours: lockHours,
   });
   if (error) return dbError(error);
 
-  if (await setLoginBan(userId, Boolean(shouldBan))) {
+  if (await setLoginBan(userId, Boolean(shouldBan), lockHours)) {
     return { error: "הסטטוס עודכן, אבל חסימת ההתחברות נכשלה. נסו שוב." };
   }
 
   const messages = {
     active: "החשבון פעיל",
-    locked: "החשבון ננעל",
+    locked: lockHours ? `החשבון ננעל ל-${LOCK_DURATIONS.find((d) => d.hours === lockHours)!.label}` : "החשבון ננעל",
     blocked: "החשבון נחסם",
   } as const;
   return done(userId, messages[status]);
@@ -151,7 +148,13 @@ export async function restoreUser(userId: string): Promise<ActionResult> {
   });
   if (error) return dbError(error);
 
-  if (await setLoginBan(userId, Boolean(stillBanned))) {
+  // A temporary lock that is still running keeps its end time in Auth too.
+  let hours: number | null = null;
+  if (stillBanned) {
+    const { data } = await supabase.from("profiles").select("locked_until").eq("id", userId).single();
+    if (data?.locked_until) hours = Math.max(1, Math.ceil((Date.parse(data.locked_until) - Date.now()) / 3_600_000));
+  }
+  if (await setLoginBan(userId, Boolean(stillBanned), hours)) {
     return { error: "המשתמש שוחזר, אבל עדכון ההתחברות נכשל. נסו שוב." };
   }
   return done(userId, "המשתמש שוחזר");

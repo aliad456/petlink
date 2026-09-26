@@ -93,6 +93,9 @@ export function auditSummary(details: Record<string, unknown>): string[] {
   if (name) out.push(name);
   if (typeof details.count === "number") out.push(`${details.count} עסקים`);
   if (typeof details.value === "boolean") out.push(details.value ? "הופעל" : "כובה");
+  const h = details.hours;
+  if (typeof h === "number") out.push(h < 72 || h % 24 ? `ל-${h} שעות` : `ל-${h / 24} ימים`);
+  if (details.auto === true) out.push("אוטומטי");
   const reason = str("reason") ?? str("note");
   if (reason) out.push(`סיבה: ${reason}`);
   return out;

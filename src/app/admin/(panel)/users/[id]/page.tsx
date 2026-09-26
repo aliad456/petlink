@@ -22,6 +22,7 @@ import {
   ACTION_LABEL,
   displayName,
   getUser,
+  getLockedUntil,
   getUserHistory,
   STATUS_META,
 } from "@/lib/admin/users";
@@ -43,7 +44,7 @@ export default async function UserPage({ params }: PageProps<"/admin/users/[id]"
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
-  const [user, history] = await Promise.all([getUser(id), getUserHistory(id)]);
+  const [user, history, lockedUntil] = await Promise.all([getUser(id), getUserHistory(id), getLockedUntil(id)]);
   if (!user) notFound();
 
   const name = displayName(user);
@@ -94,6 +95,7 @@ export default async function UserPage({ params }: PageProps<"/admin/users/[id]"
               user.deleted_at && `נמחק ב-${formatDateTime(user.deleted_at)}.`,
               user.status !== "active" &&
                 `${STATUS_META[user.status].label}${user.status_reason ? `: ${user.status_reason}` : ""}`,
+              user.status === "locked" && lockedUntil && `הנעילה תשתחרר אוטומטית ב-${formatDateTime(lockedUntil)}.`,
             ]
               .filter(Boolean)
               .join(" ")}

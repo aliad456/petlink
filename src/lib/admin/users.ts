@@ -91,6 +91,13 @@ export async function getUser(id: string): Promise<AdminUserDetails | null> {
   return ((data ?? []) as AdminUserDetails[])[0] ?? null;
 }
 
+// End of a temporary lock (null = none, or until released by hand).
+export async function getLockedUntil(id: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("locked_until").eq("id", id).maybeSingle();
+  return (data?.locked_until as string | null) ?? null;
+}
+
 // Audit entries about this user. RLS returns nothing without audit.view.
 export async function getUserHistory(id: string): Promise<HistoryEntry[]> {
   const supabase = await createClient();
