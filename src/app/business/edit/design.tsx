@@ -17,6 +17,7 @@ import {
   TrendingUp,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
@@ -334,8 +335,11 @@ function ProDialog({ open, onClose, joined }: { open: boolean; onClose: () => vo
 
         <div className="flex flex-col items-center gap-2 rounded-2xl bg-[var(--glass-bg)] p-4 text-center">
           <p className="text-sm text-muted">
-            צפוי: <span className="font-bold text-foreground">39.90 ₪ לחודש</span> · מסלול סטודנטים ובוגרים 19.90 ₪
+            מ-<span className="font-bold text-foreground">39.90 ₪ לחודש</span> · 3 החודשים הראשונים ב-19.90 ₪
           </p>
+          <Link href="/plans" className="text-sm font-semibold text-amber-700 underline-offset-2 hover:underline dark:text-amber-400">
+            לכל התוכניות
+          </Link>
           {done ? (
             <p className="flex items-center gap-1.5 font-semibold text-success">
               <BadgeCheck className="size-5" />
