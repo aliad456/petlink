@@ -1,10 +1,11 @@
 "use client";
 
-import { Accessibility, Contrast, Link2, Pause, RotateCcw, Type, X, ZoomIn } from "lucide-react";
+import { Accessibility, Contrast, Link2, MonitorSmartphone, Moon, Pause, RotateCcw, Sun, Type, X, ZoomIn } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { A11Y_DEFAULT, A11Y_KEY, a11yClasses, type A11yPrefs } from "@/lib/a11y";
+import { applyTheme, readTheme, type ThemeChoice } from "@/lib/theme";
 import { cn } from "./ui";
 
 const ALL = ["a11y-text-1", "a11y-text-2", "a11y-text-3", "a11y-contrast", "a11y-no-motion", "a11y-links", "a11y-readable"];
@@ -25,7 +26,15 @@ export function AccessibilityMenu() {
   // Only read on the client; the panel (the only place prefs show) starts closed,
   // so server and client render the same.
   const [prefs, setPrefs] = useState<A11yPrefs>(() => (typeof window === "undefined" ? A11Y_DEFAULT : load()));
+  const [theme, setTheme] = useState<ThemeChoice>(() => (typeof window === "undefined" ? "system" : readTheme()));
   const panel = useRef<HTMLDivElement>(null);
+
+  // The header's sun/moon button changes the theme too: stay in sync.
+  useEffect(() => {
+    const sync = () => setTheme(readTheme());
+    window.addEventListener("kami-theme", sync);
+    return () => window.removeEventListener("kami-theme", sync);
+  }, []);
   const trigger = useRef<HTMLButtonElement>(null);
 
   const apply = (next: A11yPrefs) => {
@@ -119,6 +128,37 @@ export function AccessibilityMenu() {
                   style={{ fontSize: `${0.8 + n * 0.12}rem` }}
                 >
                   א
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">מצב תצוגה</span>
+            <div role="radiogroup" aria-label="מצב תצוגה" className="grid grid-cols-3 gap-1.5">
+              {(
+                [
+                  ["system", "אוטומטי", <MonitorSmartphone key="s" className="size-4" />],
+                  ["light", "בהיר", <Sun key="l" className="size-4" />],
+                  ["dark", "כהה", <Moon key="d" className="size-4" />],
+                ] as const
+              ).map(([value, label, icon]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={theme === value}
+                  onClick={() => {
+                    applyTheme(value);
+                    setTheme(value);
+                  }}
+                  className={cn(
+                    "pressable focus-ring flex h-10 items-center justify-center gap-1.5 rounded-xl border text-sm font-medium",
+                    theme === value ? "border-transparent bg-[#1d4ed8] text-white" : "border-[var(--border)] bg-[var(--glass-bg)]",
+                  )}
+                >
+                  {icon}
+                  {label}
                 </button>
               ))}
             </div>

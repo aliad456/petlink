@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { BetaTag } from "./beta";
 import { Logo } from "./logo";
+import { ThemeToggle } from "./theme-toggle";
 import { Avatar, cn } from "./ui";
 
 // Top bar that scrolls away with the page (not sticky). Three columns with the
@@ -16,7 +17,7 @@ export async function SiteHeader() {
     <header style={{ viewTransitionName: "app-chrome" }} className="relative z-10 w-full">
       <div className="mx-auto grid h-18 w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4">
         {/* ימין: לבעלי עסקים */}
-        <div className="flex justify-start">
+        <div className="flex items-center justify-start gap-0.5">
           {!profile && (
             <Link
               href="/signup?type=business"
@@ -28,6 +29,7 @@ export async function SiteHeader() {
               <span className="hidden sm:inline">לבעלי עסקים</span>
             </Link>
           )}
+          <ThemeToggle />
         </div>
 
         {/* אמצע: הלוגו, ותגית BETA שלא מזיזה אותו מהמרכז */}

@@ -5,6 +5,7 @@ import { PointerGlow } from "@/components/pointer-glow";
 import { SiteTracker } from "@/components/site-tracker";
 import { Toaster } from "@/components/toast";
 import { A11Y_BOOT } from "@/lib/a11y";
+import { THEME_BOOT } from "@/lib/theme";
 import { siteUrl } from "@/lib/supabase/env";
 import "./globals.css";
 
@@ -51,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="he" dir="rtl" className={`${heebo.variable} h-full`} suppressHydrationWarning>
       <head>
         {/* Accessibility preferences before first paint (see src/lib/a11y.ts). */}
-        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT + THEME_BOOT }} />
       </head>
       <body className="flex min-h-full flex-col font-sans">
         {children}
