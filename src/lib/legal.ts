@@ -1,5 +1,4 @@
-// Operator details shown in the legal pages. Values in [brackets] are
-// placeholders the owner must fill in before launch (see docs/ROADMAP.md).
+// Operator details shown in the legal pages.
 //
 // TERMS_VERSION is stored on every new profile (profiles.terms_version) as
 // proof of consent. Bump it whenever the terms or privacy policy change
@@ -16,12 +15,14 @@ export const OPERATOR = {
   registrationId: null as string | null,
   // כתובת למשלוח דואר (לא חובה כרגע)
   address: null as string | null,
-  email: "[support@kami.co.il]",
-  privacyEmail: "[privacy@kami.co.il]",
+  // One inbox for everything (info@ forwards to the owner's mailbox).
+  email: "info@heykami.co.il",
+  privacyEmail: "info@heykami.co.il",
   accessibility: {
-    name: "[שם רכז/ת הנגישות]",
-    email: "[accessibility@kami.co.il]",
-    phone: "[מספר טלפון]",
+    name: "אליעד ביטון",
+    email: "info@heykami.co.il",
+    // Not published for now; the accessibility statement points to the contact form instead.
+    phone: null as string | null,
   },
   // בית המשפט המוסמך
   jurisdiction: "תל אביב-יפו",

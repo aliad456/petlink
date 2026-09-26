@@ -73,9 +73,11 @@ const sections: LegalSection[] = [
           <li>
             מייל: <span dir="ltr">{OPERATOR.accessibility.email}</span>
           </li>
-          <li>
-            טלפון: <span dir="ltr">{OPERATOR.accessibility.phone}</span>
-          </li>
+          {OPERATOR.accessibility.phone && (
+            <li>
+              טלפון: <span dir="ltr">{OPERATOR.accessibility.phone}</span>
+            </li>
+          )}
           <li>
             או דרך <Link href="/contact?kind=accessibility">טופס הפנייה</Link>
           </li>
