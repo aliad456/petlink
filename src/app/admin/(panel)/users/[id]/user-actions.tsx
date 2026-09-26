@@ -372,7 +372,7 @@ function ReasonDialog({
             onChange={(e) => setReason(e.target.value)}
             required={!reasonOptional}
             maxLength={500}
-            placeholder="נשמר ביומן הפעולות"
+            placeholder={(withDuration || danger) && !reasonOptional ? "המשתמש יראה את הסיבה כשינסה להתחבר" : "נשמר ביומן הפעולות"}
             className="min-h-20"
             autoFocus
           />
