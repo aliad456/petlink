@@ -6,7 +6,10 @@ export type Hours = Partial<Record<"0" | "1" | "2" | "3" | "4" | "5" | "6", [str
 
 export type PriceItem = { title: string; price: string; note?: string };
 
-export const SECTION_IDS = ["stats", "details", "about", "hours", "gallery", "prices", "links"] as const;
+/** Adoption events (organisations), shown separately from opening hours. */
+export type AdoptionDays = { enabled: boolean; days: Hours; note?: string | null };
+
+export const SECTION_IDS = ["stats", "details", "about", "hours", "adoption", "gallery", "prices", "links"] as const;
 export type SectionId = (typeof SECTION_IDS)[number];
 
 export const SECTION_LABEL: Record<SectionId, string> = {
@@ -14,6 +17,7 @@ export const SECTION_LABEL: Record<SectionId, string> = {
   details: "פרטים",
   about: "אודות",
   hours: "שעות פעילות",
+  adoption: "ימי אימוץ",
   gallery: "גלריה",
   prices: "מחירון",
   links: "רשתות וקישורים",
@@ -84,6 +88,7 @@ export type BusinessView = {
   certifications: string[];
   hours: Hours;
   open_on_holidays: boolean;
+  adoption_days?: AdoptionDays | null;
   price_list: PriceItem[];
   avatar_path: string | null;
   cover_path: string | null;
@@ -107,22 +112,33 @@ export const LANGUAGES = [
 
 export const GALLERY_LIMIT_FREE = 12;
 
-// The effective design: "default" ignores personal settings.
+// The effective design: "default" ignores personal colour, layout and order,
+// but a section the owner switched off stays off in every mode.
 export function resolveDesign(design: Design) {
   const personal = design.mode === "personal";
+  const hidden = new Set(design.sections?.filter((s) => !s.visible).map((s) => s.id));
   const order =
     personal && design.sections?.length
       ? [
-          ...design.sections.filter((s) => SECTION_IDS.includes(s.id)),
-          ...SECTION_IDS.filter((id) => !design.sections!.some((s) => s.id === id)).map((id) => ({
-            id,
-            visible: true,
-          })),
+          ...design.sections.filter((s) => SECTION_IDS.includes(s.id)).map((s) => s.id),
+          ...SECTION_IDS.filter((id) => !design.sections!.some((s) => s.id === id)),
         ]
-      : SECTION_IDS.map((id) => ({ id, visible: true }));
+      : [...SECTION_IDS];
   return {
     accent: ACCENTS[(personal && design.accent) || "kami"] ?? ACCENTS.kami,
     layout: (personal && design.layout) || "classic",
-    sections: order.filter((s) => s.visible).map((s) => s.id),
+    sections: order.filter((id) => !hidden.has(id)),
   };
+}
+
+export function isSectionVisible(design: Design, id: SectionId) {
+  return !design.sections?.some((s) => s.id === id && !s.visible);
+}
+
+export function setSectionVisible(design: Design, id: SectionId, visible: boolean): Design {
+  const sections = SECTION_IDS.map((sid) => design.sections?.find((s) => s.id === sid) ?? { id: sid, visible: true });
+  const ordered = design.sections?.length
+    ? [...design.sections.filter((s) => SECTION_IDS.includes(s.id)), ...sections.filter((s) => !design.sections!.some((d) => d.id === s.id))]
+    : sections;
+  return { ...design, sections: ordered.map((s) => (s.id === id ? { ...s, visible } : s)) };
 }

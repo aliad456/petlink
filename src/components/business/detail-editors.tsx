@@ -21,8 +21,9 @@ export function HoursEditor({
 }: {
   hours: Hours;
   onChange: (hours: Hours) => void;
-  holidays: boolean;
-  onHolidaysChange: (v: boolean) => void;
+  /** Omit for schedules without a "holidays" row (adoption days). */
+  holidays?: boolean;
+  onHolidaysChange?: (v: boolean) => void;
 }) {
   const setDay = (day: (typeof DAYS)[number], ranges: [string, string][] | undefined) => {
     const next: Hours = { ...hours };
@@ -75,10 +76,12 @@ export function HoursEditor({
           העתקת השעות של יום {DAY_NAMES[+firstOpen]} לכל הימים הפתוחים
         </Button>
       )}
-      <label className="flex items-center justify-between gap-4 text-sm font-medium">
-        פתוח גם בחגים
-        <Switch checked={holidays} onChange={onHolidaysChange} label="פתוח בחגים" />
-      </label>
+      {onHolidaysChange && (
+        <label className="flex items-center justify-between gap-4 text-sm font-medium">
+          פתוח גם בחגים
+          <Switch checked={!!holidays} onChange={onHolidaysChange} label="פתוח בחגים" />
+        </label>
+      )}
     </>
   );
 }

@@ -1,6 +1,6 @@
 import type { BusinessRow, FilterDef } from "@/lib/business/load";
 import { resolveFeatures } from "@/lib/business/load";
-import type { BusinessView, Design, Hours, PriceItem } from "@/lib/business/types";
+import { isSectionVisible, type AdoptionDays, type BusinessView, type Design, type Hours, type PriceItem } from "@/lib/business/types";
 import type { SaveInput } from "../actions";
 
 export type FormState = {
@@ -24,6 +24,7 @@ export type FormState = {
   certifications: string[];
   hours: Hours;
   open_on_holidays: boolean;
+  adoption_days: AdoptionDays;
   price_list: PriceItem[];
   deal_text: string;
   deal_until: string;
@@ -53,6 +54,7 @@ export function toForm(b: BusinessRow): FormState {
     certifications: b.certifications,
     hours: b.hours,
     open_on_holidays: b.open_on_holidays,
+    adoption_days: b.adoption_days ?? { enabled: false, days: {} },
     price_list: b.price_list,
     deal_text: b.deal_text ?? "",
     deal_until: b.deal_until ?? "",
@@ -73,6 +75,9 @@ const num = (s: string) => {
 export function toSaveInput(f: FormState): SaveInput {
   return {
     ...f,
+    // Hours switched off: nothing to show anywhere (no "open now" badge in search either).
+    hours: isSectionVisible(f.design, "hours") ? f.hours : {},
+    adoption_days: { ...f.adoption_days, note: f.adoption_days.note?.trim() || null },
     years_experience: num(f.years_experience),
     animals_served: num(f.animals_served),
     languages: f.languages as SaveInput["languages"],
@@ -111,6 +116,8 @@ export function previewView(
     years_experience: input.years_experience ?? null,
     animals_served: input.animals_served ?? null,
     certifications: input.certifications,
+    hours: input.hours,
+    adoption_days: input.adoption_days,
     price_list: input.price_list,
     deal_text: input.deal_text || null,
     deal_until: input.deal_until || null,

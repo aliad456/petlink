@@ -3,11 +3,11 @@
 import { ChevronDown, Plus, Trash2, TriangleAlert, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Chip, FeaturesEditor, HoursEditor } from "@/components/business/detail-editors";
-import { Button, cn, Input, Label, Textarea } from "@/components/ui";
+import { Button, cn, Input, Label, Switch, Textarea } from "@/components/ui";
 import { CITIES } from "@/lib/business/cities";
 import type { FilterDef } from "@/lib/business/load";
 import { filtersForCategory } from "@/lib/business/load";
-import { LANGUAGES } from "@/lib/business/types";
+import { isSectionVisible, LANGUAGES, setSectionVisible, type SectionId } from "@/lib/business/types";
 import type { FormState } from "./form-state";
 import { useProfanity } from "./use-profanity";
 
@@ -344,14 +344,78 @@ export function ExperienceFields({ form, update }: Props) {
 
 // ─── שעות פעילות ────────────────────────────────────────────
 
-export function HoursFields({ form, update }: Props) {
+// A section's on/off switch at the top of its panel (same flag as the eye in "סדר החלקים").
+function ShowSection({ form, update, id, label, offText }: Props & { id: SectionId; label: string; offText: string }) {
+  const on = isSectionVisible(form.design, id);
   return (
-    <HoursEditor
-      hours={form.hours}
-      onChange={(h) => update("hours", h)}
-      holidays={form.open_on_holidays}
-      onHolidaysChange={(v) => update("open_on_holidays", v)}
-    />
+    <>
+      <label className="flex items-center justify-between gap-4 font-medium">
+        {label}
+        <Switch checked={on} onChange={(v) => update("design", setSectionVisible(form.design, id, v))} label={label} />
+      </label>
+      {!on && <p className="text-sm text-muted">{offText}</p>}
+    </>
+  );
+}
+
+export function HoursFields({ form, update }: Props) {
+  const on = isSectionVisible(form.design, "hours");
+  return (
+    <>
+      <ShowSection
+        form={form}
+        update={update}
+        id="hours"
+        label="הצגת שעות פעילות בעמוד"
+        offText="השעות לא יופיעו בעמוד, וגם לא התג 'פתוח עכשיו'."
+      />
+      {on && (
+        <HoursEditor
+          hours={form.hours}
+          onChange={(h) => update("hours", h)}
+          holidays={form.open_on_holidays}
+          onHolidaysChange={(v) => update("open_on_holidays", v)}
+        />
+      )}
+    </>
+  );
+}
+
+// ─── ימי אימוץ ──────────────────────────────────────────────
+
+export function AdoptionFields({ form, update }: Props) {
+  const a = form.adoption_days;
+  const bad = useProfanity(a.note ?? "");
+  return (
+    <>
+      <label className="flex items-center justify-between gap-4 font-medium">
+        ימי אימוץ בעמוד
+        <Switch
+          checked={a.enabled}
+          onChange={(enabled) => update("adoption_days", { ...a, enabled })}
+          label="ימי אימוץ בעמוד"
+        />
+      </label>
+      {a.enabled ? (
+        <>
+          <p className="text-sm text-muted">באילו ימים ושעות אפשר להגיע להכיר את הכלבים. נפרד משעות הפעילות.</p>
+          <HoursEditor hours={a.days} onChange={(days) => update("adoption_days", { ...a, days })} />
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="adoption-note">איפה (לא חובה)</Label>
+            <Input
+              id="adoption-note"
+              value={a.note ?? ""}
+              onChange={(e) => update("adoption_days", { ...a, note: e.target.value })}
+              maxLength={80}
+              placeholder="למשל: פארק הירקון, ליד הכניסה הראשית"
+            />
+          </div>
+          <ProfanityWarning show={bad} />
+        </>
+      ) : (
+        <p className="text-sm text-muted">לעמותות: ימים ושעות של ימי אימוץ, בחלק נפרד בעמוד.</p>
+      )}
+    </>
   );
 }
 
@@ -377,9 +441,17 @@ export function PriceFields({ form, update }: Props) {
       form.price_list.map((p, j) => (j === i ? { ...p, ...patch } : p)),
     );
 
+  const on = isSectionVisible(form.design, "prices");
   return (
     <>
-      {form.price_list.map((p, i) => (
+      <ShowSection
+        form={form}
+        update={update}
+        id="prices"
+        label="הצגת מחירון בעמוד"
+        offText="המחירון לא יופיע בעמוד (מה שכתבתם נשמר, אפשר להחזיר בכל רגע)."
+      />
+      {on && form.price_list.map((p, i) => (
         <div key={i} className="flex flex-col gap-2.5 rounded-2xl bg-[var(--glass-bg)] p-3">
           {/* Row 1: service name + remove. Row 2: price + optional note. */}
           <div className="flex items-center gap-2">
@@ -418,7 +490,7 @@ export function PriceFields({ form, update }: Props) {
           </div>
         </div>
       ))}
-      {form.price_list.length < 40 && (
+      {on && form.price_list.length < 40 && (
         <Button
           type="button"
           variant="ghost"
