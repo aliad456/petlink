@@ -3,18 +3,20 @@
 import { Camera, ImagePlus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
+import { ImageCropper } from "@/components/image-cropper";
 import { toast } from "@/components/toast";
 import { cn, Spinner } from "@/components/ui";
 import type { BusinessRow } from "@/lib/business/load";
-import { compressImage, MEDIA_BUCKET, mediaUrl } from "@/lib/business/media";
+import { compressImage, COVER_ASPECT, COVER_ASPECT_MOBILE, MEDIA_BUCKET, mediaUrl } from "@/lib/business/media";
 import { GALLERY_LIMIT_FREE } from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/client";
 import { addPhoto, removePhoto, setMedia } from "../actions";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif";
 
-async function upload(businessId: string, name: string, file: File, maxSide: number) {
-  const blob = await compressImage(file, maxSide);
+// `maxSide` null: the blob is already sized (it comes from the cropper).
+async function upload(businessId: string, name: string, file: Blob, maxSide: number | null) {
+  const blob = maxSide ? await compressImage(file, maxSide) : file;
   const path = `${businessId}/${name}-${Date.now().toString(36)}.webp`;
   const { error } = await createClient()
     .storage.from(MEDIA_BUCKET)
@@ -27,6 +29,8 @@ async function upload(businessId: string, name: string, file: File, maxSide: num
 export function MediaFields({ business }: { business: BusinessRow }) {
   const router = useRouter();
   const [busy, setBusy] = useState<"avatar" | "cover" | "gallery" | null>(null);
+  // A picked avatar/cover waits in the cropper until the owner places it.
+  const [crop, setCrop] = useState<{ kind: "avatar" | "cover"; file: File } | null>(null);
   const [, startTransition] = useTransition();
 
   const run = (kind: "avatar" | "cover" | "gallery", job: () => Promise<{ ok?: string; error?: string }>) => {
@@ -58,9 +62,7 @@ export function MediaFields({ business }: { business: BusinessRow }) {
       <div className="relative">
         <FilePick
           accept={ACCEPT}
-          onFile={(f) =>
-            run("cover", async () => setMedia("cover", await upload(business.id, "cover", f, 1920)))
-          }
+          onFile={(f) => setCrop({ kind: "cover", file: f })}
           className="group relative block h-36 w-full overflow-hidden rounded-3xl bg-kami"
           label="החלפת תמונת רקע"
         >
@@ -70,9 +72,7 @@ export function MediaFields({ business }: { business: BusinessRow }) {
         </FilePick>
         <FilePick
           accept={ACCEPT}
-          onFile={(f) =>
-            run("avatar", async () => setMedia("avatar", await upload(business.id, "avatar", f, 640)))
-          }
+          onFile={(f) => setCrop({ kind: "avatar", file: f })}
           className="group absolute -bottom-10 start-5 size-24 overflow-hidden rounded-full border-4 border-[var(--background)] bg-[var(--glass-bg-strong)] shadow-lg"
           label="החלפת תמונת פרופיל"
         >
@@ -81,8 +81,22 @@ export function MediaFields({ business }: { business: BusinessRow }) {
           <Overlay busy={busy === "avatar"} text="" round />
         </FilePick>
       </div>
+      <ImageCropper
+        file={crop?.file ?? null}
+        title={crop?.kind === "avatar" ? "תמונת פרופיל" : "תמונת רקע"}
+        aspect={crop?.kind === "avatar" ? 1 : COVER_ASPECT}
+        round={crop?.kind === "avatar"}
+        outputWidth={crop?.kind === "avatar" ? 640 : 1920}
+        mobileAspect={crop?.kind === "cover" ? COVER_ASPECT_MOBILE : undefined}
+        onCancel={() => setCrop(null)}
+        onConfirm={(blob) => {
+          const kind = crop!.kind;
+          setCrop(null);
+          run(kind, async () => setMedia(kind, await upload(business.id, kind, blob, null)));
+        }}
+      />
       <div className="mt-8 flex items-center gap-4 text-xs text-muted">
-        <span>לחצו על התמונות כדי להחליף. מומלץ: רקע רחב (לרוחב), פרופיל מרובע.</span>
+        <span>לחצו על התמונות כדי להחליף. אחרי הבחירה אפשר למקם ולהגדיל, ולוגו אפשר להציג במלואו.</span>
         {(business.cover_path || business.avatar_path) && (
           <span className="ms-auto flex gap-3">
             {business.cover_path && (
