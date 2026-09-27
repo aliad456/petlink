@@ -26,7 +26,7 @@ export function ImageCropper({
   aspect,
   round,
   outputWidth,
-  mobileAspect,
+  coverGuides,
   title,
   onCancel,
   onConfirm,
@@ -35,8 +35,8 @@ export function ImageCropper({
   aspect: number;
   round?: boolean;
   outputWidth: number;
-  // Cover photos are cut narrower on phones: show that part with a dashed guide.
-  mobileAspect?: number;
+  // Business covers: outline what the page draws over the picture.
+  coverGuides?: boolean;
   title: string;
   onCancel: () => void;
   onConfirm: (blob: Blob) => void;
@@ -56,7 +56,7 @@ export function ImageCropper({
           aspect={aspect}
           round={round}
           outputWidth={outputWidth}
-          mobileAspect={mobileAspect}
+          coverGuides={coverGuides}
           onCancel={onCancel}
           onConfirm={onConfirm}
         />
@@ -70,7 +70,7 @@ function CropArea({
   aspect,
   round,
   outputWidth,
-  mobileAspect,
+  coverGuides,
   onCancel,
   onConfirm,
 }: {
@@ -78,7 +78,7 @@ function CropArea({
   aspect: number;
   round?: boolean;
   outputWidth: number;
-  mobileAspect?: number;
+  coverGuides?: boolean;
   onCancel: () => void;
   onConfirm: (blob: Blob) => void;
 }) {
@@ -216,7 +216,6 @@ function CropArea({
   };
 
   const covers = iw * view.s >= frameW - 0.5 && ih * view.s >= frameH - 0.5;
-  const guideW = mobileAspect ? Math.min(frameW, frameH * mobileAspect) : 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -250,18 +249,13 @@ function CropArea({
             }}
           />
         )}
-        {mobileAspect && ready && guideW < frameW - 1 && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 border-x-2 border-dashed border-white/90 shadow-[0_0_0_9999px_rgb(0_0_0/0.18)]"
-            style={{ width: guideW }}
-          >
-            <span className="absolute bottom-1.5 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-semibold text-white">
-              בטלפון
-            </span>
-          </div>
-        )}
+        {coverGuides && ready && <CoverGuides />}
       </div>
+      {coverGuides && (
+        <p className="-mt-2 text-center text-xs text-muted">
+          הקווים המקווקווים מסמנים מה יושב מעל התמונה בעמוד. טקסט חשוב כדאי לשים מחוץ להם.
+        </p>
+      )}
 
       <div className="flex items-center gap-3" dir="ltr">
         <button type="button" aria-label="הקטנה" onClick={() => zoomTo(view.s / 1.15)} className="focus-ring rounded-lg p-1 text-muted hover:text-foreground">
@@ -323,6 +317,30 @@ function CropArea({
         <Button type="button" variant="glass" onClick={onCancel} className="flex-1">
           ביטול
         </Button>
+      </div>
+    </div>
+  );
+}
+
+// Where the business page draws over its cover, as % of the 8:3 picture. Phone
+// sizes (the larger case): 44px buttons 12px from the corners, the 144px round
+// logo from 49% down, the status bubble above it; on desktop the card covers the
+// bottom 40px. See the cover and header in components/business/business-page.tsx.
+function CoverGuides() {
+  const line = "pointer-events-none absolute border-2 border-dashed border-white/90 bg-black/15";
+  const label = "absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white";
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      <div className={cn(line, "left-[3.1%] top-[8.2%] aspect-square w-[11.3%] rounded-full")} />
+      <div className={cn(line, "right-[3.1%] top-[8.2%] aspect-square w-[11.3%] rounded-full")} />
+      <div className={cn(line, "left-1/2 top-0 h-[41%] w-[62%] -translate-x-1/2 rounded-2xl border-t-0")}>
+        <span className={cn(label, "bottom-1")}>בועת סטטוס</span>
+      </div>
+      <div className={cn(line, "left-1/2 top-[49%] aspect-square w-[37%] -translate-x-1/2 rounded-full")}>
+        <span className={cn(label, "top-3")}>לוגו</span>
+      </div>
+      <div className={cn(line, "inset-x-0 bottom-0 h-[14%] border-x-0 border-b-0")}>
+        <span className={cn(label, "bottom-0.5")}>במחשב: מתחת לכרטיס</span>
       </div>
     </div>
   );
