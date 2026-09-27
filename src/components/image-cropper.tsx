@@ -322,10 +322,11 @@ function CropArea({
   );
 }
 
-// Where the business page draws over its cover, as % of the 8:3 picture. Phone
-// sizes (the larger case): 44px buttons 12px from the corners, the 144px round
-// logo from 49% down, the status bubble above it; on desktop the card covers the
-// bottom 40px. See the cover and header in components/business/business-page.tsx.
+// Where the business page draws over its cover, as % of the 8:3 picture, taking
+// the larger of phone (390×146) and desktop (768×288): 44px buttons 12px from the
+// corners, the round logo (112px from 48% down on phones), the status bubble above
+// it, and the card's top edge over the bottom (24px of 146 on phones). See the
+// cover and header in components/business/business-page.tsx.
 function CoverGuides() {
   const line = "pointer-events-none absolute border-2 border-dashed border-white/90 bg-black/15";
   const label = "absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold text-white";
@@ -333,14 +334,14 @@ function CoverGuides() {
     <div aria-hidden className="pointer-events-none absolute inset-0">
       <div className={cn(line, "left-[3.1%] top-[8.2%] aspect-square w-[11.3%] rounded-full")} />
       <div className={cn(line, "right-[3.1%] top-[8.2%] aspect-square w-[11.3%] rounded-full")} />
-      <div className={cn(line, "left-1/2 top-0 h-[41%] w-[62%] -translate-x-1/2 rounded-2xl border-t-0")}>
+      <div className={cn(line, "left-1/2 top-0 h-[46%] w-[62%] -translate-x-1/2 rounded-2xl border-t-0")}>
         <span className={cn(label, "bottom-1")}>בועת סטטוס</span>
       </div>
-      <div className={cn(line, "left-1/2 top-[49%] aspect-square w-[37%] -translate-x-1/2 rounded-full")}>
+      <div className={cn(line, "left-1/2 top-[48%] aspect-square w-[29%] -translate-x-1/2 rounded-full")}>
         <span className={cn(label, "top-3")}>לוגו</span>
       </div>
-      <div className={cn(line, "inset-x-0 bottom-0 h-[14%] border-x-0 border-b-0")}>
-        <span className={cn(label, "bottom-0.5")}>במחשב: מתחת לכרטיס</span>
+      <div className={cn(line, "inset-x-0 bottom-0 h-[16%] border-x-0 border-b-0")}>
+        <span className={cn(label, "bottom-0.5")}>מתחת לכרטיס</span>
       </div>
     </div>
   );

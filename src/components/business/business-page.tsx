@@ -77,19 +77,15 @@ export function BusinessPage({
   });
 
   return (
-    <article style={style} className="mx-auto w-full max-w-3xl">
+    // A container: the header adapts to the page's own width (it's also shown
+    // narrow, in the editor's live preview), not the screen's.
+    <article style={style} className="@container mx-auto w-full max-w-3xl">
       {/* רקע */}
-      {/* 8:3 like the uploaded cover, so the picture fills it; phones keep a minimum
-          height for the status bubble and the round logo that sit on top. */}
-      <div className="relative aspect-[8/3] min-h-52 w-full overflow-hidden sm:mt-3 sm:rounded-[2rem]">
+      {/* Always the 8:3 shape of an uploaded cover, so the picture fills it exactly;
+          phones get the same picture, smaller. */}
+      <div className="relative aspect-[8/3] w-full overflow-hidden sm:mt-3 sm:rounded-[2rem]">
         {cover ? (
-          // The whole cover shows on every screen. Where the frame is taller than
-          // the 8:3 picture (phones), it sits at the top and a blurred copy fills
-          // the rest, mostly hidden under the card and the round logo.
-          <>
-            <Image src={cover} alt="" fill sizes="(min-width: 768px) 768px, 100vw" className="scale-110 object-cover blur-2xl brightness-90" aria-hidden />
-            <Image src={cover} alt="" fill preload sizes="(min-width: 768px) 768px, 100vw" className="object-contain object-top" />
-          </>
+          <Image src={cover} alt="" fill preload sizes="(min-width: 768px) 768px, 100vw" className="object-cover" />
         ) : (
           <div className="relative size-full bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))]">
             <div
@@ -106,14 +102,17 @@ export function BusinessPage({
       </div>
 
       {/* כרטיס */}
-      <div className="glass glass-strong relative -mt-10 rounded-t-[2.25rem] px-4 pb-10 sm:mx-2 sm:rounded-[2rem] sm:px-8">
+      <div className="glass glass-strong relative -mt-6 rounded-t-[2.25rem] @xl:-mt-10 px-4 pb-10 sm:mx-2 sm:rounded-[2rem] sm:px-8">
         <header
           className={cn(
             "flex flex-col gap-3",
             side ? "items-start pt-4 sm:flex-row sm:items-end sm:gap-5" : "items-center text-center",
           )}
         >
-          <div className={cn("relative", side ? "-mt-16" : "-mt-24")}>
+          {/* Narrow pages: the logo's top sits 72px below the cover's top (the
+              cover is 37.5% of the width tall, the card rises 24px into it), so
+              the status bubble above it stays on the picture. */}
+          <div className={cn("relative -mt-[max(24px,calc(37.5cqw-96px))]", side ? "@xl:-mt-16" : "@xl:-mt-24")}>
             {business.tagline && (
               <p
                 className={cn(
@@ -131,7 +130,7 @@ export function BusinessPage({
             <div
               className={cn(
                 "rounded-full bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] p-[3px] shadow-[0_10px_30px_rgb(0_0_0/0.18)]",
-                side ? "size-28" : "size-36",
+                side ? "size-28" : "size-28 @xl:size-36",
               )}
             >
               <div className="relative size-full overflow-hidden rounded-full border-4 border-[var(--background)] bg-[var(--background)]">
