@@ -22,6 +22,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ReactNode } from "react";
 import { Dialog } from "@/components/dialog";
+import { ImageCropper } from "@/components/image-cropper";
 import { toast } from "@/components/toast";
 import { Button, ChoiceTile, cn, FormMessage, Input, Label, Spinner, Switch, Textarea } from "@/components/ui";
 import { compressImage } from "@/lib/business/media";
@@ -64,8 +65,9 @@ function useRun() {
   return [pending, run] as const;
 }
 
-async function upload(userId: string, petId: string, file: File, maxSide: number) {
-  const blob = await compressImage(file, maxSide);
+// `maxSide` null: the blob is already sized (it comes from the cropper).
+async function upload(userId: string, petId: string, file: Blob, maxSide: number | null) {
+  const blob = maxSide ? await compressImage(file, maxSide) : file;
   const path = `${userId}/${petId}/${crypto.randomUUID()}.webp`;
   const { error } = await createClient()
     .storage.from(PET_BUCKET)
@@ -123,6 +125,7 @@ function Section({ icon, title, hint, children }: { icon: ReactNode; title: stri
 function AvatarHeader({ userId, pet, welcome }: { userId: string; pet: Pet; welcome: boolean }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const [picked, setPicked] = useState<File | null>(null);
   const [, run] = useRun();
   const avatar = petMediaUrl(pet.avatar_path);
 
@@ -151,13 +154,24 @@ function AvatarHeader({ userId, pet, welcome }: { userId: string; pet: Pet; welc
         type="file"
         accept={ACCEPT}
         className="hidden"
-        onChange={async (e) => {
+        onChange={(e) => {
           const f = e.target.files?.[0];
           e.target.value = "";
-          if (!f) return;
+          if (f) setPicked(f);
+        }}
+      />
+      <ImageCropper
+        file={picked}
+        title="תמונת פרופיל"
+        aspect={1}
+        round
+        outputWidth={800}
+        onCancel={() => setPicked(null)}
+        onConfirm={async (blob) => {
+          setPicked(null);
           setBusy(true);
           try {
-            const path = await upload(userId, pet.id, f, 800);
+            const path = await upload(userId, pet.id, blob, null);
             run(() => setPetAvatar(pet.id, path));
           } catch {
             toast.error("ההעלאה נכשלה. נסו שוב.");

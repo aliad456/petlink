@@ -10,7 +10,12 @@ export const MEDIA_BUCKET = BUCKET;
 
 // Downscale and re-encode in the browser before upload: phones produce 5–10MB
 // photos; the bucket allows 5MB and the page doesn't need more than this.
-export async function compressImage(file: File, maxSide: number, quality = 0.85): Promise<Blob> {
+// The business page cover: h-72 over max-w-3xl on desktop (768×288), h-52 on a
+// 390px phone. Covers are cropped to the desktop shape; phones show the middle.
+export const COVER_ASPECT = 768 / 288;
+export const COVER_ASPECT_MOBILE = 390 / 208;
+
+export async function compressImage(file: Blob, maxSide: number, quality = 0.85): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);
