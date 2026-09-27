@@ -79,11 +79,13 @@ export function BusinessPage({
   return (
     <article style={style} className="mx-auto w-full max-w-3xl">
       {/* רקע */}
-      <div className="relative h-52 overflow-hidden sm:mt-3 sm:h-72 sm:rounded-[2rem]">
+      {/* 8:3 like the uploaded cover, so the picture fills it; phones keep a minimum
+          height for the status bubble and the round logo that sit on top. */}
+      <div className="relative aspect-[8/3] min-h-52 w-full overflow-hidden sm:mt-3 sm:rounded-[2rem]">
         {cover ? (
-          // The whole cover shows on every screen (phones are taller than the 8:3
-          // image): it sits at the top, and a blurred copy fills the rest, mostly
-          // hidden under the card and the round logo.
+          // The whole cover shows on every screen. Where the frame is taller than
+          // the 8:3 picture (phones), it sits at the top and a blurred copy fills
+          // the rest, mostly hidden under the card and the round logo.
           <>
             <Image src={cover} alt="" fill sizes="(min-width: 768px) 768px, 100vw" className="scale-110 object-cover blur-2xl brightness-90" aria-hidden />
             <Image src={cover} alt="" fill preload sizes="(min-width: 768px) 768px, 100vw" className="object-contain object-top" />
