@@ -54,7 +54,9 @@ export function MediaFields({ business }: { business: BusinessRow }) {
   const photos = [...business.photos].sort(
     (a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at),
   );
-  const full = photos.length >= GALLERY_LIMIT_FREE && business.plan !== "pro";
+  // Pro has no gallery limit (the database trigger allows it too).
+  const limit = business.plan === "pro" ? null : GALLERY_LIMIT_FREE;
+  const full = limit !== null && photos.length >= limit;
 
   return (
     <>
@@ -117,7 +119,7 @@ export function MediaFields({ business }: { business: BusinessRow }) {
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">גלריה</span>
         <span className="text-xs tabular-nums text-muted">
-          {photos.length}/{GALLERY_LIMIT_FREE}
+          {limit === null ? photos.length : `${photos.length}/${limit}`}
         </span>
       </div>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -141,7 +143,7 @@ export function MediaFields({ business }: { business: BusinessRow }) {
             multiple
             onFiles={(files) =>
               run("gallery", async () => {
-                const room = GALLERY_LIMIT_FREE - photos.length;
+                const room = limit === null ? files.length : limit - photos.length;
                 let last: { ok?: string; error?: string } = {};
                 for (const f of files.slice(0, room)) {
                   last = await addPhoto(await upload(business.id, "photo", f, 1600));
