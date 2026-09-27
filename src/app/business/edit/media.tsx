@@ -7,7 +7,7 @@ import { ImageCropper } from "@/components/image-cropper";
 import { toast } from "@/components/toast";
 import { cn, Spinner } from "@/components/ui";
 import type { BusinessRow } from "@/lib/business/load";
-import { compressImage, COVER_ASPECT, COVER_ASPECT_MOBILE, MEDIA_BUCKET, mediaUrl } from "@/lib/business/media";
+import { compressImage, COVER_ASPECT, MEDIA_BUCKET, mediaUrl } from "@/lib/business/media";
 import { GALLERY_LIMIT_FREE } from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/client";
 import { addPhoto, removePhoto, setMedia } from "../actions";
@@ -86,8 +86,8 @@ export function MediaFields({ business }: { business: BusinessRow }) {
         title={crop?.kind === "avatar" ? "תמונת פרופיל" : "תמונת רקע"}
         aspect={crop?.kind === "avatar" ? 1 : COVER_ASPECT}
         round={crop?.kind === "avatar"}
+        coverGuides={crop?.kind === "cover"}
         outputWidth={crop?.kind === "avatar" ? 640 : 1920}
-        mobileAspect={crop?.kind === "cover" ? COVER_ASPECT_MOBILE : undefined}
         onCancel={() => setCrop(null)}
         onConfirm={(blob) => {
           const kind = crop!.kind;
