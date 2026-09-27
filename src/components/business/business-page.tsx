@@ -6,6 +6,8 @@ import {
   BadgeCheck,
   BadgePercent,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   CircleCheck,
   Clock,
   Globe,
@@ -21,7 +23,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import { FavoriteButton } from "@/components/favorite-button";
 import { toast } from "@/components/toast";
@@ -551,17 +553,31 @@ function HoursTable({ business }: { business: BusinessView }) {
   );
 }
 
+const GALLERY_PAGE_SIZE = 12;
+
 function Gallery({ business }: { business: BusinessView }) {
   const [open, setOpen] = useState<number | null>(null);
+  const [page, setPage] = useState(0);
+  const top = useRef<HTMLDivElement>(null);
   const photo = open !== null ? business.photos[open] : null;
+  const pages = Math.ceil(business.photos.length / GALLERY_PAGE_SIZE);
+  const first = page * GALLERY_PAGE_SIZE;
+
+  const go = (next: number) => {
+    setPage(next);
+    // Long pages leave the grid's top above the screen; bring it back into view.
+    const el = top.current;
+    if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <>
-      <div className="grid grid-cols-3 gap-1.5 overflow-hidden rounded-3xl">
-        {business.photos.map((p, i) => (
+      <div ref={top} className="grid scroll-mt-20 grid-cols-3 gap-1.5 overflow-hidden rounded-3xl">
+        {business.photos.slice(first, first + GALLERY_PAGE_SIZE).map((p, i) => (
           <button
             key={p.id}
             type="button"
-            onClick={() => setOpen(i)}
+            onClick={() => setOpen(first + i)}
             className="focus-ring group relative aspect-square overflow-hidden"
           >
             <Image
@@ -574,6 +590,45 @@ function Gallery({ business }: { business: BusinessView }) {
           </button>
         ))}
       </div>
+      {pages > 1 && (
+        <nav className="mt-3 flex items-center justify-center gap-1.5" aria-label="עמודי הגלריה">
+          <button
+            type="button"
+            aria-label="העמוד הקודם"
+            disabled={page === 0}
+            onClick={() => go(page - 1)}
+            className="focus-ring pressable inline-flex size-9 items-center justify-center rounded-full text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronRight className="size-5" />
+          </button>
+          {Array.from({ length: pages }, (_, n) => (
+            <button
+              key={n}
+              type="button"
+              aria-label={`עמוד ${n + 1}`}
+              aria-current={n === page ? "page" : undefined}
+              onClick={() => go(n)}
+              className={cn(
+                "focus-ring pressable inline-flex size-9 items-center justify-center rounded-full text-sm font-semibold tabular-nums",
+                n === page
+                  ? "bg-gradient-to-br from-[var(--accent-from)] to-[var(--accent-to)] text-white shadow-md"
+                  : "glass-lite text-muted hover:text-foreground",
+              )}
+            >
+              {n + 1}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-label="העמוד הבא"
+            disabled={page === pages - 1}
+            onClick={() => go(page + 1)}
+            className="focus-ring pressable inline-flex size-9 items-center justify-center rounded-full text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+        </nav>
+      )}
       {photo && (
         <div
           role="dialog"
