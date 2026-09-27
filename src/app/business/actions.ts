@@ -109,6 +109,11 @@ const saveSchema = z.object({
   certifications: z.array(z.string().trim().min(1).max(80)).max(12, "עד 12 הסמכות"),
   hours: z.partialRecord(z.enum(["0", "1", "2", "3", "4", "5", "6"]), z.array(z.tuple([time, time])).max(3)),
   open_on_holidays: z.boolean(),
+  adoption_days: z.object({
+    enabled: z.boolean(),
+    days: z.partialRecord(z.enum(["0", "1", "2", "3", "4", "5", "6"]), z.array(z.tuple([time, time])).max(3)),
+    note: z.string().trim().max(80, "ההערה לימי האימוץ ארוכה מדי").nullable().optional(),
+  }),
   price_list: z
     .array(
       z.object({

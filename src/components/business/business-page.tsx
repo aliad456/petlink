@@ -11,6 +11,7 @@ import {
   CircleCheck,
   Clock,
   Globe,
+  HeartHandshake,
   Languages,
   Mail,
   MapPin,
@@ -72,10 +73,18 @@ export function BusinessPage({
     "--accent-to": design.accent.to,
   } as CSSProperties;
 
+  // No empty "מחירון"/"גלריה" tab on the public page (a hidden section has no tab either).
+  const tabs = TABS.filter((t) => {
+    if (t.id === "gallery") return design.sections.includes("gallery") && (preview || business.photos.length > 0);
+    if (t.id === "prices") return design.sections.includes("prices") && (preview || business.price_list.length > 0);
+    return true;
+  });
+  const current = tabs.some((t) => t.id === tab) ? tab : "all";
+
   const visibleSections = design.sections.filter((id) => {
-    if (tab === "gallery") return id === "gallery";
-    if (tab === "prices") return id === "prices";
-    return tab === "all";
+    if (current === "gallery") return id === "gallery";
+    if (current === "prices") return id === "prices";
+    return current === "all";
   });
 
   return (
@@ -195,15 +204,15 @@ export function BusinessPage({
 
         {/* לשוניות */}
         <nav className="mt-6 flex gap-1.5 overflow-x-auto [scrollbar-width:none]" aria-label="חלקי העמוד">
-          {TABS.map((t) => (
+          {tabs.map((t) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setTab(t.id)}
-              aria-pressed={tab === t.id}
+              aria-pressed={current === t.id}
               className={cn(
                 "pressable focus-ring whitespace-nowrap rounded-full px-4 py-2 text-[15px] font-semibold",
-                tab === t.id
+                current === t.id
                   ? "bg-[color-mix(in_oklab,var(--accent-from)_22%,transparent)] text-[var(--accent-to)] dark:text-[var(--accent-from)]"
                   : "text-muted hover:text-foreground",
               )}
@@ -214,7 +223,7 @@ export function BusinessPage({
         </nav>
 
         <div className="mt-5 flex flex-col gap-7">
-          {tab === "reviews" ? (
+          {current === "reviews" ? (
             (reviews ?? <Placeholder icon={Star} text="כאן יופיעו הביקורות של הלקוחות שלכם" />)
           ) : (
             visibleSections.map((id) => (
@@ -383,6 +392,19 @@ function Section({ id, business, preview }: { id: SectionId; business: BusinessV
           <Placeholder icon={Clock} text="הוסיפו שעות פעילות, ויופיע תג 'פתוח עכשיו'" />
         </Block>
       ) : null;
+    case "adoption": {
+      const a = business.adoption_days;
+      if (!a?.enabled) return null;
+      return hasAnyHours(a.days) ? (
+        <Block title="ימי אימוץ">
+          <AdoptionDays days={a.days} note={a.note} />
+        </Block>
+      ) : preview ? (
+        <Block title="ימי אימוץ">
+          <Placeholder icon={HeartHandshake} text="בחרו ימים ושעות לימי האימוץ" />
+        </Block>
+      ) : null;
+    }
     case "gallery":
       return business.photos.length ? (
         <Block title="גלריה">
@@ -549,6 +571,39 @@ function HoursTable({ business }: { business: BusinessView }) {
           );
         })}
       </ul>
+    </div>
+  );
+}
+
+// Only the days that have an adoption event, highlighted like a card.
+function AdoptionDays({ days, note }: { days: BusinessView["hours"]; note?: string | null }) {
+  const client = useIsClient();
+  const today = client ? israelNow().day : -1;
+  const open = DAY_NAMES.map((day, i) => ({ day, i, ranges: days[String(i) as keyof typeof days] ?? [] })).filter(
+    (d) => d.ranges.length,
+  );
+  return (
+    <div className="flex flex-col gap-2.5 rounded-2xl bg-[color-mix(in_oklab,var(--accent-from)_12%,var(--glass-bg))] p-4">
+      <ul className="flex flex-col gap-1.5">
+        {open.map(({ day, i, ranges }) => (
+          <li key={day} className="flex items-center justify-between gap-3 text-[15px]">
+            <span className={cn("inline-flex items-center gap-2", i === today && "font-bold")}>
+              <HeartHandshake className="size-4 shrink-0 text-[var(--accent-to)] dark:text-[var(--accent-from)]" />
+              יום {day}
+              {i === today && <span className="text-xs font-semibold text-[var(--accent-to)] dark:text-[var(--accent-from)]">היום</span>}
+            </span>
+            <span dir="ltr" className="tabular-nums">
+              {ranges.map(([a, b]) => `${a}–${b}`).join(", ")}
+            </span>
+          </li>
+        ))}
+      </ul>
+      {note && (
+        <p className="flex items-center gap-2 border-t border-[color-mix(in_oklab,var(--muted)_20%,transparent)] pt-2.5 text-sm text-muted">
+          <MapPin className="size-4 shrink-0" />
+          {note}
+        </p>
+      )}
     </div>
   );
 }

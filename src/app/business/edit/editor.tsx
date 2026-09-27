@@ -6,6 +6,7 @@ import {
   BadgePercent,
   Clock,
   ExternalLink,
+  HeartHandshake,
   Images,
   ListChecks,
   MapPin,
@@ -36,6 +37,7 @@ import {
   DealFields,
   ExperienceFields,
   FeatureFields,
+  AdoptionFields,
   HoursFields,
   LocationFields,
   Panel,
@@ -228,6 +230,9 @@ export function Editor({
           </Panel>
           <Panel icon={Clock} title="שעות פעילות" hint="מהן מחושב התג 'פתוח עכשיו'">
             <HoursFields form={form} update={update} />
+          </Panel>
+          <Panel icon={HeartHandshake} title="ימי אימוץ" hint="לעמותות: ימים ושעות, נפרד משעות הפעילות">
+            <AdoptionFields form={form} update={update} />
           </Panel>
           <Panel icon={ListChecks} title="מאפיינים" hint="מה שלקוחות מסננים לפיו">
             <FeatureFields form={form} update={update} filters={filters} />
