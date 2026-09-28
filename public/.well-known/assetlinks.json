@@ -1,10 +1,13 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "il.co.heykami.app",
       "sha256_cert_fingerprints": [
+        "97:75:50:85:8F:8E:61:94:7D:A7:48:F4:AE:02:E4:DC:4D:62:64:9C:72:20:A5:B7:8A:94:BD:D6:E6:68:71:A6",
         "FD:F2:0A:E3:E2:34:19:02:D1:AE:E9:C1:32:D8:DA:22:DC:C7:DC:6E:69:F1:69:5D:10:15:11:85:4A:EC:18:05"
       ]
     }
