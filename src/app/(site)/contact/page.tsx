@@ -18,7 +18,9 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
       ? "אני בעל/ת העסק ומבקש/ת להסיר את העמוד מהאתר."
       : sp.topic === "account"
         ? "החשבון שלי ננעל ואני חושב/ת שזו טעות. המייל של החשבון: "
-        : undefined;
+        : sp.topic === "delete"
+          ? `אני מבקש/ת למחוק את החשבון שלי ואת כל המידע שלי. המייל של החשבון: ${profile?.email ?? ""}`
+          : undefined;
 
   return (
     <MaintenanceGate path="/contact">

@@ -1,4 +1,4 @@
-import { ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Store } from "lucide-react";
+import { ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -236,12 +236,19 @@ export default async function AccountPage() {
             <SectionTitle>התראות ופרטיות</SectionTitle>
             <MarketingToggle consent={consent?.marketing_consent ?? false} />
             <p className="text-sm text-muted">
-              רוצים לקבל עותק של המידע שלכם או למחוק את החשבון?{" "}
+              רוצים לקבל עותק של המידע שלכם?{" "}
               <Link href="/contact?kind=privacy" className="font-medium text-brand-strong underline underline-offset-2 dark:text-brand">
                 שלחו בקשה
               </Link>
               .
             </p>
+            <Link
+              href="/contact?kind=privacy&topic=delete"
+              className={buttonClass({ variant: "glass", size: "sm", className: "self-start text-danger" })}
+            >
+              <Trash2 className="size-4" />
+              מחיקת החשבון
+            </Link>
           </Card>
 
           {messages && messages.length > 0 && <Messages messages={messages} />}
