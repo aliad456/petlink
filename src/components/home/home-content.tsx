@@ -1,4 +1,4 @@
-import { BadgePercent, Clock, Navigation, Siren, Sparkles } from "lucide-react";
+import { BadgePercent, Clock, Navigation, Siren, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -116,6 +116,17 @@ export async function HomeContent({
             </nav>
 
             <ul className="animate-rise flex flex-wrap justify-center gap-2" style={{ "--i": 5 } as CSSProperties}>
+              <li>
+                <Link
+                  href="/recommended"
+                  prefetch
+                  transitionTypes={["nav-forward"]}
+                  className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,#fbbf24,#f59e0b)] px-3.5 py-1.5 text-sm font-bold text-amber-950 shadow-[0_6px_18px_rgb(245_158_11/0.3)]"
+                >
+                  <Star className="size-3.5 fill-current" />
+                  אנחנו ממליצים
+                </Link>
+              </li>
               {featured?.map((f) => (
                 <li key={f.id}>
                   <Link
