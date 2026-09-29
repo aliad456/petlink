@@ -10,36 +10,49 @@ import { trackImpression } from "./track";
 
 const WAIT_SECONDS = 3;
 
-// Full-screen ad on entering the site. Shown once per day per visitor; the
-// close button unlocks after a short countdown.
+// Full-screen ad. Opens on every visit to the site and every time the visitor
+// comes back to the home page (including a click on the logo while already
+// there). Not shown to PRO subscribers. The close button unlocks after a short
+// countdown.
 // `preview`: always opens, no counting, and can be replayed.
 export function AdPopup({ ad, preview = false }: { ad: BannerAd | null; preview?: boolean }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [left, setLeft] = useState(WAIT_SECONDS);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const key = ad ? `kami_popup_${ad.id}_${new Date().toDateString()}` : "";
+  const handledPath = useRef<string | null>(null); // last path the popup decision was made for
   const suppressed = !preview && pathname.startsWith("/preview-frame");
 
+  // Every page load, then every arrival on the home page.
   useEffect(() => {
     if (!ad || suppressed) return;
-    if (!preview) {
-      let shown = false;
-      try {
-        shown = !!localStorage.getItem(key);
-        localStorage.setItem(key, "1");
-      } catch {
-        // storage blocked: show it, once per page load
-      }
-      if (shown) return;
+    const seen = handledPath.current;
+    if (seen !== null && (preview || pathname !== "/" || seen === "/")) {
+      handledPath.current = pathname;
+      return;
     }
     const t = setTimeout(() => {
+      handledPath.current = pathname;
       setLeft(WAIT_SECONDS);
       setOpen(true);
       if (!preview) trackImpression(ad.id);
     }, 600); // let the page paint first
     return () => clearTimeout(t);
-  }, [ad, key, preview, suppressed]);
+  }, [ad, pathname, preview, suppressed]);
+
+  // A click on a link to the home page while already on it doesn't change the path.
+  useEffect(() => {
+    if (!ad || preview || suppressed || pathname !== "/") return;
+    const onClick = (e: MouseEvent) => {
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (link?.getAttribute("href") !== "/") return;
+      setLeft(WAIT_SECONDS);
+      setOpen(true);
+      trackImpression(ad.id);
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, [ad, pathname, preview, suppressed]);
 
   useEffect(() => {
     if (!open || left <= 0) return;
