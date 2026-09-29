@@ -66,3 +66,15 @@ export const getFreshBusinesses = unstable_cache(
   ["fresh-businesses-v1"],
   { tags: [BUSINESSES_TAG], revalidate: 300 },
 );
+
+// "אנחנו ממליצים": businesses staff marked as featured (admin → businesses → ★).
+// search_businesses already sorts featured first, so a wide page is enough.
+export const getRecommendedBusinesses = unstable_cache(
+  async () => {
+    const { data, error } = await createPublicClient().rpc("search_businesses", { p_limit: 300 });
+    if (error) throw error;
+    return ((data ?? []) as import("@/lib/search/load").SearchResult[]).filter((r) => r.is_featured);
+  },
+  ["recommended-businesses-v1"],
+  { tags: [BUSINESSES_TAG], revalidate: 300 },
+);
