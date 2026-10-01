@@ -23,7 +23,8 @@ export function InstallPrompt() {
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (navigator as Navigator & { standalone?: boolean }).standalone === true;
-    if (standalone) return;
+    const inApp = navigator.userAgent.includes("KamiApp"); // the Android app (android/)
+    if (standalone || inApp) return;
 
     let eligible = false;
     try {
