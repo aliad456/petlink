@@ -1,5 +1,5 @@
 import { MaintenanceGate } from "@/components/maintenance";
-import { BadgeCheck, Eye, Info, Pencil } from "lucide-react";
+import { BadgeCheck, CalendarClock, ChevronLeft, Eye, Info, Pencil } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -68,7 +68,8 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
 
   const supabase = await createClient();
   const canSharePet = profile?.account_type === "pet_owner" && row.owner_id !== null && row.status === "approved";
-  const [{ data: reviewRows }, { data: mine }, favorites, { data: adopted }, { data: myPets }] = await Promise.all([
+  const bookingCheck = row.plan === "pro" && row.status === "approved" && !isOwner;
+  const [{ data: reviewRows }, { data: mine }, favorites, { data: adopted }, { data: myPets }, { data: bookingOn }, { count: bookable }] = await Promise.all([
     supabase
       .from("reviews")
       .select(REVIEW_COLUMNS)
@@ -95,7 +96,14 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           .order("created_at")
           .returns<{ id: string; name: string; species: Species; avatar_path: string | null; shares: { business_id: string }[] }[]>()
       : Promise.resolve({ data: null }),
+    bookingCheck
+      ? supabase.from("booking_settings").select("enabled").eq("business_id", row.id).eq("enabled", true).maybeSingle()
+      : Promise.resolve({ data: null }),
+    bookingCheck
+      ? supabase.from("booking_services").select("id", { count: "exact", head: true }).eq("business_id", row.id).eq("active", true)
+      : Promise.resolve({ count: 0 }),
   ]);
+  const canBook = !!bookingOn && (bookable ?? 0) > 0;
   // user_id stays on the server; the browser only learns which review is "mine".
   const toPublic = ({ user_id, ...r }: Review): PublicReview => ({ ...r, mine: user_id === profile?.id });
   const reviews = (reviewRows ?? []).map(toPublic);
@@ -167,12 +175,33 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
           <BusinessPage
             business={{ ...view, adopted_count: (adopted as number | null) ?? 0 }}
             actions={
-              canSharePet ? (
-                <SharePetsButton
-                  businessId={row.id}
-                  businessName={row.name}
-                  pets={(myPets ?? []).map(({ shares, ...p }) => ({ ...p, shared: shares.some((s) => s.business_id === row.id) }))}
-                />
+              canBook || canSharePet ? (
+                <>
+                  {canBook && (
+                    <Link
+                      href={`/b/${row.public_id}/book`}
+                      transitionTypes={["nav-forward"]}
+                      prefetch
+                      className="pressable focus-ring mt-3 flex w-full items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] px-4 py-3.5 text-start text-white shadow-lg"
+                    >
+                      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                        <CalendarClock className="size-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-bold">קביעת תור אונליין</span>
+                        <span className="block text-sm text-white/85">בוחרים שירות, יום ושעה. התור נקבע מיד.</span>
+                      </span>
+                      <ChevronLeft className="size-5 shrink-0" />
+                    </Link>
+                  )}
+                  {canSharePet && (
+                    <SharePetsButton
+                      businessId={row.id}
+                      businessName={row.name}
+                      pets={(myPets ?? []).map(({ shares, ...p }) => ({ ...p, shared: shares.some((s) => s.business_id === row.id) }))}
+                    />
+                  )}
+                </>
               ) : undefined
             }
             saved={favorites ? favorites.includes(row.id) : null}
