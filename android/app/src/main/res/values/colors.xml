@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Same as --background / --brand in src/app/globals.css -->
+    <!-- Same as the background and brand colors in src/app/globals.css -->
     <color name="page_bg">#EEF2F4</color>
     <color name="brand">#0891B2</color>
     <color name="on_brand">#FFFFFF</color>
