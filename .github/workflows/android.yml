@@ -59,6 +59,11 @@ jobs:
           KAMI_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           KAMI_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           KAMI_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          # Firebase (push notifications). Missing = the app builds without push.
+          KAMI_FCM_APP_ID: ${{ secrets.KAMI_FCM_APP_ID }}
+          KAMI_FCM_API_KEY: ${{ secrets.KAMI_FCM_API_KEY }}
+          KAMI_FCM_PROJECT_ID: ${{ secrets.KAMI_FCM_PROJECT_ID }}
+          KAMI_FCM_SENDER_ID: ${{ secrets.KAMI_FCM_SENDER_ID }}
         run: |
           chmod +x gradlew
           ./gradlew --no-daemon bundleRelease assembleRelease \

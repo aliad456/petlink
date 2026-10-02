@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CategoryIcon } from "@/components/category-icon";
 import { PageTransition } from "@/components/page-transition";
+import { PushToggle } from "@/components/push-toggle";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar, Badge, buttonClass, Card, FormMessage, SectionTitle } from "@/components/ui";
 import { getStaffContext, requireUser } from "@/lib/auth/session";
@@ -256,6 +257,7 @@ export default async function AccountPage() {
 
           <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 3 } as CSSProperties}>
             <SectionTitle>התראות ופרטיות</SectionTitle>
+            <PushToggle />
             <MarketingToggle consent={consent?.marketing_consent ?? false} />
             <p className="text-sm text-muted">
               רוצים לקבל עותק של המידע שלכם?{" "}

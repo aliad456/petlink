@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { PageTransition } from "@/components/page-transition";
+import { PushToggle } from "@/components/push-toggle";
 import { buttonClass, Card, SectionTitle } from "@/components/ui";
 import { requireUser } from "@/lib/auth/session";
 import { dayKey, nowMs, relativeDayLabel, type BookingSettings } from "@/lib/bookings";
@@ -56,6 +57,7 @@ export default async function BusinessBookingsPage() {
           )}
         </header>
         {hasNew && <MarkSeen />}
+        {business && <PushToggle compact hint="נעדכן אותך ברגע שלקוח קובע או מבטל תור." />}
 
         {!business ? (
           <Card className="py-10 text-center text-muted">הדף הזה לבעלי עסקים ב-Kami.</Card>

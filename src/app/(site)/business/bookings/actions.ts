@@ -1,10 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { bookingError, DAYS_AHEAD, israelLocalToISO, NOTICE_OPTIONS, SLOT_STEPS } from "@/lib/bookings";
 import { getOwnBusiness } from "@/lib/business/own";
+import { pushBookingCancelled, pushBookingMoved } from "@/lib/push/bookings";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
 
@@ -85,6 +87,7 @@ export async function cancelBookingAsBusiness(id: string, reason: string): Promi
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_booking", { p_id: id, p_reason: reason.slice(0, 200) });
   if (error) return { error: bookingError(error) };
+  after(() => pushBookingCancelled(id, "business"));
   refresh(business.public_id);
   return {};
 }
@@ -96,6 +99,7 @@ export async function moveBooking(id: string, local: string): Promise<Result> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("move_booking", { p_id: id, p_starts_at: startsAt });
   if (error) return { error: bookingError(error) };
+  after(() => pushBookingMoved(id));
   refresh(business.public_id);
   return {};
 }

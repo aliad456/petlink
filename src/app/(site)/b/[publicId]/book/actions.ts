@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { bookingError } from "@/lib/bookings";
+import { pushBookingCancelled, pushBookingCreated } from "@/lib/push/bookings";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
 
@@ -52,6 +54,7 @@ export async function bookAppointment(input: z.input<typeof bookSchema>): Promis
     p_policy_ok: d.policyOk,
   });
   if (error) return { error: bookingError(error) };
+  after(() => pushBookingCreated(data as string));
   revalidatePath("/account");
   return { id: data as string };
 }
@@ -62,6 +65,7 @@ export async function cancelMyBooking(id: string): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("cancel_booking", { p_id: id, p_reason: null });
   if (error) return { error: bookingError(error) };
+  after(() => pushBookingCancelled(id, "customer"));
   revalidatePath("/account");
   return {};
 }

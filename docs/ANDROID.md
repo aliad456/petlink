@@ -29,3 +29,21 @@ base64 במחשב Windows (PowerShell, בתיקייה של הקובץ):
 3. Play Console → בדיקה סגורה → גרסה חדשה → להעלות את ה-aab.
 
 טביעת ה-SHA-256 שמודפסת בשלב "Signing certificate" צריכה להופיע ב-`public/.well-known/assetlinks.json`.
+
+## התראות (Firebase)
+האפליקציה מקבלת התראות פוש דרך Firebase Cloud Messaging. אין `google-services.json` בקוד: הערכים נכנסים בזמן
+הבנייה מ-GitHub Secrets, ובלעדיהם האפליקציה נבנית ועובדת, רק בלי התראות.
+
+| Secret | מאיפה (Firebase → Project settings → General → האפליקציה `il.co.heykami.app`) |
+|---|---|
+| `KAMI_FCM_APP_ID` | App ID (`1:…:android:…`) |
+| `KAMI_FCM_API_KEY` | Web API key (או `current_key` מתוך google-services.json) |
+| `KAMI_FCM_PROJECT_ID` | Project ID |
+| `KAMI_FCM_SENDER_ID` | Project number (Cloud Messaging → Sender ID) |
+
+השרת שולח עם חשבון שירות: Firebase → Project settings → Service accounts → Generate new private key, ואת כל
+תוכן קובץ ה-JSON שמים ב-Vercel כ-`FIREBASE_SERVICE_ACCOUNT`.
+
+האתר מדבר עם האפליקציה דרך `window.KamiApp` (`pushState`, `requestPush`, `pushToken`; רק בעמודי heykami.co.il).
+הטוקן חוזר לאתר באירוע `kami-push` ונשמר ב-`push_subscriptions`. ב-Play → Data safety: "Device or other IDs"
+(לפונקציונליות האפליקציה, לא משותף).

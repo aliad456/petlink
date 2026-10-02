@@ -2,6 +2,8 @@ package il.co.heykami.app;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.content.SharedPreferences;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
@@ -33,6 +36,10 @@ import android.widget.Toast;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONObject;
+
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,16 +47,20 @@ import java.util.List;
 // Kami for Android: the site (heykami.co.il) in a WebView, with the native pieces
 // a browser tab would give for free: photo uploads, "near me" location, the back
 // button, links to other apps (WhatsApp, phone, maps), an offline screen and
-// opening heykami.co.il links straight in the app.
+// opening heykami.co.il links straight in the app, and push notifications
+// (window.KamiApp, used by src/components/push-toggle.tsx).
 public class MainActivity extends Activity {
     private static final String HOME = "https://heykami.co.il/";
     private static final int REQ_FILES = 1;
     private static final int REQ_LOCATION = 2;
+    private static final int REQ_NOTIFICATIONS = 3;
 
     private WebView web;
     private ProgressBar progress;
     private View offline;
     private boolean failed;
+    // The bridge runs off the UI thread, so it can't ask the WebView what page is open.
+    private volatile boolean onOurPage;
 
     private ValueCallback<Uri[]> fileCallback;
     private String geoOrigin;
@@ -87,6 +98,7 @@ public class MainActivity extends Activity {
         cookies.setAcceptCookie(true);
         cookies.setAcceptThirdPartyCookies(web, true);
 
+        web.addJavascriptInterface(new Bridge(), "KamiApp");
         web.setWebViewClient(new Client());
         web.setWebChromeClient(new Chrome());
         web.setDownloadListener((url, ua, disposition, mime, length) -> openExternal(Uri.parse(url)));
@@ -301,11 +313,81 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(requestCode, permissions, results);
-        if (requestCode != REQ_LOCATION || geoCallback == null) return;
         boolean granted = results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED;
+        if (requestCode == REQ_NOTIFICATIONS) {
+            prefs().edit().putBoolean("notifications_asked", true).apply();
+            if (granted) fetchPushToken();
+            else sendPushToken(null);
+            return;
+        }
+        if (requestCode != REQ_LOCATION || geoCallback == null) return;
         geoCallback.invoke(geoOrigin, granted, false);
         geoCallback = null;
         geoOrigin = null;
+    }
+
+    // ─── Push notifications ───
+
+    private SharedPreferences prefs() {
+        return getSharedPreferences(KamiMessagingService.PREFS, MODE_PRIVATE);
+    }
+
+    private boolean notificationsAllowed() {
+        if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        return getSystemService(NotificationManager.class).areNotificationsEnabled();
+    }
+
+    private void fetchPushToken() {
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            String token = task.isSuccessful() ? task.getResult() : null;
+            if (token != null) prefs().edit().putString(KamiMessagingService.TOKEN, token).apply();
+            sendPushToken(token);
+        });
+    }
+
+    private void sendPushToken(String token) {
+        if (web == null) return;
+        String detail = token == null ? "null" : JSONObject.quote(token);
+        web.evaluateJavascript("window.dispatchEvent(new CustomEvent('kami-push',{detail:{token:" + detail + "}}))", null);
+    }
+
+    private class Bridge {
+        // "granted" (on, token saved) / "default" (can be turned on) / "denied" / "unavailable"
+        @JavascriptInterface
+        public String pushState() {
+            if (!onOurPage || !KamiApplication.pushConfigured()) return "unavailable";
+            if (notificationsAllowed()) return prefs().getString(KamiMessagingService.TOKEN, null) != null ? "granted" : "default";
+            boolean blocked = Build.VERSION.SDK_INT < 33
+                    || (prefs().getBoolean("notifications_asked", false)
+                        && !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS));
+            return blocked ? "denied" : "default";
+        }
+
+        @JavascriptInterface
+        public void requestPush() {
+            if (!onOurPage) return;
+            runOnUiThread(() -> {
+                if (!KamiApplication.pushConfigured()) {
+                    sendPushToken(null);
+                } else if (notificationsAllowed()) {
+                    fetchPushToken();
+                } else if (Build.VERSION.SDK_INT >= 33) {
+                    requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIFICATIONS);
+                } else {
+                    sendPushToken(null); // turned off in the phone's settings
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public String pushToken() {
+            if (!onOurPage || !KamiApplication.pushConfigured() || !notificationsAllowed()) return "";
+            String token = prefs().getString(KamiMessagingService.TOKEN, null);
+            return token == null ? "" : token;
+        }
     }
 
     private class Chrome extends WebChromeClient {
@@ -349,6 +431,7 @@ public class MainActivity extends Activity {
         @Override
         public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
             failed = false;
+            onOurPage = isOurs(Uri.parse(url));
         }
 
         @Override
@@ -360,6 +443,7 @@ public class MainActivity extends Activity {
 
         @Override
         public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+            onOurPage = isOurs(Uri.parse(url));
             updateBack();
         }
 
