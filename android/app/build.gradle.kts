@@ -7,6 +7,8 @@ plugins {
 val kamiVersionCode = (findProperty("kamiVersionCode") as String?)?.toInt() ?: 2
 val kamiVersionName = (findProperty("kamiVersionName") as String?) ?: "1.1"
 val keystorePath: String? = System.getenv("KAMI_KEYSTORE")
+// Firebase (push notifications). Empty = the app runs without push.
+fun fcm(name: String) = "\"" + (System.getenv("KAMI_FCM_$name") ?: "") + "\""
 
 android {
     namespace = "il.co.heykami.app"
@@ -18,6 +20,14 @@ android {
         targetSdk = 36
         versionCode = kamiVersionCode
         versionName = kamiVersionName
+        buildConfigField("String", "FCM_APP_ID", fcm("APP_ID"))
+        buildConfigField("String", "FCM_API_KEY", fcm("API_KEY"))
+        buildConfigField("String", "FCM_PROJECT_ID", fcm("PROJECT_ID"))
+        buildConfigField("String", "FCM_SENDER_ID", fcm("SENDER_ID"))
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     signingConfigs {
@@ -43,4 +53,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+dependencies {
+    implementation("com.google.firebase:firebase-messaging:24.1.1")
 }

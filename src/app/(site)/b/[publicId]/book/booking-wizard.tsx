@@ -4,6 +4,7 @@ import { CalendarCheck, Check, PawPrint } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { Dialog } from "@/components/dialog";
+import { PushToggle } from "@/components/push-toggle";
 import { toast } from "@/components/toast";
 import { Button, buttonClass, Card, cn, Input, Label, SectionTitle, Spinner, Textarea } from "@/components/ui";
 import {
@@ -109,6 +110,9 @@ export function BookingWizard({
           </span>
           {petName && <> · עם {petName}</>}
         </p>
+        <div className="w-full text-start">
+          <PushToggle compact hint="נזכיר לך יום לפני התור, ונעדכן אם משהו משתנה." />
+        </div>
         <div className="flex flex-wrap justify-center gap-2">
           <Link href="/account#bookings" className={buttonClass({ size: "sm" })}>
             התורים שלי

@@ -4,8 +4,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- "near me" search. Approximate only, matching the Play data-safety form. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Booking notifications (asked only when the user turns them on). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".KamiApplication"
         android:allowBackup="false"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
@@ -35,5 +38,13 @@
                 <data android:host="www.heykami.co.il" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".KamiMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
