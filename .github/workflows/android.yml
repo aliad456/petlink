@@ -65,9 +65,11 @@ jobs:
             -PkamiVersionCode="$VERSION_CODE" -PkamiVersionName="$VERSION_NAME"
 
       # The SHA-256 here must be the upload key's fingerprint in public/.well-known/assetlinks.json.
+      # (The .aab is jar-signed; the APK only has v2+ signatures, which keytool can't read.)
       - name: Signing certificate
         if: env.KAMI_KEYSTORE != ''
-        run: keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk | grep -E "Owner|SHA256"
+        continue-on-error: true
+        run: keytool -printcert -jarfile android/app/build/outputs/bundle/release/app-release.aab | grep -E "Owner|SHA256"
 
       - uses: actions/upload-artifact@v4
         with:
