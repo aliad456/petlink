@@ -1,0 +1,78 @@
+# Builds the Android app (android/) for Google Play.
+# Run it from GitHub → Actions → "Android app" → Run workflow, then download the
+# .aab from the run's Artifacts and upload it in Play Console.
+# Signing uses the upload key stored in the repo's secrets (never in the code):
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+# Without them (e.g. on a push) it still builds, unsigned, just to check the code compiles.
+name: Android app
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: "versionCode — must be higher than the last upload to Play"
+        required: true
+        default: "2"
+      version_name:
+        description: "Version name shown to users"
+        required: true
+        default: "1.1"
+  push:
+    paths:
+      - "android/**"
+      - ".github/workflows/android.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      VERSION_CODE: ${{ github.event.inputs.version_code || '2' }}
+      VERSION_NAME: ${{ github.event.inputs.version_name || '1.1' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Upload key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | tr -d ' \r\n' | base64 -d > "$RUNNER_TEMP/upload.keystore"
+            echo "KAMI_KEYSTORE=$RUNNER_TEMP/upload.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No upload key in the repository secrets: this build is unsigned and can't go to Google Play."
+          fi
+
+      - name: Build
+        working-directory: android
+        env:
+          KAMI_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KAMI_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KAMI_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon bundleRelease assembleRelease \
+            -PkamiVersionCode="$VERSION_CODE" -PkamiVersionName="$VERSION_NAME"
+
+      # The SHA-256 here must be the upload key's fingerprint in public/.well-known/assetlinks.json.
+      - name: Signing certificate
+        if: env.KAMI_KEYSTORE != ''
+        run: keytool -printcert -jarfile android/app/build/outputs/apk/release/app-release.apk | grep -E "Owner|SHA256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kami-android-${{ env.VERSION_CODE }}
+          if-no-files-found: error
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk

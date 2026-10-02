@@ -1,4 +1,4 @@
-import { ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { CalendarClock, ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,12 +7,14 @@ import { PageTransition } from "@/components/page-transition";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar, Badge, buttonClass, Card, FormMessage, SectionTitle } from "@/components/ui";
 import { getStaffContext, requireUser } from "@/lib/auth/session";
+import { isoFromNow } from "@/lib/bookings";
 import { mediaUrl } from "@/lib/business/media";
 import { getOwnBusiness } from "@/lib/business/own";
 import { petAge, petMediaUrl, SPECIES, type Pet } from "@/lib/pets";
 import { createClient } from "@/lib/supabase/server";
 import { Messages, type Message } from "./messages";
 import { MarketingToggle } from "./marketing-toggle";
+import { MyBookings, type MyBooking } from "./my-bookings";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "החשבון שלי" };
@@ -44,7 +46,7 @@ const ACCOUNT_TYPE_LABEL = {
 export default async function AccountPage() {
   const profile = await requireUser();
   const supabase = await createClient();
-  const [staff, business, { data: messages }, { data: consent }, { data: saved }, { data: pets }] = await Promise.all([
+  const [staff, business, { data: messages }, { data: consent }, { data: saved }, { data: pets }, { data: myBookings }, { data: newBookings }] = await Promise.all([
     getStaffContext(),
     profile.account_type === "business_owner" ? getOwnBusiness() : null,
     supabase
@@ -69,6 +71,15 @@ export default async function AccountPage() {
           .order("created_at")
           .returns<PetCard[]>()
       : Promise.resolve({ data: null }),
+    supabase
+      .from("bookings")
+      .select("id, starts_at, status, service_name, pet_name, cancel_reason, business:businesses(name, public_id, address, city)")
+      .eq("customer_id", profile.id)
+      .gte("starts_at", isoFromNow(-3 * 3_600_000))
+      .order("starts_at")
+      .limit(20)
+      .returns<MyBooking[]>(),
+    profile.account_type === "business_owner" ? supabase.rpc("business_new_bookings") : Promise.resolve({ data: null }),
   ]);
   const savedBusinesses = (saved ?? []).map((r) => r.business).filter((b): b is SavedBusiness => !!b);
 
@@ -95,6 +106,8 @@ export default async function AccountPage() {
               error={`החשבון ${profile.status === "locked" ? "נעול" : "חסום"}. לפרטים פנו לשירות הלקוחות.`}
             />
           )}
+
+          {!!myBookings?.length && <MyBookings bookings={myBookings} />}
 
           {profile.account_type === "pet_owner" && (
             <Card className="animate-rise flex flex-col gap-4" style={{ "--i": 1 } as CSSProperties}>
@@ -142,7 +155,7 @@ export default async function AccountPage() {
 
           {profile.account_type === "business_owner" &&
             (business ? (
-              <Card className="animate-rise flex items-center gap-4" style={{ "--i": 1 } as CSSProperties}>
+              <Card className="animate-rise flex flex-wrap items-center gap-4" style={{ "--i": 1 } as CSSProperties}>
                 <span className="size-14 shrink-0 overflow-hidden rounded-2xl bg-kami">
                   {business.avatar_path && (
                     // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
@@ -156,7 +169,7 @@ export default async function AccountPage() {
                     {BUSINESS_STATUS[business.status].label}
                   </Badge>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex w-full flex-wrap gap-2">
                   <Link href="/business/edit" transitionTypes={["nav-forward"]} className={buttonClass({ size: "sm" })}>
                     <Pencil className="size-4" />
                     עריכה
@@ -164,6 +177,15 @@ export default async function AccountPage() {
                   <Link href={`/b/${business.public_id}`} className={buttonClass({ variant: "glass", size: "sm" })}>
                     <ExternalLink className="size-4" />
                     צפייה
+                  </Link>
+                  <Link href="/business/bookings" transitionTypes={["nav-forward"]} className={buttonClass({ variant: "glass", size: "sm" })}>
+                    <CalendarClock className="size-4" />
+                    תורים
+                    {!!newBookings && (
+                      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-xs font-bold text-white">
+                        {newBookings as number}
+                      </span>
+                    )}
                   </Link>
                   <Link href="/business/pets" transitionTypes={["nav-forward"]} className={buttonClass({ variant: "glass", size: "sm" })}>
                     <PawPrint className="size-4" />
