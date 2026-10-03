@@ -36,6 +36,16 @@ const PAGE_NAMES: Record<string, string> = {
   "/account/pets/new": "הוספת חיית מחמד",
   "/business/new": "הוספת עסק",
   "/contact": "צור קשר",
+  "/plans": "תוכניות ומחירים",
+  "/recommended": "מומלצים",
+  "/business/edit": "עריכת עמוד עסק",
+  "/business/bookings": "תורים (עסק)",
+  "/business/bookings/settings": "הגדרות תורים",
+  "/business/pets": "כרטיסי חיות (עסק)",
+  "/terms": "תנאי שימוש",
+  "/privacy": "מדיניות פרטיות",
+  "/accessibility": "נגישות",
+  "/adoption": "אימוץ",
 };
 
 export function StatsDashboard({ stats }: { stats: SiteStats }) {
@@ -66,7 +76,7 @@ export function StatsDashboard({ stats }: { stats: SiteStats }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
           {METRICS.map((m, i) => {
             const Icon = m.icon;
             return (
@@ -87,7 +97,7 @@ export function StatsDashboard({ stats }: { stats: SiteStats }) {
         </div>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
         <DailyBars
           title="מבקרים ביום"
           unit="מבקרים"
@@ -102,7 +112,7 @@ export function StatsDashboard({ stats }: { stats: SiteStats }) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3 [&>*]:min-w-0">
         <RankList
           title="דפים נצפים (שבוע)"
           empty="עוד אין צפיות"
