@@ -1,0 +1,48 @@
+# Kami for iPhone. The Xcode project is generated from this file (XcodeGen) in CI,
+# so there is no .xcodeproj in the repo. See docs/IOS.md.
+name: Kami
+options:
+  bundleIdPrefix: il.co.heykami
+  deploymentTarget:
+    iOS: "15.0"
+  developmentLanguage: he
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
+targets:
+  Kami:
+    type: application
+    platform: iOS
+    sources:
+      - path: Kami
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: il.co.heykami.app
+        PRODUCT_NAME: Kami
+        INFOPLIST_FILE: Kami/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Kami/Kami.entitlements
+        CODE_SIGN_STYLE: Automatic
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.0"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        # Firebase (push). Passed by CI from secrets; empty = the app works without push.
+        KAMI_FCM_APP_ID: ""
+        KAMI_FCM_API_KEY: ""
+        KAMI_FCM_PROJECT_ID: ""
+        KAMI_FCM_SENDER_ID: ""
+    dependencies:
+      - package: Firebase
+        product: FirebaseMessaging
+schemes:
+  Kami:
+    build:
+      targets:
+        Kami: all
+    run:
+      config: Debug
+    archive:
+      config: Release

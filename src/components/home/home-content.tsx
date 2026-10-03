@@ -55,7 +55,7 @@ export async function HomeContent({
             <span className="glass animate-rise inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand-strong dark:text-brand">
               <Sparkles className="size-3.5" />
               המדריך לחיות מחמד בישראל
-              <span className="ms-1 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-2 py-0.5 text-[10px] tracking-wide">
+              <span data-beta className="ms-1 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-2 py-0.5 text-[10px] tracking-wide">
                 גרסת בטא
               </span>
             </span>

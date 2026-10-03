@@ -621,3 +621,14 @@ html.a11y-readable body {
   word-spacing: 0.05em;
   line-height: 1.7;
 }
+
+/* אפליקציית האייפון (ios/) מוסיפה html.kami-ios: בלי תגיות "בטא" (אפל לא מקבלת גרסאות בטא בחנות). */
+[data-ios-only] {
+  display: none;
+}
+html.kami-ios [data-ios-only] {
+  display: inline;
+}
+html.kami-ios [data-beta] {
+  display: none !important;
+}
