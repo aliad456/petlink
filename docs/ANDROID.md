@@ -27,6 +27,7 @@ base64 במחשב Windows (PowerShell, בתיקייה של הקובץ):
 1. GitHub → Actions → **Android app** → Run workflow. `version_code` חייב להיות גבוה מההעלאה הקודמת ל-Play.
 2. בסוף הריצה: Artifacts → `kami-android-<מספר>` → בתוכו `app-release.aab` (ל-Play) ו-`app-release.apk` (להתקנה ישירה לבדיקה).
 3. Play Console → בדיקה סגורה → גרסה חדשה → להעלות את ה-aab.
+4. נתוני הגרסה, ורישום כל גרסה ומשוב מהבודקים (בשביל טופס הגישה לייצור): `docs/PLAY_CHANGELOG.md`.
 
 טביעת ה-SHA-256 שמודפסת בשלב "Signing certificate" צריכה להופיע ב-`public/.well-known/assetlinks.json`.
 
