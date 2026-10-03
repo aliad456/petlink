@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
           <SignOutButton />
         </div>
       </aside>
-      <main className="min-w-0 flex-1 px-1 py-2 md:px-4 md:py-4">{children}</main>
+      <main className="min-w-0 flex-1 overflow-x-clip px-1 py-2 md:px-4 md:py-4">{children}</main>
     </div>
   );
 }
