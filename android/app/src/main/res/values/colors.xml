@@ -7,4 +7,8 @@
     <color name="text">#0B1215</color>
     <color name="text_muted">#5B6B73</color>
     <color name="icon_bg">#FFFFFF</color>
+    <!-- The opening screen is light in both modes, like the site's light theme. -->
+    <color name="splash_bg">#EEF2F4</color>
+    <color name="splash_text">#0B1215</color>
+    <color name="splash_muted">#5B6B73</color>
 </resources>
