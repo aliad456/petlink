@@ -6,4 +6,5 @@
     <string name="retry">לנסות שוב</string>
     <string name="no_app">אין בטלפון אפליקציה שיכולה לפתוח את הקישור הזה</string>
     <string name="channel_general">תורים ועדכונים</string>
+    <string name="splash_loading">טוען…</string>
 </resources>

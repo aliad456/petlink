@@ -59,6 +59,8 @@ public class MainActivity extends Activity {
     private ProgressBar progress;
     private View offline;
     private boolean failed;
+    private KamiSplash splash;
+    private boolean night;
     // The bridge runs off the UI thread, so it can't ask the WebView what page is open.
     private volatile boolean onOurPage;
 
@@ -111,6 +113,16 @@ public class MainActivity extends Activity {
 
         if (savedInstanceState == null || web.restoreState(savedInstanceState) == null) {
             web.loadUrl(startUrl(getIntent()));
+        }
+
+        // Opening screen until the first page is ready (not when coming back from a rotation).
+        if (savedInstanceState == null) {
+            splash = new KamiSplash(this, () -> {
+                splash = null;
+                setBarIcons(!night);
+            });
+            setBarIcons(true); // the splash is light, also in dark mode
+            splash.show();
         }
     }
 
@@ -213,19 +225,14 @@ public class MainActivity extends Activity {
     // pad the content so nothing hides under them or under the keyboard.
     private void setUpSystemBars() {
         Window w = getWindow();
-        boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+        night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
                 == Configuration.UI_MODE_NIGHT_YES;
         View root = findViewById(R.id.root);
         if (Build.VERSION.SDK_INT >= 30) {
             w.setDecorFitsSystemWindows(false);
             setBarColors(w, Color.TRANSPARENT);
             w.setNavigationBarContrastEnforced(false);
-            WindowInsetsController c = w.getInsetsController();
-            if (c != null) {
-                int light = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-                        | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-                c.setSystemBarsAppearance(night ? 0 : light, light);
-            }
+            setBarIcons(!night);
             root.setOnApplyWindowInsetsListener((v, insets) -> {
                 Insets bars = insets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
                 Insets ime = insets.getInsets(WindowInsets.Type.ime());
@@ -234,10 +241,25 @@ public class MainActivity extends Activity {
             });
         } else {
             setBarColors(w, getColor(R.color.page_bg));
-            if (!night) {
-                w.getDecorView().setSystemUiVisibility(
-                        View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
-            }
+            setBarIcons(!night);
+        }
+    }
+
+    // Dark status/navigation bar icons on a light screen, light icons on a dark one.
+    @SuppressWarnings("deprecation")
+    private void setBarIcons(boolean lightScreen) {
+        Window w = getWindow();
+        if (Build.VERSION.SDK_INT >= 30) {
+            WindowInsetsController c = w.getInsetsController();
+            if (c == null) return;
+            int light = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            c.setSystemBarsAppearance(lightScreen ? light : 0, light);
+        } else {
+            w.getDecorView().setSystemUiVisibility(lightScreen
+                    ? View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                    : 0);
+            setBarColors(w, lightScreen && night ? getColor(R.color.splash_bg) : getColor(R.color.page_bg));
         }
     }
 
@@ -393,6 +415,10 @@ public class MainActivity extends Activity {
     private class Chrome extends WebChromeClient {
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
+            if (splash != null) {
+                splash.setProgress(newProgress);
+                return;
+            }
             progress.setProgress(newProgress);
             progress.setVisibility(newProgress < 100 ? View.VISIBLE : View.GONE);
         }
@@ -437,6 +463,7 @@ public class MainActivity extends Activity {
         @Override
         public void onPageFinished(WebView view, String url) {
             if (!failed) offline.setVisibility(View.GONE);
+            if (splash != null && !failed) splash.markReady();
             updateBack();
             CookieManager.getInstance().flush();
         }
@@ -452,6 +479,7 @@ public class MainActivity extends Activity {
             if (!request.isForMainFrame()) return;
             failed = true;
             offline.setVisibility(View.VISIBLE);
+            if (splash != null) splash.dismissNow();
         }
 
         // The WebView's renderer crashed or was killed to free memory: start over
