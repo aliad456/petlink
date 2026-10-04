@@ -6,6 +6,7 @@ import { BUSINESSES_TAG } from "@/lib/catalog";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
+import { BUSINESS_PHONE, BUSINESS_PHONE_HINT, PERSONAL_PHONE } from "@/lib/phone";
 import { getOwnBusiness } from "@/lib/business/own";
 import { ACCENTS, LANGUAGES, SECTION_IDS } from "@/lib/business/types";
 import { MEDIA_BUCKET } from "@/lib/business/media";
@@ -43,10 +44,8 @@ function revalidate(publicId: number) {
 
 // ─── יצירה ──────────────────────────────────────────────────
 
-const phoneSchema = z
-  .string()
-  .trim()
-  .regex(/^(\+972|0)[\d\s-]{8,13}$/, "מספר טלפון לא תקין");
+const phoneSchema = z.string().trim().regex(BUSINESS_PHONE, BUSINESS_PHONE_HINT);
+const whatsappSchema = z.string().trim().regex(PERSONAL_PHONE, "מספר וואטסאפ לא תקין");
 
 const createSchema = z.object({
   name: z.string().trim().min(2, "שם העסק קצר מדי").max(60, "שם העסק ארוך מדי"),
@@ -94,7 +93,7 @@ const saveSchema = z.object({
   tagline: optionalText(80),
   bio: optionalText(1500),
   phone: phoneSchema.or(z.literal("")).transform((v) => v || null),
-  whatsapp: phoneSchema.or(z.literal("")).transform((v) => v || null),
+  whatsapp: whatsappSchema.or(z.literal("")).transform((v) => v || null),
   email: z.email("מייל לא תקין").or(z.literal("")).transform((v) => v || null),
   website: optionalText(200),
   instagram: optionalText(60),

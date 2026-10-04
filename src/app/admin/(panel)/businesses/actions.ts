@@ -1,5 +1,6 @@
 "use server";
 
+import { BUSINESS_PHONE, BUSINESS_PHONE_HINT, PERSONAL_PHONE } from "@/lib/phone";
 import type { PostgrestError } from "@supabase/supabase-js";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { BUSINESSES_TAG } from "@/lib/catalog";
@@ -54,11 +55,8 @@ export async function setBusinessFeatured(id: string, featured: boolean): Promis
 
 // ─── עמודים לא מנוהלים (נוצרים ע"י הצוות ממידע ציבורי) ─────────
 
-const phone = z
-  .string()
-  .trim()
-  .regex(/^(\+972|0)[\d\s-]{8,13}$/, "מספר טלפון לא תקין")
-  .or(z.literal(""));
+const phone = z.string().trim().regex(BUSINESS_PHONE, BUSINESS_PHONE_HINT).or(z.literal(""));
+const whatsapp = z.string().trim().regex(PERSONAL_PHONE, "מספר וואטסאפ לא תקין").or(z.literal(""));
 
 const unclaimedSchema = z.object({
   id: z.string().refine((v) => v === "" || isUuid(v)),
@@ -67,7 +65,7 @@ const unclaimedSchema = z.object({
   city: z.string().trim().min(2, "בחרו עיר").max(60),
   address: z.string().trim().max(120),
   phone,
-  whatsapp: phone,
+  whatsapp,
   website: z.string().trim().max(200),
   bio: z.string().trim().max(1500),
 });
@@ -143,7 +141,7 @@ const importRowSchema = z.object({
   city: z.string().trim().min(2).max(60),
   address: z.string().trim().max(120),
   phone,
-  whatsapp: phone,
+  whatsapp,
   website: z.string().trim().max(200),
   bio: z.string().trim().max(1500),
   hours: hoursSchema,
