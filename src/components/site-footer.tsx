@@ -18,6 +18,9 @@ export function SiteFooter() {
             <Link href="/plans" className="focus-ring rounded font-medium text-foreground hover:text-brand">
               תוכניות לעסקים
             </Link>
+            <Link href="/unclaimed" className="focus-ring rounded hover:text-foreground">
+              העסק שלך כבר כאן?
+            </Link>
             {LEGAL_LINKS.map((l) => (
               <Link key={l.href} href={l.href} className="focus-ring rounded hover:text-foreground">
                 {l.label}
