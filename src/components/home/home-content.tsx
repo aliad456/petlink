@@ -1,4 +1,4 @@
-import { BadgePercent, Clock, Navigation, Siren, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, BadgePercent, Clock, Navigation, PawPrint, Siren, Sparkles, Star } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -141,6 +141,26 @@ export async function HomeContent({
               ))}
             </ul>
           </section>
+
+          {/* Guests only: a reason to open an account. After sign-up, straight to adding the pet. */}
+          {favoriteIds === null && (
+            <Link
+              href={`/signup?next=${encodeURIComponent("/account/pets/new")}`}
+              className="pressable focus-ring animate-rise glass-lite group flex items-center gap-4 rounded-3xl p-4 sm:p-5"
+            >
+              <span className="bg-kami inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_8px_20px_rgb(34_211_238/0.35)]">
+                <PawPrint className="size-6" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-extrabold">צרו כרטיס לכלב שלכם</span>
+                <span className="block text-sm text-muted">חיסונים, תורים ותזכורות במקום אחד. בחינם, תוך דקה.</span>
+              </span>
+              <span className="hidden shrink-0 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-3.5 py-1.5 text-sm font-bold text-brand-strong sm:inline dark:text-brand">
+                ליצירת כרטיס
+              </span>
+              <ArrowLeft className="size-5 shrink-0 text-muted transition-transform group-hover:-translate-x-1" />
+            </Link>
+          )}
 
           {deals.length > 0 && (
             <section aria-labelledby="deals-heading" className="flex flex-col gap-4">

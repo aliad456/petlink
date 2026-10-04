@@ -52,7 +52,7 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
           </div>
         )}
         {saved !== undefined && (
-          <FavoriteButton businessId={r.id} saved={saved} variant="overlay" className="absolute end-3 top-3 z-10 size-9" />
+          <FavoriteButton businessId={r.id} businessName={r.name} saved={saved} variant="overlay" className="absolute end-3 top-3 z-10 size-9" />
         )}
         {r.is_featured && (
           <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-400/95 px-2.5 py-1 text-xs font-bold text-amber-950 shadow">
