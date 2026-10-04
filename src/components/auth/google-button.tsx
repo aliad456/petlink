@@ -60,7 +60,7 @@ export function GoogleButton({
         className={buttonClass({
           variant: "ghost",
           size: "lg",
-          className: "w-full border border-[#dadce0] !bg-white text-[#1f1f1f] shadow-sm hover:!bg-[#f8fafd]",
+          className: "w-full border border-[#dadce0] !bg-white !text-[#1f1f1f] shadow-sm hover:!bg-[#f8fafd]",
         })}
       >
         <GoogleG />
