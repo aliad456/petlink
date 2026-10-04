@@ -2,6 +2,7 @@
 // CSV file into unclaimed-business rows for admin_import_unclaimed_businesses.
 // Column names come from the data (categories, filters) — nothing hardcoded.
 
+import { BUSINESS_PHONE, PERSONAL_PHONE } from "@/lib/phone";
 import type { FilterDef } from "./load";
 import type { Hours } from "./types";
 
@@ -177,7 +178,7 @@ export function parseHours(text: string): Hours | null {
 
 // ─── שורות ─────────────────────────────────────────────────
 
-const PHONE = /^(\+972|0)[\d\s-]{8,13}$/;
+
 const LIMITS: [FieldKey, string, number][] = [
   ["name", "השם", 60],
   ["city", "שם העיר", 60],
@@ -228,9 +229,9 @@ export function buildRows(table: string[][], categories: ImportCategory[], filte
     const city = get("city");
     if (city.length < 2) errors.push("חסרה עיר");
     const phone = fixPhone(get("phone"));
-    if (phone && !PHONE.test(phone)) errors.push(`טלפון לא תקין: ${phone}`);
+    if (phone && !BUSINESS_PHONE.test(phone)) errors.push(`טלפון לא תקין: ${phone}`);
     const whatsapp = fixPhone(get("whatsapp"));
-    if (whatsapp && !PHONE.test(whatsapp)) errors.push(`וואטסאפ לא תקין: ${whatsapp}`);
+    if (whatsapp && !PERSONAL_PHONE.test(whatsapp)) errors.push(`וואטסאפ לא תקין: ${whatsapp}`);
     const hours = parseHours(get("hours"));
     if (!hours) errors.push(`לא הבנתי את השעות: ${get("hours")}`);
     // Same limits the server enforces, so the row is flagged here instead of failing the whole import.
