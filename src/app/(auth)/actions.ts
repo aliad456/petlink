@@ -4,7 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { safeNextPath } from "@/lib/auth/redirect";
+import { requireUser } from "@/lib/auth/session";
 import { TERMS_VERSION } from "@/lib/legal";
+import { signupSource } from "@/lib/signup";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -104,25 +106,47 @@ export async function signUp(_: FormState, formData: FormData): Promise<FormStat
   // Stored on the profile by handle_new_user(): proof of consent (terms version)
   // and a separate, optional opt-in for marketing (Communications Law §30A).
   const marketing_consent = formData.get("marketing") === "on";
+  const signup_source = signupSource(formData.get("src"), next, account_type);
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       // `next` is read by the confirmation email template (supabase/templates/confirmation.html).
-      data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent, next },
+      data: { full_name, account_type, terms_version: TERMS_VERSION, marketing_consent, next, signup_source },
       emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent(next)}`,
     },
   });
   if (error) return { ...authError(error), fields };
 
-  // With email confirmation off (local dev) the user is signed in immediately.
+  // "Confirm email" off in Supabase: the user is in at once, and confirms the address
+  // later from a link (needed only for writing reviews). See mark_email_verified().
   if (data.session) {
+    await sendVerifyLink(supabase, parsed.data.email);
     revalidatePath("/", "layout");
     redirect(next);
   }
 
   return { message: "שלחנו לכם מייל לאישור החשבון. לחצו על הקישור כדי להמשיך." };
+}
+
+// The address is confirmed with a one-time link (Supabase "Magic Link" template,
+// supabase/templates/magic-link.html) that comes back to /auth/callback.
+async function sendVerifyLink(supabase: Awaited<ReturnType<typeof createClient>>, address: string) {
+  const { error } = await supabase.auth.signInWithOtp({
+    email: address,
+    options: { shouldCreateUser: false, emailRedirectTo: `${siteUrl()}/auth/callback?next=${encodeURIComponent("/account?verified=1")}` },
+  });
+  if (error) console.error("verify link", error.code, error.message);
+  return error;
+}
+
+export async function resendVerifyLink(): Promise<{ ok?: string; error?: string }> {
+  const profile = await requireUser();
+  if (!profile.email) return { error: "לא נמצאה כתובת מייל בחשבון." };
+  const error = await sendVerifyLink(await createClient(), profile.email);
+  if (error) return { error: authError(error).error };
+  return { ok: `שלחנו קישור אישור ל-${profile.email}` };
 }
 
 export async function requestPasswordReset(

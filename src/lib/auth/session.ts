@@ -14,6 +14,8 @@ export type Profile = {
   phone: string | null;
   account_type: AccountType;
   status: AccountStatus;
+  // Set once the address was proven (email link or Google); needed for reviews.
+  email_verified_at: string | null;
 };
 
 export type StaffContext = {
@@ -32,7 +34,7 @@ export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
 
   const { data } = await supabase
     .from("profiles")
-    .select("id, full_name, email, phone, account_type, status")
+    .select("id, full_name, email, phone, account_type, status, email_verified_at")
     .eq("id", userId)
     .single<Profile>();
   return data ?? null;

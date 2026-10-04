@@ -10,9 +10,11 @@ import {
   submitReview,
   type ReviewResult,
 } from "@/app/(site)/b/[publicId]/review-actions";
+import { SignupPrompt } from "@/components/auth/signup-prompt";
+import { VerifyEmailNotice } from "@/components/auth/verify-email-notice";
 import { Dialog } from "@/components/dialog";
 import { toast } from "@/components/toast";
-import { Avatar, Button, buttonClass, cn, FormMessage, Label, Textarea } from "@/components/ui";
+import { Avatar, Button, cn, FormMessage, Label, Textarea } from "@/components/ui";
 import { formatRelative } from "@/lib/format";
 import { REPORT_REASONS, reviewsLabel, type Review, type ReportReason } from "@/lib/reviews/types";
 import { Stars } from "./stars";
@@ -23,7 +25,7 @@ export type PublicReview = Omit<Review, "user_id"> & { mine: boolean };
 export type Viewer =
   | { kind: "anon" }
   | { kind: "owner" } // the business owner: replies, doesn't review
-  | { kind: "user" };
+  | { kind: "user"; verified: boolean; email: string | null };
 
 export function ReviewsPanel({
   businessId,
@@ -43,6 +45,7 @@ export function ReviewsPanel({
   viewer: Viewer;
 }) {
   const [writing, setWriting] = useState(false);
+  const [askSignup, setAskSignup] = useState(false);
   const count = reviews.length;
   const avg = count ? reviews.reduce((s, r) => s + r.rating, 0) / count : 0;
   const loginHref = `/login?next=/b/${publicId}`;
@@ -83,10 +86,22 @@ export function ReviewsPanel({
           אפשר יהיה לכתוב ביקורות אחרי שבעל העסק יצטרף ל-Kami וינהל את העמוד.
         </p>
       ) : viewer.kind === "anon" ? (
-        <Link href={loginHref} className={buttonClass({ className: "self-start" })}>
-          <Star className="size-4" />
-          כתיבת ביקורת
-        </Link>
+        <>
+          <Button className="self-start" onClick={() => setAskSignup(true)}>
+            <Star className="size-4" />
+            כתיבת ביקורת
+          </Button>
+          <SignupPrompt
+            open={askSignup}
+            onClose={() => setAskSignup(false)}
+            title={`ביקורת על "${businessName}"`}
+            description="כדי שהביקורות יהיו אמיתיות, כותבים אותן מחשבון. ההרשמה בחינם ולוקחת כמה שניות."
+            next={`/b/${publicId}`}
+            source="review"
+          />
+        </>
+      ) : viewer.kind === "user" && !viewer.verified && !myReview ? (
+        <VerifyEmailNotice email={viewer.email} reason="כדי לכתוב ביקורת" />
       ) : viewer.kind === "user" ? (
         myReview?.status === "removed" ? (
           <FormMessage error={`הביקורת שלך הוסרה ע״י הצוות${myReview.status_reason ? `: ${myReview.status_reason}` : "."}`} />

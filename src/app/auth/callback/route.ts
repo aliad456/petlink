@@ -1,9 +1,11 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { safeNextPath } from "@/lib/auth/redirect";
+import { TERMS_VERSION } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 
-// Landing point for links in auth emails (confirm signup, password reset).
+// Landing point for links in auth emails (confirm signup, confirm address, password
+// reset) and for "Continue with Google".
 // Supports the PKCE `code` flow and the `token_hash` email template flow.
 // Links with neither carry the session in the URL fragment (implicit flow),
 // which only the browser can read: forward to /auth/confirm. Browsers keep the
@@ -29,5 +31,19 @@ export async function GET(request: NextRequest) {
     ok = !(await supabase.auth.verifyOtp({ token_hash: tokenHash, type })).error;
   }
 
-  return NextResponse.redirect(new URL(ok ? next : "/login?error=link", origin));
+  if (ok) {
+    // Google sign-up: the consent shown under the button, and where it came from.
+    const terms = searchParams.get("terms");
+    if (terms) {
+      await supabase.rpc("complete_oauth_signup", {
+        p_terms_version: terms === TERMS_VERSION ? terms : null,
+        p_source: searchParams.get("src"),
+      });
+    }
+    // Every way in here proves the address (email link, Google); the SQL checks the token.
+    await supabase.rpc("mark_email_verified");
+  }
+
+  const failed = searchParams.has("terms") ? "/login?error=google" : "/login?error=link";
+  return NextResponse.redirect(new URL(ok ? next : failed, origin));
 }

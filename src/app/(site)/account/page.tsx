@@ -2,6 +2,7 @@ import { CalendarClock, ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Stor
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { VerifyEmailNotice } from "@/components/auth/verify-email-notice";
 import { CategoryIcon } from "@/components/category-icon";
 import { PageTransition } from "@/components/page-transition";
 import { PushToggle } from "@/components/push-toggle";
@@ -14,7 +15,7 @@ import { getOwnBusiness } from "@/lib/business/own";
 import { petAge, petMediaUrl, SPECIES, type Pet } from "@/lib/pets";
 import { createClient } from "@/lib/supabase/server";
 import { Messages, type Message } from "./messages";
-import { MarketingToggle } from "./marketing-toggle";
+import { MarketingToggle, VaccineRemindersToggle } from "./marketing-toggle";
 import { MyBookings, type MyBooking } from "./my-bookings";
 import { ProfileForm } from "./profile-form";
 
@@ -44,8 +45,9 @@ const ACCOUNT_TYPE_LABEL = {
   business_owner: "בעל/ת עסק",
 } as const;
 
-export default async function AccountPage() {
+export default async function AccountPage({ searchParams }: PageProps<"/account">) {
   const profile = await requireUser();
+  const { verified } = await searchParams;
   const supabase = await createClient();
   const [staff, business, { data: messages }, { data: consent }, { data: saved }, { data: pets }, { data: myBookings }, { data: newBookings }] = await Promise.all([
     getStaffContext(),
@@ -57,7 +59,11 @@ export default async function AccountPage() {
       .order("created_at", { ascending: false })
       .limit(20)
       .returns<Message[]>(),
-    supabase.from("profiles").select("marketing_consent").eq("id", profile.id).single<{ marketing_consent: boolean }>(),
+    supabase
+      .from("profiles")
+      .select("marketing_consent, vaccine_reminders")
+      .eq("id", profile.id)
+      .single<{ marketing_consent: boolean; vaccine_reminders: boolean }>(),
     supabase
       .from("favorites")
       .select("business:businesses(id, public_id, name, city, avatar_path, category:categories(name, icon))")
@@ -106,6 +112,12 @@ export default async function AccountPage() {
             <FormMessage
               error={`החשבון ${profile.status === "locked" ? "נעול" : "חסום"}. לפרטים פנו לשירות הלקוחות.`}
             />
+          )}
+
+          {profile.email_verified_at ? (
+            verified === "1" && <FormMessage message="המייל אושר. תודה!" />
+          ) : (
+            <VerifyEmailNotice email={profile.email} className="animate-rise" />
           )}
 
           {!!myBookings?.length && <MyBookings bookings={myBookings} />}
@@ -258,6 +270,7 @@ export default async function AccountPage() {
           <Card className="animate-rise flex flex-col gap-5" style={{ "--i": 3 } as CSSProperties}>
             <SectionTitle>התראות ופרטיות</SectionTitle>
             <PushToggle />
+            {profile.account_type === "pet_owner" && <VaccineRemindersToggle on={consent?.vaccine_reminders ?? true} />}
             <MarketingToggle consent={consent?.marketing_consent ?? false} />
             <p className="text-sm text-muted">
               רוצים לקבל עותק של המידע שלכם?{" "}

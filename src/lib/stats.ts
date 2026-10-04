@@ -31,3 +31,15 @@ export const PERIODS = [
   { key: "7", label: "שבוע" },
   { key: "30", label: "חודש" },
 ] as const;
+
+// admin_signup_funnel(p_days) — מיגרציה 20261013000001.
+export type SignupFunnel = {
+  visitors: number;
+  signup_visitors: number;
+  signups: number;
+  verified: number;
+  google: number;
+  with_pet: number;
+  with_favorite: number;
+  sources: { source: string; count: number }[];
+};

@@ -5,7 +5,7 @@
 // materially, and update LEGAL_UPDATED.
 
 export const TERMS_VERSION = "2026-09-25";
-export const LEGAL_UPDATED = "25 בספטמבר 2026";
+export const LEGAL_UPDATED = "4 באוקטובר 2026";
 
 export const OPERATOR = {
   // שם המפעיל כפי שהוא רשום (עוסק מורשה / חברה בע"מ)

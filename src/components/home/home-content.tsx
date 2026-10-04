@@ -10,6 +10,7 @@ import { getFreshBusinesses } from "@/lib/catalog";
 import { getDeals } from "@/lib/deals";
 import { DealCard } from "@/components/deal-card";
 import { loadSearchContext } from "@/lib/search/load";
+import { signupHref } from "@/lib/signup";
 
 // Tints cycle through the category tiles so the grid doesn't read as one flat block.
 const TINTS = [
@@ -145,15 +146,15 @@ export async function HomeContent({
           {/* Guests only: a reason to open an account. After sign-up, straight to adding the pet. */}
           {favoriteIds === null && (
             <Link
-              href={`/signup?next=${encodeURIComponent("/account/pets/new")}`}
+              href={signupHref("/account/pets/new", "pet_card")}
               className="pressable focus-ring animate-rise glass-lite group flex items-center gap-4 rounded-3xl p-4 sm:p-5"
             >
               <span className="bg-kami inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_8px_20px_rgb(34_211_238/0.35)]">
                 <PawPrint className="size-6" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-extrabold">צרו כרטיס לכלב שלכם</span>
-                <span className="block text-sm text-muted">חיסונים, תורים ותזכורות במקום אחד. בחינם, תוך דקה.</span>
+                <span className="block font-extrabold">לא תפספסו יותר חיסון</span>
+                <span className="block text-sm text-muted">כרטיס לכלב שלכם, ותזכורת לפני כל חיסון במייל ובטלפון. בחינם, תוך דקה.</span>
               </span>
               <span className="hidden shrink-0 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-3.5 py-1.5 text-sm font-bold text-brand-strong sm:inline dark:text-brand">
                 ליצירת כרטיס
