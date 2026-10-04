@@ -1,4 +1,4 @@
-import { ArrowLeft, Gem, LogIn, Store } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Gem, LogIn, Store } from "lucide-react";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { BetaTag } from "./beta";
@@ -29,6 +29,15 @@ export async function SiteHeader() {
               <span className="hidden sm:inline">לבעלי עסקים</span>
             </Link>
           )}
+          <Link
+            href="/unclaimed"
+            transitionTypes={["nav-forward"]}
+            aria-label="העסק שלך כבר ב-Kami?"
+            className="focus-ring pressable inline-flex items-center gap-1.5 rounded-xl p-2.5 text-sm font-medium text-muted transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground sm:px-3 sm:py-2"
+          >
+            <BadgeCheck className="size-[18px]" />
+            <span className="hidden lg:inline">העסק שלך כאן?</span>
+          </Link>
           <Link
             href="/plans"
             transitionTypes={["nav-forward"]}
