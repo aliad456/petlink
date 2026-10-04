@@ -47,7 +47,10 @@ export function FavoriteButton({
           startTransition(async () => {
             setOn(!on);
             const r = await toggleFavorite(businessId, !on);
-            if (r.error) toast.error(r.error);
+            if (r.signedOut) {
+              setAsk(true);
+              router.refresh();
+            } else if (r.error) toast.error(r.error);
             else {
               if (!on) toast.success("נשמר בעסקים שלך");
               router.refresh();
@@ -73,8 +76,7 @@ export function FavoriteButton({
 
       {/* Portaled and wrapped: the heart sits inside card links, and clicks in the
           dialog must not bubble up to them (React events follow the React tree). */}
-      {saved === null &&
-        ask &&
+      {ask &&
         createPortal(
           <div onClick={(e) => e.stopPropagation()}>
             <Dialog
