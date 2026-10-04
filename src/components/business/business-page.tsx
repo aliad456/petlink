@@ -108,7 +108,7 @@ export function BusinessPage({
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
         <ShareButton name={business.name} />
         {saved !== undefined && (
-          <FavoriteButton businessId={business.id} saved={saved} variant="overlay" className="absolute start-3 top-3 z-20 size-11" />
+          <FavoriteButton businessId={business.id} businessName={business.name} saved={saved} variant="overlay" className="absolute start-3 top-3 z-20 size-11" />
         )}
       </div>
 
