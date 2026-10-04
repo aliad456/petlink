@@ -75,7 +75,7 @@ export function InstallPrompt() {
     <div
       role="dialog"
       aria-label="התקנת Kami"
-      className="glass-strong animate-rise fixed inset-x-4 bottom-20 z-[80] mx-auto flex max-w-sm flex-col gap-3 rounded-[1.5rem] border border-[var(--glass-border)] p-4 shadow-2xl sm:bottom-6"
+      className="glass-strong animate-rise fixed inset-x-4 bottom-[calc(var(--bottom-nav,0px)+1rem)] z-[80] mx-auto flex max-w-sm flex-col gap-3 rounded-[1.5rem] border border-[var(--glass-border)] p-4 shadow-2xl"
     >
       <div className="flex items-start gap-3">
         <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--glass-bg-strong)] shadow">
