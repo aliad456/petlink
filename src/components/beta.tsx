@@ -10,6 +10,7 @@ import { cn } from "./ui";
 export function BetaTag({ className }: { className?: string }) {
   return (
     <span
+      data-beta
       dir="ltr"
       className={cn(
         "pointer-events-none inline-flex select-none items-center rounded-full px-1.5 py-px text-[9px] font-extrabold tracking-[0.12em]",
@@ -34,7 +35,7 @@ export function BetaBanner() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pt-3">
+    <div data-beta className="mx-auto w-full max-w-5xl px-4 pt-3">
       <div className="glass-lite animate-rise flex items-center gap-3 rounded-2xl py-2 pe-2 ps-3.5 text-sm">
         <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] text-brand-strong dark:text-brand">
           <FlaskConical className="size-4" />

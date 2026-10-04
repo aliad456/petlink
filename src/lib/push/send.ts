@@ -120,7 +120,7 @@ async function accessToken(sa: ServiceAccount) {
 async function sendFcm(token: string, msg: PushMessage): Promise<"ok" | "gone" | "skip"> {
   const sa = serviceAccount();
   if (!sa) return "skip";
-  // Data-only, so the app builds the notification itself (also when in the background).
+  // Data-only on Android, so the app builds the notification itself (also in the background).
   const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
     method: "POST",
     headers: { authorization: `Bearer ${await accessToken(sa)}`, "content-type": "application/json" },
@@ -129,6 +129,11 @@ async function sendFcm(token: string, msg: PushMessage): Promise<"ok" | "gone" |
         token,
         data: { title: msg.title, body: msg.body, url: msg.url, tag: msg.tag ?? "" },
         android: { priority: "high", ttl: "86400s" },
+        // iPhone (ios/): Apple shows the notification itself; data fields (url) come along.
+        apns: {
+          headers: { "apns-priority": "10" },
+          payload: { aps: { alert: { title: msg.title, body: msg.body }, sound: "default", "thread-id": msg.tag || "kami" } },
+        },
       },
     }),
   });
