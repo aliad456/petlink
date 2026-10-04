@@ -82,7 +82,7 @@ export function AccessibilityMenu() {
         aria-label="תפריט נגישות"
         title="נגישות"
         onClick={() => setOpen((o) => !o)}
-        className="pressable focus-ring fixed bottom-4 left-4 z-[90] inline-flex size-12 items-center justify-center rounded-full bg-[#1d4ed8] text-white shadow-[0_8px_24px_rgb(29_78_216/0.4)] print:hidden"
+        className="pressable focus-ring fixed bottom-[calc(var(--bottom-nav,0px)+1rem)] left-4 z-[90] inline-flex size-12 items-center justify-center rounded-full bg-[#1d4ed8] text-white shadow-[0_8px_24px_rgb(29_78_216/0.4)] print:hidden"
       >
         <Accessibility className="size-6" />
       </button>
@@ -93,7 +93,7 @@ export function AccessibilityMenu() {
           id="a11y-panel"
           role="dialog"
           aria-label="הגדרות נגישות"
-          className="glass-strong animate-rise fixed bottom-20 left-4 z-[90] flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 rounded-[1.5rem] border border-[var(--glass-border)] p-4 shadow-2xl"
+          className="glass-strong animate-rise fixed bottom-[calc(var(--bottom-nav,0px)+5rem)] left-4 z-[90] flex w-[min(20rem,calc(100vw-2rem))] flex-col gap-3 rounded-[1.5rem] border border-[var(--glass-border)] p-4 shadow-2xl"
         >
           <div className="flex items-center justify-between">
             <h2 className="font-bold">נגישות</h2>

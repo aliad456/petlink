@@ -86,7 +86,7 @@ export function AdPopup({ ad, preview = false }: { ad: BannerAd | null; preview?
           setLeft(WAIT_SECONDS);
           setOpen(true);
         }}
-        className="pressable focus-ring fixed bottom-5 left-1/2 z-50 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-xl"
+        className="pressable focus-ring fixed bottom-[calc(var(--bottom-nav,0px)+1.25rem)] left-1/2 z-50 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background shadow-xl"
       >
         <RotateCcw className="size-4" />
         להציג שוב את הפופאפ

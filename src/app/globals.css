@@ -632,3 +632,23 @@ html.kami-ios [data-ios-only] {
 html.kami-ios [data-beta] {
   display: none !important;
 }
+
+/* גובה סרגל הלשוניות התחתון בטלפון (src/components/bottom-nav.tsx). אלמנטים צפים
+   (נגישות, הודעות, התקנה) עולים מעליו. אין סרגל מ-md ומעלה ובאפליקציית האייפון. */
+:root {
+  --bottom-nav: 0px;
+}
+html:has([data-bottom-nav]) {
+  --bottom-nav: calc(4rem + max(0.75rem, env(safe-area-inset-bottom)) + 0.5rem);
+}
+@media (min-width: 48rem) {
+  html:has([data-bottom-nav]) {
+    --bottom-nav: 0px;
+  }
+}
+html.kami-ios {
+  --bottom-nav: 0px;
+}
+html.kami-ios [data-bottom-nav] {
+  display: none;
+}
