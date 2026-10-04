@@ -258,7 +258,7 @@ function DailyBars({
   );
 }
 
-function RankList({
+export function RankList({
   title,
   empty,
   rows,

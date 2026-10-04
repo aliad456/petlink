@@ -3,15 +3,20 @@
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
-import { Button, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
+import { GoogleButton } from "@/components/auth/google-button";
+import { Button, buttonClass, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
+import { safeNextPath } from "@/lib/auth/redirect";
+import type { SignupSource } from "@/lib/signup";
 import { signUp, type FormState } from "../actions";
 
 export function SignupForm({
   defaultType,
   next,
+  source,
 }: {
   defaultType?: "pet_owner" | "business_owner";
   next?: string;
+  source: SignupSource;
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signUp, {});
   const errorRef = useRef<HTMLDivElement>(null);
@@ -27,6 +32,15 @@ export function SignupForm({
           <MailCheck className="size-7" />
         </span>
         <p className="font-medium">{state.message}</p>
+        <p className="text-sm text-muted">לא הגיע תוך דקה? בדקו בתיקיית הספאם או &quot;קידומי מכירות&quot;.</p>
+        <a
+          href="https://mail.google.com/mail/u/0/#search/from%3Aheykami.co.il"
+          target="_blank"
+          rel="noreferrer"
+          className={buttonClass({ variant: "glass", size: "sm" })}
+        >
+          פתיחת Gmail
+        </a>
       </div>
     );
   }
@@ -34,7 +48,12 @@ export function SignupForm({
 
   return (
     <form action={action} className="flex flex-col gap-5">
+      {/* Google: pet owners only (a business owner picks the account type below). */}
+      {accountType !== "business_owner" && (
+        <GoogleButton next={safeNextPath(next)} source={source} divider />
+      )}
       <input type="hidden" name="next" value={next ?? ""} />
+      <input type="hidden" name="src" value={source} />
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 text-sm font-medium">אני…</legend>
         <div className="grid grid-cols-2 gap-2.5">

@@ -28,6 +28,8 @@ function reviewError(error: PostgrestError): ReviewResult {
       return { error: "כתבת הרבה ביקורות היום. נסו שוב מחר." };
     case "body_length":
       return { error: "הביקורת צריכה להיות באורך 10 עד 1500 תווים." };
+    case "verify_email":
+      return { error: "צריך לאשר את כתובת המייל לפני כתיבת ביקורת. הקישור נשלח אליך במייל." };
     case "own_review":
       return { error: "אי אפשר לדווח על ביקורת של עצמך." };
   }

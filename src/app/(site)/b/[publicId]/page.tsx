@@ -213,7 +213,13 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
                 unclaimed={row.owner_id === null}
                 reviews={reviews}
                 myReview={mine ? toPublic(mine) : null}
-                viewer={!profile ? { kind: "anon" } : isOwner ? { kind: "owner" } : { kind: "user" }}
+                viewer={
+                  !profile
+                    ? { kind: "anon" }
+                    : isOwner
+                      ? { kind: "owner" }
+                      : { kind: "user", verified: !!profile.email_verified_at, email: profile.email }
+                }
               />
             }
           />

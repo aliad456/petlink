@@ -5,9 +5,10 @@ import { PageTransition } from "@/components/page-transition";
 import { Badge, Card, SectionTitle } from "@/components/ui";
 import { isPermission } from "@/lib/auth/permissions";
 import { requireStaff } from "@/lib/auth/session";
-import type { LiveNow, SiteStats } from "@/lib/stats";
+import type { LiveNow, SignupFunnel, SiteStats } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
 import { LiveNowCard } from "./_stats/live-now";
+import { SignupFunnelCard } from "./_stats/signup-funnel";
 import { StatsDashboard } from "./_stats/stats-dashboard";
 
 export const metadata: Metadata = { title: "פאנל ניהול" };
@@ -18,7 +19,9 @@ export default async function AdminHomePage() {
   const staff = await requireStaff();
   const supabase = await createClient();
   const canSeeStats = staff.isOwner || staff.permissions.has("dashboard.view");
-  const [{ data: catalog }, stats, live] = await Promise.all([
+  const funnel = (days: number) =>
+    supabase.rpc("admin_signup_funnel", { p_days: days }).then((r) => r.data as SignupFunnel | null);
+  const [{ data: catalog }, stats, live, funnel7, funnel30] = await Promise.all([
     supabase
       .from("permissions")
       .select("key, label, group_key")
@@ -26,6 +29,8 @@ export default async function AdminHomePage() {
       .returns<PermissionRow[]>(),
     canSeeStats ? supabase.rpc("admin_site_stats").then((r) => r.data as SiteStats | null) : null,
     canSeeStats ? supabase.rpc("admin_live_now").then((r) => r.data as LiveNow | null) : null,
+    canSeeStats ? funnel(7) : null,
+    canSeeStats ? funnel(30) : null,
   ]);
 
   const mine = (catalog ?? []).filter(
@@ -50,6 +55,7 @@ export default async function AdminHomePage() {
           <div className="animate-rise flex flex-col gap-4" style={{ "--i": 1 } as CSSProperties}>
             <LiveNowCard initial={live} />
             {stats && <StatsDashboard stats={stats} />}
+            {funnel7 && funnel30 && <SignupFunnelCard data={{ "7": funnel7, "30": funnel30 }} />}
           </div>
         )}
         <Card className="animate-rise" style={{ "--i": 2 } as CSSProperties}>

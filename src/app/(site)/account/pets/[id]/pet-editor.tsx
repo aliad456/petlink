@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ReactNode } from "react";
 import { Dialog } from "@/components/dialog";
 import { ImageCropper } from "@/components/image-cropper";
+import { PushToggle } from "@/components/push-toggle";
 import { toast } from "@/components/toast";
 import { Button, ChoiceTile, cn, FormMessage, Input, Label, Spinner, Switch, Textarea } from "@/components/ui";
 import { compressImage } from "@/lib/business/media";
@@ -433,7 +434,7 @@ function VaccinesSection({ pet, vaccines }: { pet: Pet; vaccines: (PetVaccine & 
   const [pending, run] = useRun();
 
   return (
-    <Section icon={<Syringe className="size-5 text-brand" />} title="חיסונים וטיפולים" hint="הווטרינר יראה מה ניתן ומה הבא בתור.">
+    <Section icon={<Syringe className="size-5 text-brand" />} title="חיסונים וטיפולים" hint="רשמו מתי החיסון הבא, ונזכיר לכם שבוע ויום לפני, במייל ובטלפון.">
       {vaccines.length > 0 && (
         <ul className="flex flex-col gap-1.5">
           {vaccines.map((x) => (
@@ -488,13 +489,14 @@ function VaccinesSection({ pet, vaccines }: { pet: Pet; vaccines: (PetVaccine & 
           <Input type="date" dir="ltr" value={v.given_on} onChange={(e) => setV({ ...v, given_on: e.target.value })} className="h-11" />
         </Label>
         <Label>
-          הבא בתאריך
+          הבא בתאריך (נזכיר לכם)
           <Input type="date" dir="ltr" value={v.next_due} onChange={(e) => setV({ ...v, next_due: e.target.value })} className="h-11" />
         </Label>
         <Button type="submit" size="sm" variant="glass" loading={pending} className="sm:col-span-2 sm:justify-self-start">
           הוספה לרשימה
         </Button>
       </form>
+      {vaccines.some((x) => x.next_due) && <PushToggle compact hint="נזכיר לכם בטלפון שבוע ויום לפני כל חיסון." />}
     </Section>
   );
 }

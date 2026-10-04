@@ -54,3 +54,13 @@ export async function setMarketingConsent(consent: boolean): Promise<{ error?: s
   revalidatePath("/account");
   return {};
 }
+
+// Vaccine reminders (email + push, /api/cron/vaccine-reminders) on or off.
+export async function setVaccineReminders(on: boolean): Promise<{ error?: string }> {
+  const profile = await requireUser();
+  const supabase = await createClient();
+  const { error } = await supabase.from("profiles").update({ vaccine_reminders: on }).eq("id", profile.id);
+  if (error) return { error: "השמירה נכשלה. נסו שוב." };
+  revalidatePath("/account");
+  return {};
+}

@@ -3,7 +3,7 @@
 import { useOptimistic, useTransition } from "react";
 import { toast } from "@/components/toast";
 import { Switch } from "@/components/ui";
-import { setMarketingConsent } from "./actions";
+import { setMarketingConsent, setVaccineReminders } from "./actions";
 
 export function MarketingToggle({ consent }: { consent: boolean }) {
   const [value, setValue] = useOptimistic(consent);
@@ -24,6 +24,32 @@ export function MarketingToggle({ consent }: { consent: boolean }) {
             const r = await setMarketingConsent(next);
             if (r.error) toast.error(r.error);
             else toast.success(next ? "נרשמת לעדכונים" : "הוסרת מרשימת התפוצה");
+          })
+        }
+      />
+    </div>
+  );
+}
+
+export function VaccineRemindersToggle({ on }: { on: boolean }) {
+  const [value, setValue] = useOptimistic(on);
+  const [, startTransition] = useTransition();
+
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-0.5">
+        <span className="font-medium">תזכורות חיסון</span>
+        <span className="text-sm text-muted">שבוע ויום לפני החיסון הבא, במייל ובטלפון (אם הפעלתם התראות).</span>
+      </div>
+      <Switch
+        checked={value}
+        label="תזכורות חיסון"
+        onChange={(next) =>
+          startTransition(async () => {
+            setValue(next);
+            const r = await setVaccineReminders(next);
+            if (r.error) toast.error(r.error);
+            else toast.success(next ? "התזכורות הופעלו" : "התזכורות כובו");
           })
         }
       />

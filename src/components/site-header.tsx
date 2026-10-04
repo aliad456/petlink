@@ -88,7 +88,7 @@ export async function SiteHeader() {
                 <span className="absolute inset-x-3 bottom-1 hidden h-0.5 origin-right scale-x-0 rounded-full bg-brand transition-transform duration-300 ease-out-soft group-hover:scale-x-100 sm:block" />
               </Link>
               <Link
-                href="/signup"
+                href="/signup?src=header"
                 transitionTypes={["nav-forward"]}
                 className={cn(
                   "focus-ring pressable group hidden h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white sm:inline-flex",

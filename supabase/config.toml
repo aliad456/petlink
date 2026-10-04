@@ -261,6 +261,11 @@ content_path = "./supabase/templates/recovery.html"
 subject = "אישור כתובת מייל חדשה ב-Kami"
 content_path = "./supabase/templates/email-change.html"
 
+# Confirming the address after sign-up (Confirm email is off; see mark_email_verified()).
+[auth.email.template.magic_link]
+subject = "אישור כתובת המייל ב-Kami"
+content_path = "./supabase/templates/magic-link.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true
