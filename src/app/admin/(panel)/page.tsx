@@ -5,7 +5,7 @@ import { PageTransition } from "@/components/page-transition";
 import { Badge, Card, SectionTitle } from "@/components/ui";
 import { isPermission } from "@/lib/auth/permissions";
 import { requireStaff } from "@/lib/auth/session";
-import type { LiveNow, SignupFunnel, SiteStats } from "@/lib/stats";
+import type { LiveNow, SignupFunnel, SiteStats, SiteStatsExtra } from "@/lib/stats";
 import { createClient } from "@/lib/supabase/server";
 import { LiveNowCard } from "./_stats/live-now";
 import { SignupFunnelCard } from "./_stats/signup-funnel";
@@ -21,7 +21,7 @@ export default async function AdminHomePage() {
   const canSeeStats = staff.isOwner || staff.permissions.has("dashboard.view");
   const funnel = (days: number) =>
     supabase.rpc("admin_signup_funnel", { p_days: days }).then((r) => r.data as SignupFunnel | null);
-  const [{ data: catalog }, stats, live, funnel7, funnel30] = await Promise.all([
+  const [{ data: catalog }, stats, live, funnel7, funnel30, extra] = await Promise.all([
     supabase
       .from("permissions")
       .select("key, label, group_key")
@@ -31,6 +31,7 @@ export default async function AdminHomePage() {
     canSeeStats ? supabase.rpc("admin_live_now").then((r) => r.data as LiveNow | null) : null,
     canSeeStats ? funnel(7) : null,
     canSeeStats ? funnel(30) : null,
+    canSeeStats ? supabase.rpc("admin_site_stats_extra").then((r) => r.data as SiteStatsExtra | null) : null,
   ]);
 
   const mine = (catalog ?? []).filter(
@@ -54,7 +55,7 @@ export default async function AdminHomePage() {
         {canSeeStats && (
           <div className="animate-rise flex flex-col gap-4" style={{ "--i": 1 } as CSSProperties}>
             <LiveNowCard initial={live} />
-            {stats && <StatsDashboard stats={stats} />}
+            {stats && <StatsDashboard stats={stats} extra={extra} />}
             {funnel7 && funnel30 && <SignupFunnelCard data={{ "7": funnel7, "30": funnel30 }} />}
           </div>
         )}

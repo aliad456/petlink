@@ -43,3 +43,10 @@ export type SignupFunnel = {
   with_favorite: number;
   sources: { source: string; count: number }[];
 };
+
+// admin_site_stats_extra() — מיגרציה 20261014000001: כל הזמנים ולפי חודש.
+export type SiteStatsExtra = {
+  all: PeriodStats;
+  since: string; // YYYY-MM-DD, היום הראשון עם פעילות
+  months: (PeriodStats & { month: string })[]; // YYYY-MM, החדש ראשון
+};

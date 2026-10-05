@@ -4,13 +4,17 @@ import { Building2, Eye, Globe, PawPrint, UserCheck, UserPlus, Users, UserX } fr
 import Link from "next/link";
 import { useState, type ComponentType, type CSSProperties } from "react";
 import { Card, SectionTitle, cn } from "@/components/ui";
-import { PERIODS, type SiteStats } from "@/lib/stats";
+import { PERIODS, type PeriodStats, type SiteStats, type SiteStatsExtra } from "@/lib/stats";
 
 const nf = new Intl.NumberFormat("he-IL");
 const dayFmt = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "numeric", timeZone: "UTC" });
 const fmtDay = (iso: string) => dayFmt.format(new Date(`${iso}T00:00:00Z`));
 
-type PeriodKey = (typeof PERIODS)[number]["key"];
+type PeriodKey = (typeof PERIODS)[number]["key"] | "month" | "all";
+
+const monthFmt = new Intl.DateTimeFormat("he-IL", { month: "long", year: "numeric", timeZone: "UTC" });
+const sinceFmt = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const fmtMonth = (ym: string) => monthFmt.format(new Date(`${ym}-01T00:00:00Z`));
 
 const METRICS: {
   key: keyof SiteStats["periods"]["1"];
@@ -48,17 +52,31 @@ const PAGE_NAMES: Record<string, string> = {
   "/adoption": "אימוץ",
 };
 
-export function StatsDashboard({ stats }: { stats: SiteStats }) {
+export function StatsDashboard({ stats, extra }: { stats: SiteStats; extra: SiteStatsExtra | null }) {
   const [period, setPeriod] = useState<PeriodKey>("1");
-  const current = stats.periods[period];
+  const [month, setMonth] = useState(extra?.months[0]?.month ?? "");
+  const tabs: { key: PeriodKey; label: string }[] = [
+    ...PERIODS,
+    ...(extra ? ([{ key: "month", label: "לפי חודש" }, { key: "all", label: "כל הזמנים" }] as const) : []),
+  ];
+  const current: PeriodStats =
+    period === "all" && extra
+      ? extra.all
+      : period === "month" && extra
+        ? (extra.months.find((m) => m.month === month) ?? extra.all)
+        : stats.periods[period as keyof SiteStats["periods"]];
 
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-base font-bold">תנועה באתר</h2>
-          <div role="tablist" aria-label="תקופה" className="glass-lite flex gap-1 rounded-full p-1">
-            {PERIODS.map((p) => (
+          <div
+            role="tablist"
+            aria-label="תקופה"
+            className="glass-lite flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]"
+          >
+            {tabs.map((p) => (
               <button
                 key={p.key}
                 type="button"
@@ -66,7 +84,7 @@ export function StatsDashboard({ stats }: { stats: SiteStats }) {
                 aria-selected={period === p.key}
                 onClick={() => setPeriod(p.key)}
                 className={cn(
-                  "focus-ring rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                  "focus-ring shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors",
                   period === p.key ? "bg-brand text-brand-foreground" : "text-muted hover:text-foreground",
                 )}
               >
@@ -75,6 +93,32 @@ export function StatsDashboard({ stats }: { stats: SiteStats }) {
             ))}
           </div>
         </div>
+
+        {period === "month" && extra && (
+          <div className="-mt-1 flex gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="חודש">
+            {extra.months.map((m) => (
+              <button
+                key={m.month}
+                type="button"
+                aria-pressed={month === m.month}
+                onClick={() => setMonth(m.month)}
+                className={cn(
+                  "focus-ring shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors",
+                  month === m.month
+                    ? "border-transparent bg-foreground text-background"
+                    : "border-[var(--glass-border)] text-muted hover:text-foreground",
+                )}
+              >
+                {fmtMonth(m.month)}
+              </button>
+            ))}
+          </div>
+        )}
+        {period === "all" && extra && (
+          <p className="-mt-1 text-xs text-muted">
+            מאז {sinceFmt.format(new Date(`${extra.since}T00:00:00Z`))}. מבקרים וצפיות נשמרים עד שנה אחורה.
+          </p>
+        )}
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 [&>*]:min-w-0">
           {METRICS.map((m, i) => {
