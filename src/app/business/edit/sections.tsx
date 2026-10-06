@@ -1,8 +1,10 @@
 "use client";
 
 import { ChevronDown, Plus, Trash2, TriangleAlert, type LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { Chip, FeaturesEditor, HoursEditor } from "@/components/business/detail-editors";
+import { Dialog } from "@/components/dialog";
 import { Button, cn, Input, Label, Switch, Textarea } from "@/components/ui";
 import { CITIES } from "@/lib/business/cities";
 import type { FilterDef } from "@/lib/business/load";
@@ -265,31 +267,64 @@ function NumberPicker({
   onChange,
   options,
   label,
+  title,
 }: {
   value: string;
   onChange: (v: string) => void;
   options: number[];
   label: (n: number) => string;
+  title: string;
 }) {
+  const [open, setOpen] = useState(false);
   // A value saved earlier that isn't in the list stays selectable.
   const n = Number(value);
   const all = value && !options.includes(n) ? [...options, n].sort((a, b) => a - b) : options;
+  const pick = (v: string) => {
+    onChange(v);
+    setOpen(false);
+  };
   return (
-    <span className="relative block">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="glass focus-ring h-12 w-full appearance-none rounded-2xl pe-10 ps-4 text-base"
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="glass focus-ring flex h-12 w-full items-center justify-between gap-2 rounded-2xl px-4 text-base"
       >
-        <option value="">לא להציג</option>
-        {all.map((o) => (
-          <option key={o} value={String(o)}>
-            {label(o)}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute end-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-    </span>
+        <span className={cn(!value && "text-muted")}>{value ? label(n) : "בחירה"}</span>
+        <ChevronDown className="size-4 shrink-0 text-muted" aria-hidden />
+      </button>
+      {/* Portaled: the picker sits inside a <label>, which would catch clicks in the dialog. */}
+      {open &&
+        createPortal(
+          <Dialog open={open} onClose={() => setOpen(false)} title={title}>
+            <div className="-mx-1 grid max-h-[55dvh] grid-cols-3 gap-2 overflow-y-auto px-1 pb-1 sm:grid-cols-4">
+              {all.map((o) => {
+                const on = String(o) === value;
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    onClick={() => pick(String(o))}
+                    aria-pressed={on}
+                    className={cn(
+                      "pressable focus-ring h-12 rounded-2xl text-[15px] font-semibold tabular-nums",
+                      on
+                        ? "bg-[linear-gradient(135deg,#0891b2,#2563eb)] text-white shadow-[0_6px_18px_rgb(37_99_235/0.35)]"
+                        : "glass-lite",
+                    )}
+                  >
+                    {label(o)}
+                  </button>
+                );
+              })}
+            </div>
+            <Button type="button" variant="glass" className="mt-4 w-full" onClick={() => pick("")}>
+              לא להציג
+            </Button>
+          </Dialog>,
+          document.body,
+        )}
+    </>
   );
 }
 
@@ -297,8 +332,8 @@ export function ExperienceFields({ form, update }: Props) {
   const certsBad = useProfanity(form.certifications.join(" "));
   return (
     <>
-      {/* Pickers instead of free typing: on phones a <select> opens the system wheel,
-          which some keyboards made hard to use with a numeric text field. */}
+      {/* Pickers instead of free typing (some phone keyboards made the numeric field
+          hard to use); our own dialog rather than <select>, whose system list looks foreign. */}
       <div className="grid grid-cols-2 gap-5">
         <Label>
           שנות ניסיון
@@ -307,6 +342,7 @@ export function ExperienceFields({ form, update }: Props) {
             onChange={(v) => update("years_experience", v)}
             options={YEARS}
             label={(n) => (n === 1 ? "שנה אחת" : `${n} שנים`)}
+            title="כמה שנות ניסיון?"
           />
         </Label>
         <Label>
@@ -316,6 +352,7 @@ export function ExperienceFields({ form, update }: Props) {
             onChange={(v) => update("animals_served", v)}
             options={ANIMALS}
             label={(n) => `\u200E${n.toLocaleString("he-IL")}+\u200E`}
+            title="כמה בעלי חיים טיפלתם?"
           />
         </Label>
       </div>
