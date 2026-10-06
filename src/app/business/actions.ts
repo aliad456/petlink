@@ -51,7 +51,8 @@ const createSchema = z.object({
   name: z.string().trim().min(2, "שם העסק קצר מדי").max(60, "שם העסק ארוך מדי"),
   category_id: z.string().refine(isUuid, "בחרו קטגוריה"),
   city: z.string().trim().min(2, "בחרו עיר").max(60),
-  phone: phoneSchema,
+  // Optional: some owners don't want a public number (WhatsApp, email or social are enough).
+  phone: phoneSchema.or(z.literal("")).transform((v) => v || null),
 });
 
 export type CreateState = Result & { fields?: Record<string, string> };
@@ -230,7 +231,10 @@ export async function removePhoto(photoId: string): Promise<Result> {
 export async function submitForReview(): Promise<Result> {
   const business = await ownBusinessOrThrow();
   if (business.status !== "draft") return { error: "העמוד כבר נשלח." };
-  if (!business.phone && !business.whatsapp) return { error: "צריך לפחות מספר טלפון או וואטסאפ לפני השליחה." };
+  const contacts = [business.phone, business.whatsapp, business.email, business.website, business.instagram, business.facebook];
+  if (!contacts.some(Boolean)) {
+    return { error: "צריך לפחות דרך אחת ליצירת קשר לפני השליחה: טלפון, וואטסאפ, מייל, אתר או רשת חברתית." };
+  }
   const supabase = await createClient();
   const { error } = await supabase.from("businesses").update({ status: "pending" }).eq("id", business.id);
   if (error) return dbError(error);
