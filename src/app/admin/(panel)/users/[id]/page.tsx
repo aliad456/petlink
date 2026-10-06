@@ -28,10 +28,19 @@ import {
 } from "@/lib/admin/users";
 import { requirePermission } from "@/lib/auth/session";
 import { formatDate, formatDateTime, formatRelative } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
 import { UserActions } from "./user-actions";
 
 export const metadata: Metadata = { title: "כרטיס משתמש" };
+
+const BUSINESS_STATUS = {
+  draft: { label: "טיוטה", tone: "neutral" },
+  pending: { label: "ממתין לאישור", tone: "warning" },
+  approved: { label: "באוויר", tone: "success" },
+  suspended: { label: "מושהה", tone: "danger" },
+  removed: { label: "הוסר", tone: "danger" },
+} as const;
 
 // 050-1234567 → 972501234567 for wa.me links.
 function whatsappNumber(phone: string) {
@@ -44,7 +53,19 @@ export default async function UserPage({ params }: PageProps<"/admin/users/[id]"
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
-  const [user, history, lockedUntil] = await Promise.all([getUser(id), getUserHistory(id), getLockedUntil(id)]);
+  const supabase = await createClient();
+  const [user, history, lockedUntil, { data: businesses }] = await Promise.all([
+    getUser(id),
+    getUserHistory(id),
+    getLockedUntil(id),
+    // RLS: staff with businesses.view see every status; others only approved pages.
+    supabase
+      .from("businesses")
+      .select("id, public_id, name, status, plan")
+      .eq("owner_id", id)
+      .order("created_at")
+      .returns<{ id: string; public_id: number; name: string; status: keyof typeof BUSINESS_STATUS; plan: string }[]>(),
+  ]);
   if (!user) notFound();
 
   const name = displayName(user);
@@ -156,14 +177,33 @@ export default async function UserPage({ params }: PageProps<"/admin/users/[id]"
         </Card>
 
         {/* עסק */}
-        {user.account_type === "business_owner" && (
+        {(user.account_type === "business_owner" || !!businesses?.length) && (
           <Card className="animate-rise flex flex-col gap-1" style={{ "--i": 2 } as CSSProperties}>
             <SectionTitle className="mb-2">עסק</SectionTitle>
-            <InfoRow icon={Store} label="עמוד העסק">
-              <span className="text-muted">טרם נוצר</span>
-            </InfoRow>
+            {businesses?.length ? (
+              businesses.map((b) => (
+                <InfoRow key={b.id} icon={Store} label="עמוד העסק">
+                  <span className="flex flex-wrap items-center justify-end gap-2">
+                    <Link href={`/b/${b.public_id}`} target="_blank" className="font-semibold text-brand-strong hover:underline dark:text-brand">
+                      {b.name}
+                    </Link>
+                    <Badge tone={BUSINESS_STATUS[b.status].tone} dot>
+                      {BUSINESS_STATUS[b.status].label}
+                    </Badge>
+                  </span>
+                </InfoRow>
+              ))
+            ) : (
+              <InfoRow icon={Store} label="עמוד העסק">
+                <span className="text-muted">טרם נוצר</span>
+              </InfoRow>
+            )}
             <InfoRow icon={Crown} label="מנוי PRO">
-              <Badge tone="neutral">אין מנוי</Badge>
+              {businesses?.some((b) => b.plan === "pro") ? (
+                <Badge tone="brand">PRO</Badge>
+              ) : (
+                <Badge tone="neutral">אין מנוי</Badge>
+              )}
             </InfoRow>
           </Card>
         )}
