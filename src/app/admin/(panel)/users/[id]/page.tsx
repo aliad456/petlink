@@ -183,8 +183,13 @@ export default async function UserPage({ params }: PageProps<"/admin/users/[id]"
             {businesses?.length ? (
               businesses.map((b) => (
                 <InfoRow key={b.id} icon={Store} label="עמוד העסק">
-                  <span className="flex flex-wrap items-center justify-end gap-2">
-                    <Link href={`/b/${b.public_id}`} target="_blank" className="font-semibold text-brand-strong hover:underline dark:text-brand">
+                  {/* Long names wrap instead of being clipped by the row's truncate. */}
+                  <span className="flex flex-wrap items-center justify-end gap-2 whitespace-normal">
+                    <Link
+                      href={`/b/${b.public_id}`}
+                      target="_blank"
+                      className="min-w-0 break-words font-semibold text-brand-strong hover:underline dark:text-brand"
+                    >
                       {b.name}
                     </Link>
                     <Badge tone={BUSINESS_STATUS[b.status].tone} dot>
