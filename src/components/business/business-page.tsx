@@ -306,15 +306,17 @@ function ActionButtons({ business }: { business: BusinessView }) {
     "pressable focus-ring glass glass-glow flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl text-[15px] font-semibold aria-disabled:pointer-events-none aria-disabled:opacity-40";
 
   return (
-    <div className="mt-5 grid grid-cols-3 gap-2 sm:flex">
-      <a
-        href={business.phone ? `tel:${business.phone}` : undefined}
-        aria-disabled={!business.phone}
-        className="pressable focus-ring col-span-3 flex h-12 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(180deg,var(--accent-from),var(--accent-to))] text-[15px] font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_8px_24px_color-mix(in_oklab,var(--accent-to)_40%,transparent)] aria-disabled:pointer-events-none aria-disabled:opacity-40"
-      >
-        <Phone className="size-5" />
-        התקשרו
-      </a>
+    <div className={cn("mt-5 grid gap-2 sm:flex", business.phone ? "grid-cols-3" : "grid-cols-2")}>
+      {/* No public phone (it's optional): the call button is left out rather than greyed. */}
+      {business.phone && (
+        <a
+          href={`tel:${business.phone}`}
+          className="pressable focus-ring col-span-3 flex h-12 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(180deg,var(--accent-from),var(--accent-to))] text-[15px] font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_8px_24px_color-mix(in_oklab,var(--accent-to)_40%,transparent)] aria-disabled:pointer-events-none aria-disabled:opacity-40"
+        >
+          <Phone className="size-5" />
+          התקשרו
+        </a>
+      )}
       <a
         href={whatsapp ? whatsappLink(whatsapp) : undefined}
         target="_blank"

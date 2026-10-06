@@ -52,7 +52,9 @@ export function NewBusinessForm({
           </datalist>
         </Label>
         <Label>
-          טלפון לעסק
+          <span>
+            טלפון לעסק <span className="font-normal text-muted">(לא חובה)</span>
+          </span>
           <Input
             name="phone"
             type="tel"
@@ -60,7 +62,6 @@ export function NewBusinessForm({
             defaultValue={state.fields?.phone}
             placeholder="050-0000000"
             autoComplete="tel"
-            required
           />
         </Label>
       </div>
