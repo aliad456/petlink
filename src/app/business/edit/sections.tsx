@@ -257,29 +257,65 @@ export function LocationFields({ form, update }: Props) {
 
 // ─── ניסיון והישגים ─────────────────────────────────────────
 
+const YEARS = Array.from({ length: 60 }, (_, i) => i + 1);
+const ANIMALS = [10, 20, 30, 50, 100, 150, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000, 7500, 10000, 20000, 50000, 100000];
+
+function NumberPicker({
+  value,
+  onChange,
+  options,
+  label,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: number[];
+  label: (n: number) => string;
+}) {
+  // A value saved earlier that isn't in the list stays selectable.
+  const n = Number(value);
+  const all = value && !options.includes(n) ? [...options, n].sort((a, b) => a - b) : options;
+  return (
+    <span className="relative block">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="glass focus-ring h-12 w-full appearance-none rounded-2xl pe-10 ps-4 text-base"
+      >
+        <option value="">לא להציג</option>
+        {all.map((o) => (
+          <option key={o} value={String(o)}>
+            {label(o)}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute end-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+    </span>
+  );
+}
+
 export function ExperienceFields({ form, update }: Props) {
   const certsBad = useProfanity(form.certifications.join(" "));
   return (
     <>
+      {/* Pickers instead of free typing: on phones a <select> opens the system wheel,
+          which some keyboards made hard to use with a numeric text field. */}
       <div className="grid grid-cols-2 gap-5">
         <Label>
           שנות ניסיון
-          <Input
+          <NumberPicker
             value={form.years_experience}
-            onChange={(e) => update("years_experience", e.target.value.replace(/\D/g, ""))}
-            inputMode="numeric"
-            maxLength={2}
-            placeholder="12"
+            onChange={(v) => update("years_experience", v)}
+            options={YEARS}
+            label={(n) => (n === 1 ? "שנה אחת" : `${n} שנים`)}
           />
         </Label>
         <Label>
           בעלי חיים שטופלו
-          <Input
+          <NumberPicker
             value={form.animals_served}
-            onChange={(e) => update("animals_served", e.target.value.replace(/\D/g, ""))}
-            inputMode="numeric"
-            maxLength={7}
-            placeholder="500"
+            onChange={(v) => update("animals_served", v)}
+            options={ANIMALS}
+            label={(n) => `\u200E${n.toLocaleString("he-IL")}+\u200E`}
           />
         </Label>
       </div>
