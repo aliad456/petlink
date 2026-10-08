@@ -28,3 +28,36 @@ export async function compressImage(file: Blob, maxSide: number, quality = 0.85)
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), "image/webp", quality),
   );
 }
+
+// Reads a picked video in the browser: its length, and a still from the first
+// second to show before it plays (encoded like the other gallery photos).
+export async function videoPoster(file: Blob, maxSide = 1200): Promise<{ duration: number; poster: Blob }> {
+  const url = URL.createObjectURL(file);
+  try {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    video.src = url;
+    await new Promise<void>((resolve, reject) => {
+      video.onloadeddata = () => resolve();
+      video.onerror = () => reject(new Error("video decode failed"));
+    });
+    const duration = video.duration;
+    await new Promise<void>((resolve) => {
+      video.onseeked = () => resolve();
+      video.currentTime = Math.min(0.5, (duration || 1) / 2);
+    });
+    const scale = Math.min(1, maxSide / Math.max(video.videoWidth, video.videoHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext("2d")!.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const poster = await new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("encode failed"))), "image/webp", 0.85),
+    );
+    return { duration, poster };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}

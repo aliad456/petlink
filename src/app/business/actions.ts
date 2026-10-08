@@ -8,7 +8,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { BUSINESS_PHONE, BUSINESS_PHONE_HINT, PERSONAL_PHONE } from "@/lib/phone";
 import { getOwnBusiness } from "@/lib/business/own";
-import { ACCENTS, LANGUAGES, SECTION_IDS } from "@/lib/business/types";
+import { ACCENTS, GALLERY_VIDEO_LIMIT, LANGUAGES, SECTION_IDS } from "@/lib/business/types";
 import { MEDIA_BUCKET } from "@/lib/business/media";
 import { createClient } from "@/lib/supabase/server";
 import { isUuid } from "@/lib/uuid";
@@ -24,7 +24,8 @@ function dbError(error: PostgrestError): Result {
     return { error: "נמצאה מילה לא מתאימה באחד השדות. נסו לנסח אחרת." };
   }
   if (error.hint === "deal_until") return { error: "המבצע יכול לרוץ עד 60 יום קדימה. בחרו תאריך סיום קרוב יותר." };
-  if (error.hint === "gallery_limit") return { error: "הגעתם למקסימום 12 תמונות בגלריה." };
+  if (error.hint === "gallery_limit") return { error: "הגעתם למקסימום 12 פריטים בגלריה." };
+  if (error.hint === "video_limit") return { error: `אפשר עד ${GALLERY_VIDEO_LIMIT} סרטונים בגלריה.` };
   if (error.code === "42501") return { error: "אין הרשאה לבצע את הפעולה. אם העמוד הושהה, פנו לשירות הלקוחות." };
   return { error: "השמירה נכשלה. נסו שוב." };
 }
@@ -197,33 +198,52 @@ export async function setMedia(kind: "avatar" | "cover", path: string | null): P
   return { ok: kind === "avatar" ? "תמונת הפרופיל עודכנה" : "תמונת הרקע עודכנה" };
 }
 
-export async function addPhoto(path: string): Promise<Result & { id?: string }> {
+// `video`: the clip's still (null when the browser couldn't decode the clip to cut one).
+export async function addPhoto(path: string, video?: { posterPath: string | null }): Promise<Result & { id?: string }> {
   const business = await ownBusinessOrThrow();
-  if (!ownsPath(business.id, path)) return { error: "נתיב לא תקין" };
+  const posterPath = video?.posterPath ?? null;
+  if (!ownsPath(business.id, path) || (posterPath && !ownsPath(business.id, posterPath))) return { error: "נתיב לא תקין" };
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("business_photos")
-    .insert({ business_id: business.id, path, sort_order: business.photos.length })
+    .insert({
+      business_id: business.id,
+      path,
+      kind: video ? "video" : "image",
+      poster_path: posterPath,
+      sort_order: business.photos.length,
+    })
     .select("id")
     .single();
   if (error) {
-    await supabase.storage.from(MEDIA_BUCKET).remove([path]);
+    await supabase.storage.from(MEDIA_BUCKET).remove(posterPath ? [path, posterPath] : [path]);
     return dbError(error);
   }
   revalidate(business.public_id);
-  return { ok: "התמונה נוספה", id: data.id };
+  return { ok: video ? "הסרטון נוסף" : "התמונה נוספה", id: data.id };
 }
 
 export async function removePhoto(photoId: string): Promise<Result> {
   const business = await ownBusinessOrThrow();
   const photo = business.photos.find((p) => p.id === photoId);
-  if (!photo) return { error: "התמונה לא נמצאה" };
+  if (!photo) return { error: "הפריט לא נמצא" };
   const supabase = await createClient();
   const { error } = await supabase.from("business_photos").delete().eq("id", photoId);
   if (error) return dbError(error);
-  await supabase.storage.from(MEDIA_BUCKET).remove([photo.path]);
+  await supabase.storage.from(MEDIA_BUCKET).remove(photo.poster_path ? [photo.path, photo.poster_path] : [photo.path]);
   revalidate(business.public_id);
-  return { ok: "התמונה הוסרה" };
+  return { ok: photo.kind === "video" ? "הסרטון הוסר" : "התמונה הוסרה" };
+}
+
+// Pins one gallery item to the first place (null unpins).
+export async function pinPhoto(photoId: string | null): Promise<Result> {
+  const business = await ownBusinessOrThrow();
+  if (photoId !== null && !business.photos.some((p) => p.id === photoId)) return { error: "הפריט לא נמצא" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_business_photo_pin", { p_business: business.id, p_photo: photoId });
+  if (error) return dbError(error);
+  revalidate(business.public_id);
+  return { ok: photoId ? "נעוץ ראשון בגלריה" : "הנעיצה בוטלה" };
 }
 
 // ─── סטטוס ו-PRO ────────────────────────────────────────────

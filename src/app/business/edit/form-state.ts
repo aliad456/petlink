@@ -1,6 +1,6 @@
 import type { BusinessRow, FilterDef } from "@/lib/business/load";
 import { resolveFeatures } from "@/lib/business/load";
-import { isSectionVisible, type AdoptionDays, type BusinessView, type Design, type Hours, type PriceItem } from "@/lib/business/types";
+import { isSectionVisible, sortGallery, type AdoptionDays, type BusinessView, type Design, type Hours, type PriceItem } from "@/lib/business/types";
 import type { SaveInput } from "../actions";
 
 export type FormState = {
@@ -122,9 +122,14 @@ export function previewView(
     deal_text: input.deal_text || null,
     deal_until: input.deal_until || null,
     category,
-    photos: [...business.photos]
-      .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at))
-      .map(({ id, path, caption }) => ({ id, path, caption })),
+    photos: sortGallery(business.photos).map(({ id, path, caption, kind, poster_path, pinned }) => ({
+      id,
+      path,
+      caption,
+      kind,
+      poster_path,
+      pinned,
+    })),
     features: resolveFeatures(
       filters,
       form.category_id,
