@@ -67,8 +67,11 @@ jobs:
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" MARKETING_VERSION="$MARKETING_VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             KAMI_FCM_APP_ID="$FCM_APP_ID" KAMI_FCM_API_KEY="$FCM_API_KEY" \
             KAMI_FCM_PROJECT_ID="$FCM_PROJECT_ID" KAMI_FCM_SENDER_ID="$FCM_SENDER_ID" \
-            archive | tail -n 40
-          test "${PIPESTATUS[0]}" = 0
+            archive > "$RUNNER_TEMP/archive.log" 2>&1 || {
+              # Logs aren't readable outside GitHub: surface the errors as annotations.
+              grep -E "error:|Error|No Account|No profiles|provisioning|Cloud signing" "$RUNNER_TEMP/archive.log" | sort -u | head -n 15 | sed 's/^/::error::/'
+              tail -n 40 "$RUNNER_TEMP/archive.log"; exit 1; }
+          tail -n 20 "$RUNNER_TEMP/archive.log"
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -80,6 +83,9 @@ jobs:
           </dict></plist>
           EOF
           xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/Kami.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}"
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" "${AUTH[@]}" \
+            > "$RUNNER_TEMP/export.log" 2>&1 || {
+              grep -E "error:|Error|No Account|No profiles|provisioning|Cloud signing" "$RUNNER_TEMP/export.log" | sort -u | head -n 15 | sed 's/^/::error::/'
+              tail -n 40 "$RUNNER_TEMP/export.log"; exit 1; }
           rm -f "$KEY"
           echo "::notice::Uploaded build $BUILD_NUMBER (version $MARKETING_VERSION). It shows up in App Store Connect → TestFlight in a few minutes."
