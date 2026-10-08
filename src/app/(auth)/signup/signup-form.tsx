@@ -4,7 +4,7 @@ import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useEffect, useRef } from "react";
 import { GoogleButton } from "@/components/auth/google-button";
-import { Button, buttonClass, ChoiceTile, FormMessage, Input, Label } from "@/components/ui";
+import { Button, buttonClass, ChoiceTile, FormMessage, Input, Label, PasswordInput } from "@/components/ui";
 import { safeNextPath } from "@/lib/auth/redirect";
 import type { SignupSource } from "@/lib/signup";
 import { signUp, type FormState } from "../actions";
@@ -97,9 +97,8 @@ export function SignupForm({
       </Label>
       <Label>
         סיסמה
-        <Input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete="new-password"
           minLength={8}
           dir="ltr"

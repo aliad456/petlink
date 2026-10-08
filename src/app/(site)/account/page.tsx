@@ -1,4 +1,4 @@
-import { CalendarClock, ExternalLink, Heart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { CalendarClock, ExternalLink, Heart, MessageSquareHeart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -289,6 +289,19 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
           </Card>
 
           {messages && messages.length > 0 && <Messages messages={messages} />}
+
+          <Card className="animate-rise flex flex-wrap items-center gap-4" style={{ "--i": 4 } as CSSProperties}>
+            <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] text-brand">
+              <MessageSquareHeart className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-bold">יש לכם רעיון, או שמשהו לא עובד?</p>
+              <p className="text-sm text-muted">כל משוב עוזר לנו לשפר את Kami.</p>
+            </div>
+            <Link href="/contact?topic=feedback" className={buttonClass({ variant: "glass", size: "sm" })}>
+              שליחת משוב
+            </Link>
+          </Card>
 
           {staff && (
             <Link

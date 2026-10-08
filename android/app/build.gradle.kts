@@ -57,4 +57,5 @@ android {
 
 dependencies {
     implementation("com.google.firebase:firebase-messaging:24.1.1")
+    implementation("androidx.browser:browser:1.8.0")
 }

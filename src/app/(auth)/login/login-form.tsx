@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { Button, FormMessage, Input, Label } from "@/components/ui";
+import { Button, FormMessage, Input, Label, PasswordInput } from "@/components/ui";
 import { signIn, type FormState } from "../actions";
 import { LockDialog } from "./lock-dialog";
 
@@ -41,9 +41,8 @@ export function LoginForm({ next }: { next?: string }) {
             שכחתי סיסמה
           </Link>
         </span>
-        <Input
+        <PasswordInput
           name="password"
-          type="password"
           autoComplete="current-password"
           dir="ltr"
           required
