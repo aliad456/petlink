@@ -65,11 +65,8 @@ jobs:
           { echo "-----BEGIN PRIVATE KEY-----"; printf '%s' "$BODY" | fold -w 64; echo; echo "-----END PRIVATE KEY-----"; } > "$KEY"
           echo "API key: ${#BODY} base64 chars (a valid one is about 200)"
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$API_KEY_ID" -authenticationKeyIssuerID "$API_ISSUER_ID")
-          # The archive is signed locally ("-", keeps the push entitlement); the export step then
-          # signs it for the App Store in Apple's cloud (no Mac, no registered devices needed).
           xcodebuild -project Kami.xcodeproj -scheme Kami -configuration Release \
             -destination "generic/platform=iOS" -archivePath "$RUNNER_TEMP/Kami.xcarchive" "${AUTH[@]}" \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="-" PROVISIONING_PROFILE_SPECIFIER="" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" MARKETING_VERSION="$MARKETING_VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             KAMI_FCM_APP_ID="$FCM_APP_ID" KAMI_FCM_API_KEY="$FCM_API_KEY" \
             KAMI_FCM_PROJECT_ID="$FCM_PROJECT_ID" KAMI_FCM_SENDER_ID="$FCM_SENDER_ID" \
