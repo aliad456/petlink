@@ -60,7 +60,10 @@ jobs:
           FCM_SENDER_ID: ${{ secrets.KAMI_FCM_SENDER_ID }}
         run: |
           KEY="$RUNNER_TEMP/AuthKey_$API_KEY_ID.p8"
-          printf '%s' "$API_KEY_P8" > "$KEY"
+          # Accept the key as pasted: with or without the BEGIN/END lines, Windows line ends, spaces.
+          BODY=$(printf '%s' "$API_KEY_P8" | tr -d '\r' | sed '/-----/d' | tr -d ' \n\t')
+          { echo "-----BEGIN PRIVATE KEY-----"; printf '%s' "$BODY" | fold -w 64; echo; echo "-----END PRIVATE KEY-----"; } > "$KEY"
+          echo "API key: ${#BODY} base64 chars (a valid one is about 200)"
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY" -authenticationKeyID "$API_KEY_ID" -authenticationKeyIssuerID "$API_ISSUER_ID")
           xcodebuild -project Kami.xcodeproj -scheme Kami -configuration Release \
             -destination "generic/platform=iOS" -archivePath "$RUNNER_TEMP/Kami.xcarchive" "${AUTH[@]}" \
