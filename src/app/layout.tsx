@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   description: DESCRIPTION,
   applicationName: "Kami",
-  // The share picture comes from ./opengraph-image.tsx.
+  // The share picture is ./opengraph-image.jpg (designed in the browser, see its alt text).
   openGraph: {
     type: "website",
     siteName: "Kami",
