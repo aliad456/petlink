@@ -1,7 +1,7 @@
-import type { BusinessView, FeatureValue } from "./types";
+import { sortGallery, type BusinessView, type FeatureValue } from "./types";
 
 export const BUSINESS_COLUMNS =
-  "id, public_id, owner_id, category_id, status, rating_avg, review_count, deal_text, deal_until, status_reason, is_featured, name, tagline, bio, phone, whatsapp, email, website, instagram, facebook, tiktok, city, address, service_area, years_experience, animals_served, languages, certifications, hours, open_on_holidays, adoption_days, price_list, avatar_path, cover_path, design, plan, pro_waitlist_at, submitted_at, created_at, category:categories(id, name, icon), photos:business_photos(id, path, caption, sort_order, created_at), values:business_filter_values(filter_id, bool_value, option_values)";
+  "id, public_id, owner_id, category_id, status, rating_avg, review_count, deal_text, deal_until, status_reason, is_featured, name, tagline, bio, phone, whatsapp, email, website, instagram, facebook, tiktok, city, address, service_area, years_experience, animals_served, languages, certifications, hours, open_on_holidays, adoption_days, price_list, avatar_path, cover_path, design, plan, pro_waitlist_at, submitted_at, created_at, category:categories(id, name, icon), photos:business_photos(id, path, caption, kind, poster_path, pinned, sort_order, created_at), values:business_filter_values(filter_id, bool_value, option_values)";
 
 export type FilterDef = {
   id: string;
@@ -54,9 +54,14 @@ export function toView(row: BusinessRow, filters: FilterDef[]): BusinessView {
   return {
     ...row,
     unclaimed: row.owner_id === null,
-    photos: [...row.photos]
-      .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at))
-      .map(({ id, path, caption }) => ({ id, path, caption })),
+    photos: sortGallery(row.photos).map(({ id, path, caption, kind, poster_path, pinned }) => ({
+      id,
+      path,
+      caption,
+      kind,
+      poster_path,
+      pinned,
+    })),
     features: resolveFeatures(filters, row.category_id, row.values),
   };
 }

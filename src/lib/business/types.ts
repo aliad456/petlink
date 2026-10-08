@@ -53,7 +53,16 @@ export type FeatureValue = {
   labels: string[]; // for multi_select: chosen option labels
 };
 
-export type BusinessPhoto = { id: string; path: string; caption: string | null };
+export type BusinessPhoto = {
+  id: string;
+  path: string;
+  caption: string | null;
+  kind: "image" | "video";
+  /** Videos: a still the browser cut from the clip before upload. */
+  poster_path: string | null;
+  /** Shown first in the gallery (one per business). */
+  pinned: boolean;
+};
 
 export type BusinessView = {
   id: string;
@@ -111,6 +120,16 @@ export const LANGUAGES = [
 ] as const;
 
 export const GALLERY_LIMIT_FREE = 12;
+export const GALLERY_VIDEO_LIMIT = 3;
+export const GALLERY_VIDEO_MAX_SECONDS = 60;
+export const GALLERY_VIDEO_MAX_MB = 50;
+
+// Gallery order: the pinned item first, then the owner's order (oldest first).
+export function sortGallery<T extends { pinned: boolean; sort_order: number; created_at: string }>(items: T[]): T[] {
+  return [...items].sort(
+    (a, b) => Number(b.pinned) - Number(a.pinned) || a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at),
+  );
+}
 
 // The effective design: "default" ignores personal colour, layout and order,
 // but a section the owner switched off stays off in every mode.

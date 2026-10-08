@@ -19,6 +19,8 @@ import {
   Navigation,
   PawPrint,
   Phone,
+  Pin,
+  Play,
   Share2,
   Star,
   X,
@@ -414,7 +416,7 @@ function Section({ id, business, preview }: { id: SectionId; business: BusinessV
         </Block>
       ) : preview ? (
         <Block title="גלריה">
-          <Placeholder icon={PawPrint} text="העלו תמונות מהעסק" />
+          <Placeholder icon={PawPrint} text="העלו תמונות וסרטונים מהעסק" />
         </Block>
       ) : null;
     case "prices":
@@ -635,15 +637,32 @@ function Gallery({ business }: { business: BusinessView }) {
             key={p.id}
             type="button"
             onClick={() => setOpen(first + i)}
+            aria-label={p.kind === "video" ? "צפייה בסרטון" : undefined}
             className="focus-ring group relative aspect-square overflow-hidden"
           >
-            <Image
-              src={mediaUrl(p.path)!}
-              alt={p.caption ?? ""}
-              fill
-              sizes="(min-width: 768px) 250px, 33vw"
-              className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-105"
-            />
+            {p.kind === "image" || p.poster_path ? (
+              <Image
+                src={mediaUrl(p.kind === "video" ? p.poster_path : p.path)!}
+                alt={p.caption ?? ""}
+                fill
+                sizes="(min-width: 768px) 250px, 33vw"
+                className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-105"
+              />
+            ) : (
+              <span className="absolute inset-0 bg-gradient-to-br from-[var(--accent-from)] to-[var(--accent-to)] opacity-80" />
+            )}
+            {p.kind === "video" && (
+              <span aria-hidden className="absolute inset-0 flex items-center justify-center">
+                <span className="inline-flex size-11 items-center justify-center rounded-full bg-black/50 text-white shadow-lg">
+                  <Play className="size-5 fill-current" />
+                </span>
+              </span>
+            )}
+            {p.pinned && (
+              <span className="absolute end-1.5 top-1.5 inline-flex size-6 items-center justify-center rounded-full bg-black/50 text-white" aria-label="נעוץ">
+                <Pin className="size-3.5 fill-current" />
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -700,12 +719,26 @@ function Gallery({ business }: { business: BusinessView }) {
           >
             <X className="size-6" />
           </button>
-          {/* eslint-disable-next-line @next/next/no-img-element -- Supabase public URL */}
-          <img
-            src={mediaUrl(photo.path)!}
-            alt={photo.caption ?? ""}
-            className="animate-rise max-h-full max-w-full rounded-2xl object-contain"
-          />
+          {photo.kind === "video" ? (
+            // Loads only when opened (a gallery of clips would be heavy on mobile data).
+            <video
+              key={photo.id}
+              src={mediaUrl(photo.path)!}
+              poster={mediaUrl(photo.poster_path) ?? undefined}
+              controls
+              autoPlay
+              playsInline
+              onClick={(e) => e.stopPropagation()}
+              className="animate-rise max-h-full max-w-full rounded-2xl bg-black"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
+            <img
+              src={mediaUrl(photo.path)!}
+              alt={photo.caption ?? ""}
+              className="animate-rise max-h-full max-w-full rounded-2xl object-contain"
+            />
+          )}
         </div>
       )}
     </>

@@ -1,18 +1,26 @@
 "use client";
 
-import { Camera, ImagePlus, Trash2 } from "lucide-react";
+import { Camera, Clapperboard, ImagePlus, Pin, PinOff, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
 import { ImageCropper } from "@/components/image-cropper";
 import { toast } from "@/components/toast";
 import { cn, Spinner } from "@/components/ui";
 import type { BusinessRow } from "@/lib/business/load";
-import { compressImage, COVER_ASPECT, MEDIA_BUCKET, mediaUrl } from "@/lib/business/media";
-import { GALLERY_LIMIT_FREE } from "@/lib/business/types";
+import { compressImage, COVER_ASPECT, MEDIA_BUCKET, mediaUrl, videoPoster } from "@/lib/business/media";
+import {
+  GALLERY_LIMIT_FREE,
+  GALLERY_VIDEO_LIMIT,
+  GALLERY_VIDEO_MAX_MB,
+  GALLERY_VIDEO_MAX_SECONDS,
+  sortGallery,
+} from "@/lib/business/types";
 import { createClient } from "@/lib/supabase/client";
-import { addPhoto, removePhoto, setMedia } from "../actions";
+import { addPhoto, pinPhoto, removePhoto, setMedia } from "../actions";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif";
+const ACCEPT_VIDEO = "video/mp4,video/quicktime,video/webm";
+const VIDEO_TYPES: Record<string, string> = { "video/mp4": "mp4", "video/quicktime": "mov", "video/webm": "webm" };
 
 // `maxSide` null: the blob is already sized (it comes from the cropper).
 async function upload(businessId: string, name: string, file: Blob, maxSide: number | null) {
@@ -25,15 +33,44 @@ async function upload(businessId: string, name: string, file: Blob, maxSide: num
   return path;
 }
 
+// Videos go up as they are (no re-encoding in the browser), with a still for the gallery.
+async function uploadVideo(businessId: string, file: File) {
+  const ext = VIDEO_TYPES[file.type];
+  if (!ext) return { error: "אפשר להעלות סרטון MP4, MOV או WebM." };
+  if (file.size > GALLERY_VIDEO_MAX_MB * 1024 * 1024) {
+    return { error: `הסרטון גדול מ-${GALLERY_VIDEO_MAX_MB}MB. קצרו אותו או צלמו באיכות 720p.` };
+  }
+  // Some browsers can't decode every format (e.g. HEVC from an iPhone on a desktop):
+  // then the clip still goes up, without a still or a length check.
+  let poster: Blob | null = null;
+  try {
+    const v = await videoPoster(file);
+    if (v.duration > GALLERY_VIDEO_MAX_SECONDS + 1) return { error: `הסרטון ארוך מ-${GALLERY_VIDEO_MAX_SECONDS} שניות. קצרו אותו ונסו שוב.` };
+    poster = v.poster;
+  } catch {}
+  const stamp = Date.now().toString(36);
+  const supabase = createClient().storage.from(MEDIA_BUCKET);
+  const path = `${businessId}/video-${stamp}.${ext}`;
+  const up = await supabase.upload(path, file, { contentType: file.type, cacheControl: "31536000" });
+  if (up.error) throw up.error;
+  let posterPath: string | null = null;
+  if (poster) {
+    posterPath = `${businessId}/video-${stamp}-poster.webp`;
+    const upPoster = await supabase.upload(posterPath, poster, { contentType: "image/webp", cacheControl: "31536000" });
+    if (upPoster.error) posterPath = null;
+  }
+  return addPhoto(path, { posterPath });
+}
+
 // Media saves immediately (not part of the unsaved form).
 export function MediaFields({ business }: { business: BusinessRow }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<"avatar" | "cover" | "gallery" | null>(null);
+  const [busy, setBusy] = useState<"avatar" | "cover" | "gallery" | "video" | null>(null);
   // A picked avatar/cover waits in the cropper until the owner places it.
   const [crop, setCrop] = useState<{ kind: "avatar" | "cover"; file: File } | null>(null);
   const [, startTransition] = useTransition();
 
-  const run = (kind: "avatar" | "cover" | "gallery", job: () => Promise<{ ok?: string; error?: string }>) => {
+  const run = (kind: "avatar" | "cover" | "gallery" | "video", job: () => Promise<{ ok?: string; error?: string }>) => {
     setBusy(kind);
     startTransition(async () => {
       try {
@@ -51,9 +88,8 @@ export function MediaFields({ business }: { business: BusinessRow }) {
 
   const cover = mediaUrl(business.cover_path);
   const avatar = mediaUrl(business.avatar_path);
-  const photos = [...business.photos].sort(
-    (a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at),
-  );
+  const photos = sortGallery(business.photos);
+  const videos = photos.filter((p) => p.kind === "video").length;
   // Pro has no gallery limit (the database trigger allows it too).
   const limit = business.plan === "pro" ? null : GALLERY_LIMIT_FREE;
   const full = limit !== null && photos.length >= limit;
@@ -124,17 +160,43 @@ export function MediaFields({ business }: { business: BusinessRow }) {
       </div>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
         {photos.map((p) => (
-          <div key={p.id} className="group relative aspect-square overflow-hidden rounded-2xl">
-            {/* eslint-disable-next-line @next/next/no-img-element -- Supabase public URL */}
-            <img src={mediaUrl(p.path)!} alt="" className="size-full object-cover" />
-            <button
-              type="button"
-              aria-label="מחיקת התמונה"
-              onClick={() => run("gallery", () => removePhoto(p.id))}
-              className="pressable absolute end-1.5 top-1.5 inline-flex size-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm sm:opacity-0 sm:group-hover:opacity-100"
-            >
-              <Trash2 className="size-4" />
-            </button>
+          <div key={p.id} className={cn("group relative aspect-square overflow-hidden rounded-2xl", p.kind === "video" ? "bg-[#1f2937]" : "bg-black/5")}>
+            {(p.kind === "image" || p.poster_path) && (
+              // eslint-disable-next-line @next/next/no-img-element -- Supabase public URL
+              <img src={mediaUrl(p.kind === "video" ? p.poster_path : p.path)!} alt="" className="size-full object-cover" />
+            )}
+            {p.kind === "video" && (
+              <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                <span className="inline-flex size-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
+                  <Play className="size-5 fill-current" />
+                </span>
+              </span>
+            )}
+            {p.pinned && (
+              <span className="absolute start-1.5 top-1.5 inline-flex items-center gap-1 rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-bold text-[#0b1215] shadow">
+                <Pin className="size-3 fill-current" />
+                נעוץ
+              </span>
+            )}
+            <div className="absolute inset-x-1.5 bottom-1.5 flex justify-between sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+              <button
+                type="button"
+                aria-label={p.pinned ? "ביטול הנעיצה" : "נעיצה ראשונה בגלריה"}
+                title={p.pinned ? "ביטול הנעיצה" : "נעיצה ראשונה בגלריה"}
+                onClick={() => run("gallery", () => pinPhoto(p.pinned ? null : p.id))}
+                className="pressable inline-flex size-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm"
+              >
+                {p.pinned ? <PinOff className="size-4" /> : <Pin className="size-4" />}
+              </button>
+              <button
+                type="button"
+                aria-label={p.kind === "video" ? "מחיקת הסרטון" : "מחיקת התמונה"}
+                onClick={() => run("gallery", () => removePhoto(p.id))}
+                className="pressable inline-flex size-8 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm"
+              >
+                <Trash2 className="size-4" />
+              </button>
+            </div>
           </div>
         ))}
         {!full && (
@@ -156,10 +218,25 @@ export function MediaFields({ business }: { business: BusinessRow }) {
             label="הוספת תמונות"
           >
             {busy === "gallery" ? <Spinner /> : <ImagePlus className="size-6" />}
-            <span className="text-xs font-medium">הוספה</span>
+            <span className="text-xs font-medium">תמונות</span>
+          </FilePick>
+        )}
+        {!full && videos < GALLERY_VIDEO_LIMIT && (
+          <FilePick
+            accept={ACCEPT_VIDEO}
+            onFile={(f) => run("video", () => uploadVideo(business.id, f))}
+            className="glass pressable flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border-dashed text-muted hover:text-foreground"
+            label="הוספת סרטון"
+          >
+            {busy === "video" ? <Spinner /> : <Clapperboard className="size-6" />}
+            <span className="text-xs font-medium">{busy === "video" ? "מעלה…" : "סרטון"}</span>
           </FilePick>
         )}
       </div>
+      <p className="text-xs text-muted">
+        עד {GALLERY_VIDEO_LIMIT} סרטונים, כל אחד עד {GALLERY_VIDEO_MAX_SECONDS} שניות ו-{GALLERY_VIDEO_MAX_MB}MB. לחצו על
+        הנעץ כדי שתמונה או סרטון יופיעו תמיד ראשונים.
+      </p>
     </>
   );
 }
