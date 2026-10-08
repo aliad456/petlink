@@ -14,6 +14,18 @@
 
 **איך זה נבנה:** פרויקט ה-Xcode נוצר מ-`ios/project.yml` (XcodeGen), ולכן אין `.xcodeproj` בריפו. הבנייה רצה ב-GitHub Actions (`.github/workflows/ios.yml`) על מק של GitHub. לא צריך מק.
 
+## מצב החשבון
+
+| מה | פרטים |
+|---|---|
+| Apple ID של העסק | `heykamiapp@gmail.com` (ג'ימייל נפרד לעסק; לא החשבון הפרטי) |
+| סוג החשבון | Individual (עוסק מורשה אינו ישות משפטית אצל אפל) |
+| Enrollment ID | `UZ45J6FN9Q` (מספר ההרשמה מ-8.10.2026, לפניות לתמיכה של אפל) |
+| Team ID | (יופיע אחרי האישור, ב-developer.apple.com → Membership) |
+
+`info@heykami.co.il` מקבל מיילים דרך ImprovMX (רשומות MX ו-SPF ב-Vercel), ומעביר הכול ל-`heykamiapp@gmail.com`.
+אפל לא אישרו את info@ כ-Apple ID ("Cannot Verify Email Address"), ולכן החשבון על הג'ימייל.
+
 ## אחרי פתיחת חשבון Apple Developer ($99), לפי הסדר
 
 1. **App Store Connect → Apps → + → New App**
