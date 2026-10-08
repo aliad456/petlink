@@ -2,11 +2,11 @@
 
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useSyncExternalStore } from "react";
 import { GoogleButton } from "@/components/auth/google-button";
 import { Button, buttonClass, ChoiceTile, FormMessage, Input, Label, PasswordInput } from "@/components/ui";
 import { safeNextPath } from "@/lib/auth/redirect";
-import type { SignupSource } from "@/lib/signup";
+import { campaignSource, type SignupSource } from "@/lib/signup";
 import { signUp, type FormState } from "../actions";
 
 export function SignupForm({
@@ -20,6 +20,9 @@ export function SignupForm({
 }) {
   const [state, action, pending] = useActionState<FormState, FormData>(signUp, {});
   const errorRef = useRef<HTMLDivElement>(null);
+  // Arrived from an ad (?utm_source=meta): the sign-up counts for the ad.
+  const campaign = useSyncExternalStore(noop, campaignSource, () => null);
+  source = campaign ?? source;
   // On a phone the message sits below the fold: bring it into view.
   useEffect(() => {
     if (state.error) errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -137,3 +140,5 @@ export function SignupForm({
     </form>
   );
 }
+
+const noop = () => () => {};

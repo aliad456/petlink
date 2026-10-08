@@ -10,6 +10,7 @@ export const SIGNUP_SOURCES = {
   business: "פתיחת עסק",
   header: "כפתור הרשמה למעלה",
   login: "מעמוד ההתחברות",
+  meta: "מודעה בפייסבוק / אינסטגרם",
   other: "אחר",
 } as const;
 
@@ -23,6 +24,19 @@ export function signupSource(src: unknown, next: string, accountType?: string): 
   if (/^\/b\/\d+\/book/.test(next)) return "booking";
   if (/^\/b\/\d+/.test(next)) return "review";
   return "other";
+}
+
+// Ad campaigns tag their links (heykami.co.il/?utm_source=meta). SiteTracker keeps the tag
+// for the visit (sessionStorage), and a sign-up during that visit is credited to the ad.
+export const CAMPAIGN_KEY = "kami_campaign";
+
+export function campaignSource(): SignupSource | null {
+  try {
+    const v = sessionStorage.getItem(CAMPAIGN_KEY);
+    return v && v in SIGNUP_SOURCES ? (v as SignupSource) : null;
+  } catch {
+    return null;
+  }
 }
 
 export function signupHref(next: string, src: SignupSource) {
