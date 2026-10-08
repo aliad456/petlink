@@ -36,6 +36,8 @@ import android.widget.Toast;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
+import androidx.browser.customtabs.CustomTabsIntent;
+
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import org.json.JSONObject;
@@ -193,6 +195,24 @@ public class MainActivity extends Activity {
         String host = uri.getHost();
         return ("https".equals(uri.getScheme()) || "http".equals(uri.getScheme()))
                 && ("heykami.co.il".equals(host) || "www.heykami.co.il".equals(host));
+    }
+
+    // "Continue with Google": Supabase's authorize page, which goes on to Google.
+    private static boolean isLogin(Uri uri) {
+        String host = uri.getHost();
+        return "https".equals(uri.getScheme()) && host != null && host.endsWith(".supabase.co")
+                && uri.getPath() != null && uri.getPath().startsWith("/auth/v1/authorize");
+    }
+
+    // Google refuses sign-in inside a WebView, so it runs in a browser tab over the app.
+    // It ends on heykami.co.il/auth/app-return, which sends the result back here
+    // (onNewIntent) to finish in the WebView, where the sign-in started.
+    private void openLogin(Uri uri) {
+        try {
+            new CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(this, uri);
+        } catch (ActivityNotFoundException e) {
+            openExternal(uri);
+        }
     }
 
     // WhatsApp, phone, e-mail, maps, advertisers' sites: the right app, not the WebView.
@@ -450,7 +470,8 @@ public class MainActivity extends Activity {
         public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
             Uri uri = request.getUrl();
             if (isOurs(uri)) return false;
-            openExternal(uri);
+            if (isLogin(uri)) openLogin(uri);
+            else openExternal(uri);
             return true;
         }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Button, FormMessage, Input, Label } from "@/components/ui";
+import { Button, FormMessage, Label, PasswordInput } from "@/components/ui";
 import { updatePassword, type FormState } from "../actions";
 import { AuthCard } from "../auth-card";
 
@@ -17,9 +17,8 @@ export default function ResetPasswordPage() {
       <form action={action} className="flex flex-col gap-5">
         <Label>
           סיסמה חדשה
-          <Input
+          <PasswordInput
             name="password"
-            type="password"
             autoComplete="new-password"
             minLength={8}
             dir="ltr"
@@ -28,7 +27,7 @@ export default function ResetPasswordPage() {
         </Label>
         <Label>
           אימות סיסמה
-          <Input name="confirm" type="password" autoComplete="new-password" dir="ltr" required />
+          <PasswordInput name="confirm" autoComplete="new-password" dir="ltr" required />
         </Label>
         <FormMessage error={state.error} />
         <Button type="submit" size="lg" loading={pending}>

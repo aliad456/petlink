@@ -12,8 +12,12 @@ import { createClient } from "@/lib/supabase/client";
 // so the account is ready at once (handle_new_user marks it). /auth/callback stores
 // the terms consent shown under the button and where the sign-up came from.
 //
-// Not shown inside the Android / iPhone apps: Google blocks sign-in from embedded
-// WebViews ("disallowed_useragent"). Both apps add "KamiApp" to the user agent.
+// Google blocks sign-in inside embedded WebViews ("disallowed_useragent"):
+// - Android app ("KamiApp/" in the user agent): the app opens Google's page in the
+//   phone's browser, which comes back to /auth/app-return and hands the login back
+//   to the app (see that page).
+// - iPhone app ("KamiApp-iOS/"): not shown. Apple also requires Sign in with Apple
+//   wherever a third-party login is offered (App Store guideline 4.8).
 export function GoogleButton({
   next,
   source,
@@ -26,18 +30,14 @@ export function GoogleButton({
   divider?: boolean;
   className?: string;
 }) {
-  // Hidden on the server and in the apps; shown after hydration in a browser.
-  const inApp = useSyncExternalStore(
-    noop,
-    () => /KamiApp/.test(navigator.userAgent),
-    () => true,
-  );
+  // Hidden on the server and in the iPhone app; shown after hydration.
+  const app = useSyncExternalStore(noop, appKind, () => "server" as const);
   const [pending, setPending] = useState(false);
-  if (inApp) return null;
+  if (app === "server" || app === "ios") return null;
 
   async function go() {
     setPending(true);
-    const back = new URL("/auth/callback", window.location.origin);
+    const back = new URL(app === "android" ? "/auth/app-return" : "/auth/callback", window.location.origin);
     back.searchParams.set("next", next);
     back.searchParams.set("src", source);
     back.searchParams.set("terms", TERMS_VERSION);
@@ -89,6 +89,11 @@ export function GoogleButton({
 }
 
 const noop = () => () => {};
+
+function appKind() {
+  const ua = navigator.userAgent;
+  return /KamiApp-iOS\//.test(ua) ? "ios" : /KamiApp\//.test(ua) ? "android" : "web";
+}
 
 function GoogleG() {
   return (
