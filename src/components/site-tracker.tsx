@@ -2,13 +2,14 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { CAMPAIGN_KEY } from "@/lib/signup";
 
 // Sends a page view on every navigation and a "still here" ping every minute
 // while the tab is visible (for "עכשיו באתר"). Staff and preview pages aren't counted.
 const SKIP = ["/admin", "/preview-frame", "/preview/", "/go/", "/api/"];
 
-function send(type: "view" | "ping", path: string, ref?: string) {
-  const body = JSON.stringify({ type, path, ref });
+function send(type: "view" | "ping", path: string, ref?: string, campaign?: string) {
+  const body = JSON.stringify({ type, path, ref, campaign });
   if (navigator.sendBeacon?.("/api/track", new Blob([body], { type: "application/json" }))) return;
   fetch("/api/track", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
 }
@@ -19,8 +20,18 @@ export function SiteTracker() {
 
   useEffect(() => {
     if (SKIP.some((p) => pathname.startsWith(p)) || last.current === pathname) return;
-    // The referrer only means something on the first page of the visit.
-    send("view", pathname, last.current === null ? document.referrer : undefined);
+    // The referrer (and an ad's ?utm_source= tag) only mean something on the first page of the visit.
+    if (last.current === null) {
+      const campaign = new URLSearchParams(location.search).get("utm_source")?.toLowerCase() || undefined;
+      if (campaign) {
+        try {
+          sessionStorage.setItem(CAMPAIGN_KEY, campaign);
+        } catch {}
+      }
+      send("view", pathname, document.referrer, campaign);
+    } else {
+      send("view", pathname);
+    }
     last.current = pathname;
   }, [pathname]);
 

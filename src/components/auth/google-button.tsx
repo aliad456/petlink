@@ -5,7 +5,7 @@ import { useState, useSyncExternalStore } from "react";
 import { toast } from "@/components/toast";
 import { buttonClass, cn } from "@/components/ui";
 import { TERMS_VERSION } from "@/lib/legal";
-import type { SignupSource } from "@/lib/signup";
+import { campaignSource, type SignupSource } from "@/lib/signup";
 import { createClient } from "@/lib/supabase/client";
 
 // "Continue with Google" (Supabase OAuth). Google's own address is already verified,
@@ -39,7 +39,7 @@ export function GoogleButton({
     setPending(true);
     const back = new URL(app === "android" ? "/auth/app-return" : "/auth/callback", window.location.origin);
     back.searchParams.set("next", next);
-    back.searchParams.set("src", source);
+    back.searchParams.set("src", campaignSource() ?? source);
     back.searchParams.set("terms", TERMS_VERSION);
     const { error } = await createClient().auth.signInWithOAuth({
       provider: "google",

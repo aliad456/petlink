@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   const ua = request.headers.get("user-agent") ?? "";
   if (!ua || BOTS.test(ua)) return new Response(null, { status: 204 });
 
-  let body: { type?: string; path?: string; ref?: string };
+  let body: { type?: string; path?: string; ref?: string; campaign?: string };
   try {
     body = await request.json();
   } catch {
@@ -37,6 +37,8 @@ export async function POST(request: Request) {
   } catch {
     // no referrer
   }
+  // An ad's tag (?utm_source=meta) beats the referrer: in-app browsers often send none.
+  if (typeof body.campaign === "string" && /^[a-z_]{2,20}$/.test(body.campaign)) ref = `${body.campaign} (מודעה)`;
 
   const supabase = await createClient(); // with the session, so logged-in visitors are counted as members
   const visitor = visitorId(request);
