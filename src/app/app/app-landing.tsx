@@ -39,17 +39,24 @@ export function AppLanding() {
   }, [d, router]);
 
   return (
-    <main className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-[#f3f8fb] px-5 py-6 text-[#0b1215]">
-      <div aria-hidden className="absolute -right-32 -top-32 -z-10 size-[28rem] rounded-full bg-cyan-300/40 blur-[100px]" />
-      <div aria-hidden className="absolute -bottom-40 -left-24 -z-10 size-[30rem] rounded-full bg-emerald-300/35 blur-[110px]" />
-      <div aria-hidden className="absolute left-1/3 top-1/4 -z-10 size-[22rem] rounded-full bg-blue-300/25 blur-[110px]" />
+    <main
+      className={cn(
+        "relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-5 py-6 text-[#0b1215]",
+        // Deep brand blue fading to light: top → bottom on phones (the headline sits on the dark part),
+        // phone side → text side on wide screens.
+        "bg-[linear-gradient(180deg,#041a2c_0%,#06324d_22%,#0e7490_36%,#5cc8dc_48%,#d6f1f6_60%,#f3f8fb_74%)]",
+        "md:bg-[linear-gradient(90deg,#041a2c_0%,#06324d_24%,#0e7490_38%,#5cc8dc_50%,#d6f1f6_62%,#f3f8fb_76%)]",
+      )}
+    >
+      <div aria-hidden className="absolute -top-24 left-1/4 -z-10 size-[26rem] rounded-full bg-emerald-400/25 blur-[110px]" />
+      <div aria-hidden className="absolute -bottom-32 -right-24 -z-10 size-[24rem] rounded-full bg-cyan-300/30 blur-[110px]" />
 
       <div className="flex w-full max-w-5xl items-center gap-12">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <LogoMark size={40} />
-          <h1 className="animate-rise text-[2.1rem] font-extrabold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="animate-rise text-[2.1rem] font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl md:text-[#0b1215] lg:text-6xl">
             כל מה שהחיה שלך צריכה.{" "}
-            <span className="bg-gradient-to-l from-emerald-500 via-cyan-500 to-blue-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-l from-emerald-300 via-cyan-200 to-sky-300 bg-clip-text text-transparent md:from-emerald-500 md:via-cyan-500 md:to-blue-600">
               במקום אחד.
             </span>
           </h1>
