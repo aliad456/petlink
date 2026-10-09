@@ -40,6 +40,7 @@ const PAGE_NAMES: Record<string, string> = {
   "/account/pets/new": "הוספת חיית מחמד",
   "/business/new": "הוספת עסק",
   "/contact": "צור קשר",
+  "/app": "דף הורדת האפליקציה",
   "/plans": "תוכניות ומחירים",
   "/recommended": "מומלצים",
   "/business/edit": "עריכת עמוד עסק",
