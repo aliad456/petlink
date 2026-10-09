@@ -34,7 +34,7 @@
    - Primary language: Hebrew
    - Bundle ID: `il.co.heykami.app`. אם הוא לא ברשימה, יוצרים אותו ב-developer.apple.com → Identifiers, ומסמנים Push Notifications.
    - SKU: `kami`
-2. **מפתח API להעלאה:** App Store Connect → Users and Access → Integrations → App Store Connect API → מפתח חדש עם הרשאת **App Manager**. מורידים את הקובץ `AuthKey_XXXX.p8`. אפשר להוריד אותו רק פעם אחת.
+2. **מפתח API להעלאה:** App Store Connect → Users and Access → Integrations → App Store Connect API → מפתח חדש עם הרשאת **Admin** (App Manager לא מספיק: החתימה לחנות נעשית בענן של אפל, ו-"Cloud signing" דורש Admin). מורידים את הקובץ `AuthKey_XXXX.p8`. אפשר להוריד אותו רק פעם אחת.
 3. **GitHub Secrets** (Settings → Secrets and variables → Actions):
 
    | Secret | מה שמים |
