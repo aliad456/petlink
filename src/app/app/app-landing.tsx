@@ -44,8 +44,8 @@ export function AppLanding() {
         "relative isolate flex min-h-dvh items-center justify-center overflow-hidden px-5 py-6 text-[#0b1215]",
         // Deep brand blue fading to light: top → bottom on phones (the headline sits on the dark part),
         // phone side → text side on wide screens.
-        "bg-[linear-gradient(180deg,#041a2c_0%,#06324d_22%,#0e7490_36%,#5cc8dc_48%,#d6f1f6_60%,#f3f8fb_74%)]",
-        "md:bg-[linear-gradient(90deg,#041a2c_0%,#06324d_24%,#0e7490_38%,#5cc8dc_50%,#d6f1f6_62%,#f3f8fb_76%)]",
+        "bg-[linear-gradient(180deg,#0b5574_0%,#13809f_24%,#3fb4cf_40%,#a9e2ee_56%,#e6f5f9_68%,#f5fafc_80%)]",
+        "md:bg-[linear-gradient(90deg,#0b5574_0%,#13809f_26%,#3fb4cf_42%,#a9e2ee_56%,#e6f5f9_68%,#f5fafc_80%)]",
       )}
     >
       <div aria-hidden className="absolute -top-24 left-1/4 -z-10 size-[26rem] rounded-full bg-emerald-400/25 blur-[110px]" />
