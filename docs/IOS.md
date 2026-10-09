@@ -26,6 +26,9 @@
 `info@heykami.co.il` מקבל מיילים דרך ImprovMX (רשומות MX ו-SPF ב-Vercel), ומעביר הכול ל-`heykamiapp@gmail.com`.
 אפל לא אישרו את info@ כ-Apple ID ("Cannot Verify Email Address"), ולכן החשבון על הג'ימייל.
 
+**9.10.2026:** הבנייה הראשונה (build 15, גרסה 1.0) הועלתה ל-App Store Connect. מכשיר בדיקה רשום (האייפון של המשפחה),
+מפתח העלאה עם הרשאת Admin, ו-Xcode 26 (האפסטור לא מקבל בנייה עם SDK ישן יותר).
+
 ## אחרי פתיחת חשבון Apple Developer ($99), לפי הסדר
 
 1. **App Store Connect → Apps → + → New App**
