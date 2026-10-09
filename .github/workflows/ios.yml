@@ -33,6 +33,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The App Store only takes builds from the newest Xcode (iOS 26 SDK or later): use the
+      # newest one on the machine, and say which.
+      - name: Select the newest Xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode_*.app | grep -vi beta | sort -V | tail -n 1)
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+          echo "::notice::Using $XC"
+
       - name: Generate the Xcode project
         working-directory: ios
         run: |
