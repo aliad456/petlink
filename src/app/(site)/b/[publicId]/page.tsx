@@ -69,7 +69,7 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
   const supabase = await createClient();
   const canSharePet = profile?.account_type === "pet_owner" && row.owner_id !== null && row.status === "approved";
   const bookingCheck = row.plan === "pro" && row.status === "approved" && !isOwner;
-  const [{ data: reviewRows }, { data: mine }, favorites, { data: adopted }, { data: myPets }, { data: bookingOn }, { count: bookable }] = await Promise.all([
+  const [{ data: reviewRows }, { data: mine }, favorites, { data: adopted }, { data: myPets }, { data: bookingOn }, { count: bookable }, { data: blocks }] = await Promise.all([
     supabase
       .from("reviews")
       .select(REVIEW_COLUMNS)
@@ -102,11 +102,16 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
     bookingCheck
       ? supabase.from("booking_services").select("id", { count: "exact", head: true }).eq("business_id", row.id).eq("active", true)
       : Promise.resolve({ count: 0 }),
+    profile
+      ? supabase.from("user_blocks").select("blocked_id").returns<{ blocked_id: string }[]>()
+      : Promise.resolve({ data: null }),
   ]);
   const canBook = !!bookingOn && (bookable ?? 0) > 0;
   // user_id stays on the server; the browser only learns which review is "mine".
   const toPublic = ({ user_id, ...r }: Review): PublicReview => ({ ...r, mine: user_id === profile?.id });
-  const reviews = (reviewRows ?? []).map(toPublic);
+  // Authors this user blocked are hidden from them (App Store 1.2).
+  const blocked = new Set((blocks ?? []).map((b) => b.blocked_id));
+  const reviews = (reviewRows ?? []).filter((r) => !blocked.has(r.user_id)).map(toPublic);
 
   return (
     <MaintenanceGate path="/b/*">

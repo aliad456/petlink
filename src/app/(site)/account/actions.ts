@@ -1,8 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
+import { DELETE_ACCOUNT_WORD } from "@/lib/account";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ProfileFormState = { error?: string; message?: string };
@@ -62,5 +65,38 @@ export async function setVaccineReminders(on: boolean): Promise<{ error?: string
   const { error } = await supabase.from("profiles").update({ vaccine_reminders: on }).eq("id", profile.id);
   if (error) return { error: "השמירה נכשלה. נסו שוב." };
   revalidatePath("/account");
+  return {};
+}
+
+// Account deletion (App Store 5.1.1(v)): the SQL function authorizes and records it,
+// then the Auth Admin API deletes the user, which cascades to the profile and
+// everything that references it (pets, reviews, favorites, the business page…).
+export async function deleteMyAccount(confirmation: string): Promise<{ error?: string }> {
+  const profile = await requireUser();
+  if (confirmation.trim() !== DELETE_ACCOUNT_WORD) return { error: `כתבו "${DELETE_ACCOUNT_WORD}" כדי לאשר.` };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("authorize_own_account_delete");
+  if (error) {
+    return error.hint === "staff"
+      ? { error: "חשבון צוות לא נמחק מכאן. פנו לבעלי האתר." }
+      : { error: "המחיקה נכשלה. נסו שוב." };
+  }
+
+  const { error: deleteError } = await createAdminClient().auth.admin.deleteUser(profile.id);
+  if (deleteError) return { error: "המחיקה נכשלה. נסו שוב." };
+
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/delete-account?done=1");
+}
+
+export async function unblockAll(): Promise<{ error?: string }> {
+  const profile = await requireUser();
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_blocks").delete().eq("blocker_id", profile.id);
+  if (error) return { error: "הפעולה נכשלה. נסו שוב." };
+  revalidatePath("/account");
+  revalidatePath("/b/[publicId]", "page");
   return {};
 }
