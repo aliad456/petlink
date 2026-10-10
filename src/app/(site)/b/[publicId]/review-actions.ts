@@ -102,3 +102,14 @@ export async function reportReview(reviewId: string, reason: ReportReason, note:
   if (error) return reviewError(error);
   return { ok: "הדיווח התקבל. הצוות יבדוק את הביקורת." };
 }
+
+// Hides every review by that author for this user (App Store 1.2). Undone from the account page.
+export async function blockReviewAuthor(reviewId: string, publicId: number): Promise<ReviewResult> {
+  await requireUser();
+  if (!isUuid(reviewId)) return { error: "מזהה לא תקין" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("block_review_author", { p_review: reviewId });
+  if (error) return reviewError(error);
+  revalidatePath(`/b/${publicId}`);
+  return { ok: "המשתמש נחסם. לא תראו יותר ביקורות שלו." };
+}

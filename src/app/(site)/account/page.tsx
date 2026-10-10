@@ -1,4 +1,4 @@
-import { CalendarClock, ExternalLink, Heart, MessageSquareHeart, PawPrint, Pencil, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { CalendarClock, ExternalLink, Heart, MessageSquareHeart, PawPrint, Pencil, ShieldCheck, Store } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { mediaUrl } from "@/lib/business/media";
 import { getOwnBusiness } from "@/lib/business/own";
 import { petAge, petMediaUrl, SPECIES, type Pet } from "@/lib/pets";
 import { createClient } from "@/lib/supabase/server";
+import { BlockedUsers, DeleteAccountButton } from "./account-controls";
 import { Messages, type Message } from "./messages";
 import { MarketingToggle, VaccineRemindersToggle } from "./marketing-toggle";
 import { MyBookings, type MyBooking } from "./my-bookings";
@@ -49,7 +50,7 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
   const profile = await requireUser();
   const { verified } = await searchParams;
   const supabase = await createClient();
-  const [staff, business, { data: messages }, { data: consent }, { data: saved }, { data: pets }, { data: myBookings }, { data: newBookings }] = await Promise.all([
+  const [staff, business, { data: messages }, { data: consent }, { data: saved }, { data: pets }, { data: myBookings }, { data: newBookings }, { count: blockedCount }] = await Promise.all([
     getStaffContext(),
     profile.account_type === "business_owner" ? getOwnBusiness() : null,
     supabase
@@ -87,6 +88,7 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
       .limit(20)
       .returns<MyBooking[]>(),
     profile.account_type === "business_owner" ? supabase.rpc("business_new_bookings") : Promise.resolve({ data: null }),
+    supabase.from("user_blocks").select("blocked_id", { count: "exact", head: true }),
   ]);
   const savedBusinesses = (saved ?? []).map((r) => r.business).filter((b): b is SavedBusiness => !!b);
 
@@ -279,13 +281,8 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
               </Link>
               .
             </p>
-            <Link
-              href="/contact?kind=privacy&topic=delete"
-              className={buttonClass({ variant: "glass", size: "sm", className: "self-start text-danger" })}
-            >
-              <Trash2 className="size-4" />
-              מחיקת החשבון
-            </Link>
+            {(blockedCount ?? 0) > 0 && <BlockedUsers count={blockedCount!} />}
+            <DeleteAccountButton isBusiness={profile.account_type === "business_owner"} />
           </Card>
 
           {messages && messages.length > 0 && <Messages messages={messages} />}

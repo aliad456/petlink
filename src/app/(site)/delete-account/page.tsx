@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, type LegalSection } from "@/components/legal-page";
+import { FormMessage } from "@/components/ui";
 import { OPERATOR } from "@/lib/legal";
 import { SITE_NAME } from "@/lib/site";
 
@@ -20,7 +21,8 @@ const sections: LegalSection[] = [
           <Link href="/account" className={link}>
             החשבון שלי
           </Link>{" "}
-          באתר או באפליקציית {SITE_NAME}, ובחלק &quot;התראות ופרטיות&quot; לוחצים על &quot;מחיקת החשבון&quot;.
+          באתר או באפליקציית {SITE_NAME}, ובחלק &quot;התראות ופרטיות&quot; לוחצים על &quot;מחיקת החשבון&quot;. אחרי
+          אישור, החשבון נמחק מיד.
         </li>
         <li>
           או, בלי להתחבר: שולחים בקשה דרך{" "}
@@ -29,7 +31,7 @@ const sections: LegalSection[] = [
           </Link>{" "}
           או במייל ל-<span dir="ltr">{OPERATOR.privacyEmail}</span>, מהכתובת שאיתה נרשמתם.
         </li>
-        <li>נאמת שהבקשה הגיעה מבעל/ת החשבון, ונאשר במייל כשהמחיקה הושלמה.</li>
+        <li>בבקשה בטופס או במייל: נאמת שהיא הגיעה מבעל/ת החשבון, ונאשר במייל כשהמחיקה הושלמה.</li>
       </ol>
     ),
   },
@@ -50,7 +52,9 @@ const sections: LegalSection[] = [
     title: "מה נשמר, ולכמה זמן",
     body: (
       <ul>
-        <li>המחיקה מתבצעת תוך 30 יום מהבקשה, ומהגיבויים תוך 90 יום נוספים.</li>
+        <li>
+          מחיקה מתוך החשבון מתבצעת מיד; בקשה בטופס או במייל תוך 30 יום. מהגיבויים המידע נמחק תוך 90 יום נוספים.
+        </li>
         <li>
           תיעוד הסכמה לתנאים, בקשות בעלות על עסקים ויומן פעולות ניהול נשמרים עד 7 שנים, כנדרש להגנה מפני טענות משפטיות.
         </li>
@@ -60,19 +64,27 @@ const sections: LegalSection[] = [
   },
 ];
 
-export default function DeleteAccountPage() {
+export default async function DeleteAccountPage({ searchParams }: PageProps<"/delete-account">) {
+  const { done } = await searchParams;
   return (
     <LegalPage
       title="מחיקת חשבון"
       intro={
-        <p>
-          כך מוחקים חשבון ב-{SITE_NAME} (האתר www.heykami.co.il ואפליקציית {SITE_NAME} ל-Android), שמופעל על ידי{" "}
-          {OPERATOR.legalName}. פרטים נוספים ב
-          <Link href="/privacy" className={link}>
-            מדיניות הפרטיות
-          </Link>
-          .
-        </p>
+        <>
+          {done === "1" && (
+            <div className="mb-4">
+              <FormMessage message="החשבון שלך נמחק. תודה שהיית איתנו!" />
+            </div>
+          )}
+          <p>
+            כך מוחקים חשבון ב-{SITE_NAME} (האתר www.heykami.co.il ואפליקציות {SITE_NAME} ל-Android ול-iPhone), שמופעל
+            על ידי {OPERATOR.legalName}. פרטים נוספים ב
+            <Link href="/privacy" className={link}>
+              מדיניות הפרטיות
+            </Link>
+            .
+          </p>
+        </>
       }
       sections={sections}
     />

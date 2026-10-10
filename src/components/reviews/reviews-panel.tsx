@@ -1,9 +1,10 @@
 "use client";
 
-import { Flag, MessageSquareReply, Pencil, Star, Trash2 } from "lucide-react";
+import { Ban, Flag, MessageSquareReply, Pencil, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useTransition, type CSSProperties } from "react";
 import {
+  blockReviewAuthor,
   deleteMyReview,
   replyToReview,
   reportReview,
@@ -185,6 +186,7 @@ function ReviewItem({
   const [reply, setReply] = useState(r.reply ?? "");
   const [reporting, setReporting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmBlock, setConfirmBlock] = useState(false);
   const [pending, run] = useAction();
 
   const iconButton =
@@ -267,14 +269,41 @@ function ReviewItem({
             דיווח
           </Link>
         ) : (
-          <button type="button" className={iconButton} onClick={() => setReporting(true)}>
-            <Flag className="size-3.5" />
-            דיווח
-          </button>
+          <>
+            <button type="button" className={iconButton} onClick={() => setReporting(true)}>
+              <Flag className="size-3.5" />
+              דיווח
+            </button>
+            <button type="button" className={iconButton} onClick={() => setConfirmBlock(true)}>
+              <Ban className="size-3.5" />
+              חסימה
+            </button>
+          </>
         )}
       </div>
 
       <ReportDialog open={reporting} onClose={() => setReporting(false)} reviewId={r.id} />
+
+      <Dialog
+        open={confirmBlock}
+        onClose={() => setConfirmBlock(false)}
+        title={`לחסום את ${r.author_name}?`}
+        description="לא תראו יותר אף ביקורת שלו/ה, בשום עסק. אפשר לבטל את החסימה בחשבון שלי."
+      >
+        <div className="flex flex-row-reverse gap-2.5">
+          <Button
+            variant="danger"
+            className="flex-1"
+            loading={pending}
+            onClick={() => run(() => blockReviewAuthor(r.id, publicId), () => setConfirmBlock(false))}
+          >
+            חסימה
+          </Button>
+          <Button variant="glass" className="flex-1" onClick={() => setConfirmBlock(false)}>
+            ביטול
+          </Button>
+        </div>
+      </Dialog>
 
       <Dialog
         open={confirmDelete}
