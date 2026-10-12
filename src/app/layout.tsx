@@ -5,6 +5,7 @@ import { PointerGlow } from "@/components/pointer-glow";
 import { SiteTracker } from "@/components/site-tracker";
 import { Toaster } from "@/components/toast";
 import { A11Y_BOOT } from "@/lib/a11y";
+import { APP_STORE_ID } from "@/lib/app-links";
 import { THEME_BOOT } from "@/lib/theme";
 import { siteUrl } from "@/lib/supabase/env";
 import "./globals.css";
@@ -35,6 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   appleWebApp: { capable: true, title: "Kami", statusBarStyle: "default" },
+  // Safari on iPhone shows an "Open / Get" banner for the App Store app.
+  itunes: { appId: APP_STORE_ID },
 };
 
 export const viewport: Viewport = {
