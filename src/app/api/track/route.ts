@@ -37,6 +37,9 @@ export async function POST(request: Request) {
   } catch {
     // no referrer
   }
+  // Visits from inside our own apps (their WebViews add this to the user agent) show as their own source.
+  if (/KamiApp-iOS\//.test(ua)) ref = "אפליקציית אייפון";
+  else if (/KamiApp\//.test(ua)) ref = "אפליקציית אנדרואיד";
   // An ad's tag (?utm_source=meta) beats the referrer: in-app browsers often send none.
   if (typeof body.campaign === "string" && /^[a-z_]{2,20}$/.test(body.campaign)) ref = `${body.campaign} (מודעה)`;
 

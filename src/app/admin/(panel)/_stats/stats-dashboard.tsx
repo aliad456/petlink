@@ -182,7 +182,7 @@ export function StatsDashboard({ stats, extra }: { stats: SiteStats; extra: Site
           title="מאיפה הגיעו (שבוע)"
           empty="עוד אין הפניות מאתרים אחרים"
           icon={Globe}
-          rows={stats.referrers.map((r) => ({ key: r.referrer, label: r.referrer, ltr: true, value: r.visitors }))}
+          rows={stats.referrers.map((r) => ({ key: r.referrer, label: r.referrer, ltr: !/[\u0590-\u05FF]/.test(r.referrer), value: r.visitors }))}
         />
       </div>
 
