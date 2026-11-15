@@ -1,4 +1,4 @@
-import { ArrowLeft, BadgePercent, Clock, Navigation, PawPrint, Siren, Sparkles, Star } from "lucide-react";
+import { ArrowLeft, BadgePercent, Clock, Navigation, PawPrint, Siren, Star } from "lucide-react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { CategoryIcon } from "@/components/category-icon";
@@ -11,16 +11,10 @@ import { getDeals } from "@/lib/deals";
 import { DealCard } from "@/components/deal-card";
 import { loadSearchContext } from "@/lib/search/load";
 import { signupHref } from "@/lib/signup";
+import { TINTS } from "@/lib/tints";
 
-// Tints cycle through the category tiles so the grid doesn't read as one flat block.
-const TINTS = [
-  "from-cyan-400/25 to-blue-400/10 text-cyan-700 dark:text-cyan-300",
-  "from-sky-400/25 to-indigo-400/10 text-sky-700 dark:text-sky-300",
-  "from-amber-400/25 to-orange-400/10 text-amber-700 dark:text-amber-300",
-  "from-violet-400/25 to-fuchsia-400/10 text-violet-700 dark:text-violet-300",
-  "from-rose-400/25 to-pink-400/10 text-rose-700 dark:text-rose-300",
-  "from-green-400/25 to-emerald-400/10 text-green-700 dark:text-green-300",
-];
+// Each category tile gets its own soft colour, in order, so neighbours never match.
+const TILE_TINTS = TINTS.map((t) => t.tile);
 
 type Featured = { id: string; key: string; name: string; kind: string };
 
@@ -53,10 +47,10 @@ export async function HomeContent({
       <PageTransition>
         <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-12 px-4 pb-16 pt-10 sm:pt-16">
           <section className="flex flex-col items-center gap-5 text-center">
-            <span className="glass animate-rise inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand-strong dark:text-brand">
-              <Sparkles className="size-3.5" />
+            <span className="animate-rise inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-3.5 py-1.5 text-xs font-semibold text-accent-foreground dark:text-accent">
+              <PawPrint className="size-3.5" />
               המדריך לחיות מחמד בישראל
-              <span data-beta className="ms-1 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-2 py-0.5 text-[10px] tracking-wide">
+              <span data-beta className="ms-1 rounded-full bg-[var(--surface)] px-2 py-0.5 text-[10px] tracking-wide">
                 גרסת בטא
               </span>
             </span>
@@ -64,7 +58,7 @@ export async function HomeContent({
               className="animate-rise max-w-2xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl"
               style={{ "--i": 1 } as CSSProperties}
             >
-              כל השירותים לחיית המחמד שלך, <span className="text-kami">במקום אחד</span>
+              כל השירותים לחיית המחמד שלך, <span className="highlight-sun whitespace-nowrap">במקום אחד</span>
             </h1>
             <p className="animate-rise max-w-xl text-balance text-lg text-muted" style={{ "--i": 2 } as CSSProperties}>
               וטרינרים, מאלפים, ספרים, חנויות וימי אימוץ — עם פילטרים שגוגל מפות לא נותן.
@@ -79,7 +73,7 @@ export async function HomeContent({
               <Link
                 href={`/${emergency.slug}?open=1&near=me`}
                 transitionTypes={["nav-forward"]}
-                className="animate-rise pressable focus-ring group inline-flex items-center gap-3 rounded-full bg-[linear-gradient(135deg,#f43f5e,#e11d48)] py-2 pe-5 ps-2 text-white shadow-[0_10px_30px_rgb(225_29_72/0.35)]"
+                className="animate-rise pressable focus-ring group inline-flex items-center gap-3 rounded-full bg-[#e5484d] py-2 pe-5 ps-2 text-white shadow-[0_6px_18px_rgb(229_72_77/0.28)]"
                 style={{ "--i": 3 } as CSSProperties}
               >
                 <span className="relative inline-flex size-9 items-center justify-center rounded-full bg-white/20">
@@ -105,9 +99,9 @@ export async function HomeContent({
                       className="focus-ring pressable group flex w-20 flex-col items-center gap-2 rounded-2xl text-center"
                     >
                       <span
-                        className={`glass-lite inline-flex size-16 items-center justify-center rounded-[1.4rem] bg-gradient-to-br transition-transform duration-300 ease-spring group-hover:-translate-y-0.5 ${TINTS[i % TINTS.length]}`}
+                        className={`inline-flex size-16 items-center justify-center rounded-full transition-transform duration-300 ease-spring group-hover:-translate-y-0.5 group-hover:rotate-[-4deg] ${TILE_TINTS[i % TILE_TINTS.length]}`}
                       >
-                        <CategoryIcon name={c.icon} className="size-7" />
+                        <CategoryIcon name={c.icon} className="size-7" strokeWidth={1.75} />
                       </span>
                       <span className="text-[13px] font-semibold leading-tight">{c.name}</span>
                     </Link>
@@ -122,7 +116,7 @@ export async function HomeContent({
                   href="/recommended"
                   prefetch
                   transitionTypes={["nav-forward"]}
-                  className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,#fbbf24,#f59e0b)] px-3.5 py-1.5 text-sm font-bold text-amber-950 shadow-[0_6px_18px_rgb(245_158_11/0.3)]"
+                  className="bg-sun pressable focus-ring inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-bold"
                 >
                   <Star className="size-3.5 fill-current" />
                   אנחנו ממליצים
@@ -132,7 +126,7 @@ export async function HomeContent({
                 <li key={f.id}>
                   <Link
                     href={filterHref(f)}
-                    className="pressable focus-ring glass-lite inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium"
+                    className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-sm font-medium hover:border-[color-mix(in_oklab,var(--accent)_60%,transparent)]"
                   >
                     {f.kind === "open_now" && <Clock className="size-3.5 text-success" />}
                     {f.kind === "distance" && <Navigation className="size-3.5 text-brand" />}
@@ -147,19 +141,19 @@ export async function HomeContent({
           {favoriteIds === null && (
             <Link
               href={signupHref("/account/pets/new", "pet_card")}
-              className="pressable focus-ring animate-rise glass-lite group flex items-center gap-4 rounded-3xl p-4 sm:p-5"
+              className="pressable focus-ring animate-rise group relative flex items-center gap-4 overflow-hidden rounded-3xl bg-accent-soft p-4 sm:p-5"
             >
-              <span className="bg-kami inline-flex size-12 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_8px_20px_rgb(34_211_238/0.35)]">
+              <span className="bg-sun inline-flex size-12 shrink-0 items-center justify-center rounded-full">
                 <PawPrint className="size-6" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block font-extrabold">לא תפספסו יותר חיסון</span>
-                <span className="block text-sm text-muted">כרטיס לכלב שלכם, ותזכורת לפני כל חיסון במייל ובטלפון. בחינם, תוך דקה.</span>
+                <span className="block text-sm text-foreground/70">כרטיס לכלב שלכם, ותזכורת לפני כל חיסון במייל ובטלפון. בחינם, תוך דקה.</span>
               </span>
-              <span className="hidden shrink-0 rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] px-3.5 py-1.5 text-sm font-bold text-brand-strong sm:inline dark:text-brand">
+              <span className="hidden shrink-0 rounded-full bg-foreground px-3.5 py-1.5 text-sm font-bold text-background sm:inline">
                 ליצירת כרטיס
               </span>
-              <ArrowLeft className="size-5 shrink-0 text-muted transition-transform group-hover:-translate-x-1" />
+              <ArrowLeft className="size-5 shrink-0 text-foreground/60 transition-transform group-hover:-translate-x-1" />
             </Link>
           )}
 
@@ -167,10 +161,10 @@ export async function HomeContent({
             <section aria-labelledby="deals-heading" className="flex flex-col gap-4">
               <div className="flex items-end justify-between">
                 <h2 id="deals-heading" className="flex items-center gap-2 text-xl font-bold">
-                  <BadgePercent className="size-5 text-orange-500" />
+                  <BadgePercent className="size-5 text-[#e8590c] dark:text-[#ff922b]" />
                   מבצעים השבוע
                 </h2>
-                <Link href="/deals" className="text-sm font-semibold text-brand-strong hover:underline dark:text-brand">
+                <Link href="/deals" className="text-sm font-semibold text-foreground/70 underline decoration-[var(--accent)] decoration-2 underline-offset-4 hover:text-foreground">
                   לכל המבצעים
                 </Link>
               </div>
@@ -192,7 +186,7 @@ export async function HomeContent({
                 <h2 id="new-heading" className="text-xl font-bold">
                   חדשים ב-Kami
                 </h2>
-                <Link href="/search" className="text-sm font-semibold text-brand-strong hover:underline dark:text-brand">
+                <Link href="/search" className="text-sm font-semibold text-foreground/70 underline decoration-[var(--accent)] decoration-2 underline-offset-4 hover:text-foreground">
                   לכל העסקים
                 </Link>
               </div>

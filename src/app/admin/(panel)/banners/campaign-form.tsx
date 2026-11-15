@@ -555,7 +555,7 @@ function DayPicker({
                   className={cn(
                     "focus-ring flex h-14 flex-col items-center justify-center gap-0.5 rounded-xl border text-sm font-semibold tabular-nums transition-colors",
                     selected
-                      ? "border-transparent bg-[linear-gradient(135deg,#0891b2,#2563eb)] text-white"
+                      ? "border-transparent bg-foreground text-background"
                       : cn(
                           "border-[var(--border)]",
                           reserved === "adoption" && "bg-emerald-400/15",

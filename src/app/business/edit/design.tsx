@@ -68,7 +68,7 @@ export function DesignFields({
           onClick={() => onChange({ ...design, mode: "default" })}
           title="ברירת מחדל"
           subtitle="Liquid Glass מוכן"
-          preview={<MiniPage from="#22d3ee" to="#2563eb" />}
+          preview={<MiniPage from={ACCENTS.kami.from} to={ACCENTS.kami.to} />}
         />
         <ModeCard
           active={personal}

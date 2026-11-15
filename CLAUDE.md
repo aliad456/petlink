@@ -53,6 +53,12 @@ paid promotion, give the owner an honest pre-spend review first (the budget is v
 - Tokens and utilities live in `src/app/globals.css`: `glass`, `glass-strong`,
   `glass-glow` (pointer-following highlight), `pressable` (spring hover/press),
   `focus-ring`, `animate-rise` (stagger with `style={{"--i": n}}`).
+- Palette (Nov 2026 refresh, owner asked for warmer and less "AI-generic"): warm cream background,
+  sun-yellow accent (`--accent*`, `bg-sun` for the main action on each screen — dark text on yellow,
+  never white), `surface` for opaque list cards, `highlight-sun` for a marker under a headline word.
+  Per-category soft colours come from `src/lib/tints.ts` (`tintFor(icon)`), not one gradient for all.
+  Selected chips/toggles are ink (`bg-foreground text-background`). The logo gradient (`bg-kami`) is for
+  the brand mark, not for buttons or icon tiles.
 - Components in `src/components/ui` (`Button`/`buttonClass`, `Card`, `Input`,
   `Badge`, `Avatar`, …) and `src/components/{dialog,toast}.tsx`. Icons: `lucide-react`.
 - Page transitions: wrap each page in `<PageTransition>`; links opt in with

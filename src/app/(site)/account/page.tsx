@@ -210,7 +210,7 @@ export default async function AccountPage({ searchParams }: PageProps<"/account"
               </Card>
             ) : (
               <Card className="animate-rise flex flex-col items-center gap-3 p-7 text-center" style={{ "--i": 1 } as CSSProperties}>
-                <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-kami text-white">
+                <span className="inline-flex size-12 items-center justify-center rounded-full bg-sun">
                   <Store className="size-6" />
                 </span>
                 <p className="text-lg font-bold">עוד לא פתחתם עמוד לעסק</p>

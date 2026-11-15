@@ -187,14 +187,14 @@ export default async function PublicBusinessPage({ params }: PageProps<"/b/[publ
                       href={`/b/${row.public_id}/book`}
                       transitionTypes={["nav-forward"]}
                       prefetch
-                      className="pressable focus-ring mt-3 flex w-full items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] px-4 py-3.5 text-start text-white shadow-lg"
+                      className="pressable focus-ring mt-3 flex w-full items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] px-4 py-3.5 text-start text-[var(--accent-on,#fff)] shadow-lg"
                     >
                       <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
                         <CalendarClock className="size-5" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block font-bold">קביעת תור אונליין</span>
-                        <span className="block text-sm text-white/85">בוחרים שירות, יום ושעה. התור נקבע מיד.</span>
+                        <span className="block text-sm opacity-80">בוחרים שירות, יום ושעה. התור נקבע מיד.</span>
                       </span>
                       <ChevronLeft className="size-5 shrink-0" />
                     </Link>

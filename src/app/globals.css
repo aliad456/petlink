@@ -20,37 +20,49 @@
 :root {
   color-scheme: light;
 
-  --background: #eef2f4;
-  --foreground: #0b1215;
-  --muted: #5b6b73;
-  --border: rgb(15 23 42 / 0.08);
+  /* חם ונעים: קרם במקום אפור-כחלחל, דיו חום-כהה במקום שחור קר */
+  --background: #faf6ee;
+  --foreground: #1d1a16;
+  --muted: #6e675d;
+  --border: rgb(60 45 20 / 0.1);
 
   --brand: #0891b2;
-  --brand-strong: #1d4ed8;
+  --brand-strong: #0e6f86;
   --brand-foreground: #ffffff;
   --danger: #e11d48;
-  --warning: #d97706;
-  --success: #059669;
+  --warning: #c26a00;
+  --success: #15803d;
+
+  /* צהוב "שמש": כפתורים ראשיים, הדגשות, לשונית פעילה. טקסט עליו תמיד כהה. */
+  --accent: #ffc83d;
+  --accent-strong: #f5ad00;
+  --accent-foreground: #2b1f00;
+  --accent-soft: #fff1c7;
+
+  /* משטח אטום לכרטיסים ברשימות */
+  --surface: #ffffff;
+  --surface-border: rgb(60 45 20 / 0.08);
+  --surface-shadow: 0 1px 2px rgb(60 45 20 / 0.05), 0 6px 20px rgb(60 45 20 / 0.06);
 
   /* גרפים (נבדקו לעיוורון צבעים מול הרקע) */
   --chart-1: #0891b2;
   --chart-2: #7c3aed;
 
   /* זכוכית */
-  --glass-bg: rgb(255 255 255 / 0.48);
-  --glass-bg-strong: rgb(255 255 255 / 0.72);
-  --glass-border: rgb(255 255 255 / 0.75);
+  --glass-bg: rgb(255 253 248 / 0.6);
+  --glass-bg-strong: rgb(255 253 248 / 0.82);
+  --glass-border: rgb(255 255 255 / 0.8);
   --glass-highlight: rgb(255 255 255 / 0.9);
-  --glass-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 32px rgb(15 23 42 / 0.08);
+  --glass-shadow: 0 1px 2px rgb(60 45 20 / 0.05), 0 8px 28px rgb(60 45 20 / 0.08);
   --glass-glow: rgb(255 255 255 / 0.55);
-  --glass-lite-bg: rgb(255 255 255 / 0.8);
+  --glass-lite-bg: rgb(255 255 255 / 0.92);
 
-  /* רקע */
-  --blob-1: rgb(34 211 238 / 0.5);
-  --blob-2: rgb(147 197 253 / 0.6);
-  --blob-3: rgb(134 239 172 / 0.4);
-  --blob-4: rgb(196 181 253 / 0.5);
-  --doodle: rgb(8 145 178 / 0.13);
+  /* רקע: שמש, מנטה ואפרסק, עם נגיעת תכלת מהלוגו */
+  --blob-1: rgb(255 210 90 / 0.42);
+  --blob-2: rgb(255 190 160 / 0.32);
+  --blob-3: rgb(150 225 190 / 0.35);
+  --blob-4: rgb(140 210 235 / 0.3);
+  --doodle: rgb(150 110 40 / 0.09);
 
   /* תנועה */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -62,68 +74,86 @@
 :root.theme-dark {
   color-scheme: dark;
 
-  --background: #05080b;
-  --foreground: #eef4f6;
-  --muted: #8fa1a9;
-  --border: rgb(255 255 255 / 0.08);
+  --background: #12110f;
+  --foreground: #f4efe6;
+  --muted: #a39b8f;
+  --border: rgb(255 240 220 / 0.09);
 
   --brand: #22d3ee;
-  --brand-strong: #60a5fa;
+  --brand-strong: #67e8f9;
   --brand-foreground: #06243a;
   --danger: #fb7185;
   --warning: #fbbf24;
-  --success: #34d399;
+  --success: #4ade80;
+
+  --accent: #ffcf4d;
+  --accent-strong: #ffd970;
+  --accent-foreground: #2b1f00;
+  --accent-soft: rgb(255 207 77 / 0.14);
+
+  --surface: #1c1a17;
+  --surface-border: rgb(255 240 220 / 0.07);
+  --surface-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.3);
 
   --chart-1: #0ea5c0;
   --chart-2: #8b5cf6;
 
-  --glass-bg: rgb(255 255 255 / 0.06);
-  --glass-bg-strong: rgb(255 255 255 / 0.1);
-  --glass-border: rgb(255 255 255 / 0.12);
-  --glass-highlight: rgb(255 255 255 / 0.22);
+  --glass-bg: rgb(255 245 230 / 0.06);
+  --glass-bg-strong: rgb(255 245 230 / 0.1);
+  --glass-border: rgb(255 240 220 / 0.12);
+  --glass-highlight: rgb(255 245 230 / 0.18);
   --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
-  --glass-glow: rgb(255 255 255 / 0.12);
-  --glass-lite-bg: rgb(22 28 34 / 0.78);
+  --glass-glow: rgb(255 245 230 / 0.1);
+  --glass-lite-bg: rgb(30 28 25 / 0.92);
 
-  --blob-1: rgb(6 182 212 / 0.26);
-  --blob-2: rgb(59 130 246 / 0.22);
-  --blob-3: rgb(34 197 94 / 0.12);
-  --blob-4: rgb(139 92 246 / 0.2);
-  --doodle: rgb(165 243 252 / 0.07);
+  --blob-1: rgb(255 190 60 / 0.12);
+  --blob-2: rgb(255 140 100 / 0.08);
+  --blob-3: rgb(60 180 130 / 0.1);
+  --blob-4: rgb(40 160 200 / 0.1);
+  --doodle: rgb(255 220 160 / 0.05);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.theme-light) {
     color-scheme: dark;
 
-    --background: #05080b;
-    --foreground: #eef4f6;
-    --muted: #8fa1a9;
-    --border: rgb(255 255 255 / 0.08);
+    --background: #12110f;
+    --foreground: #f4efe6;
+    --muted: #a39b8f;
+    --border: rgb(255 240 220 / 0.09);
 
     --brand: #22d3ee;
-    --brand-strong: #60a5fa;
+    --brand-strong: #67e8f9;
     --brand-foreground: #06243a;
     --danger: #fb7185;
     --warning: #fbbf24;
-    --success: #34d399;
+    --success: #4ade80;
+
+    --accent: #ffcf4d;
+    --accent-strong: #ffd970;
+    --accent-foreground: #2b1f00;
+    --accent-soft: rgb(255 207 77 / 0.14);
+
+    --surface: #1c1a17;
+    --surface-border: rgb(255 240 220 / 0.07);
+    --surface-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.3);
 
     --chart-1: #0ea5c0;
     --chart-2: #8b5cf6;
 
-    --glass-bg: rgb(255 255 255 / 0.06);
-    --glass-bg-strong: rgb(255 255 255 / 0.1);
-    --glass-border: rgb(255 255 255 / 0.12);
-    --glass-highlight: rgb(255 255 255 / 0.22);
+    --glass-bg: rgb(255 245 230 / 0.06);
+    --glass-bg-strong: rgb(255 245 230 / 0.1);
+    --glass-border: rgb(255 240 220 / 0.12);
+    --glass-highlight: rgb(255 245 230 / 0.18);
     --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
-    --glass-glow: rgb(255 255 255 / 0.12);
-    --glass-lite-bg: rgb(22 28 34 / 0.78);
+    --glass-glow: rgb(255 245 230 / 0.1);
+    --glass-lite-bg: rgb(30 28 25 / 0.92);
 
-    --blob-1: rgb(6 182 212 / 0.26);
-    --blob-2: rgb(59 130 246 / 0.22);
-    --blob-3: rgb(34 197 94 / 0.12);
-    --blob-4: rgb(139 92 246 / 0.2);
-    --doodle: rgb(165 243 252 / 0.07);
+    --blob-1: rgb(255 190 60 / 0.12);
+    --blob-2: rgb(255 140 100 / 0.08);
+    --blob-3: rgb(60 180 130 / 0.1);
+    --blob-4: rgb(40 160 200 / 0.1);
+    --doodle: rgb(255 220 160 / 0.05);
   }
 }
 
@@ -138,6 +168,11 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-surface: var(--surface);
   --font-sans: var(--font-heebo);
   --ease-spring: var(--ease-spring);
   --ease-out-soft: var(--ease-out);
@@ -199,7 +234,7 @@ body::after {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--brand) 30%, transparent);
+  background: color-mix(in oklab, var(--accent) 55%, transparent);
 }
 
 /* צבעי המותג, כמו בלוגו: ירוק → תכלת → כחול */
@@ -212,6 +247,55 @@ body::after {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* כפתור "שמש": הפעולה הראשית בכל מסך (התקשרו, חיפוש, הרשמה) */
+@utility bg-sun {
+  color: var(--accent-foreground);
+  background-color: var(--accent);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22), transparent 60%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),
+    inset 0 -1px 0 rgb(120 80 0 / 0.12),
+    0 1px 2px rgb(120 80 0 / 0.12),
+    0 6px 16px rgb(245 173 0 / 0.28);
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--accent-strong);
+    }
+  }
+}
+
+/* מרקר צהוב מתחת למילה, כמו סימון בטוש */
+@utility highlight-sun {
+  /* RTL Hebrew glyphs sit a bit toward the start; a wider start pad keeps the bar centred */
+  padding-inline: 0.2em 0.04em;
+  border-radius: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background-image: linear-gradient(
+    transparent 56%,
+    color-mix(in oklab, var(--accent) 85%, transparent) 56%,
+    color-mix(in oklab, var(--accent) 85%, transparent) 90%,
+    transparent 90%
+  );
+}
+.theme-dark .highlight-sun {
+  background-image: linear-gradient(transparent 60%, rgb(255 207 77 / 0.5) 60%, rgb(255 207 77 / 0.5) 92%, transparent 92%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.theme-light) .highlight-sun {
+    background-image: linear-gradient(transparent 60%, rgb(255 207 77 / 0.5) 60%, rgb(255 207 77 / 0.5) 92%, transparent 92%);
+  }
+}
+
+/* כרטיס אטום לרשימות: בלי זכוכית, צל רך וחם */
+@utility surface {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--surface);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--surface-shadow);
 }
 
 /* ───────────────────────────────────────────────────────────

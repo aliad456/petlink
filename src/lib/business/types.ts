@@ -33,8 +33,11 @@ export type Design = {
   sections?: { id: SectionId; visible: boolean }[];
 };
 
+// from/to: the gradient. ink: text in the accent colour on a light background
+// (defaults to `to`). on: text on top of the gradient (defaults to white).
+type Accent = { label: string; from: string; to: string; ink?: string; on?: string };
 export const ACCENTS = {
-  kami: { label: "Kami", from: "#22d3ee", to: "#2563eb" },
+  kami: { label: "Kami", from: "#ffd25a", to: "#f5a00b", ink: "#9a5800", on: "#2b1f00" },
   teal: { label: "טורקיז", from: "#2dd4bf", to: "#0e7490" },
   sky: { label: "תכלת", from: "#38bdf8", to: "#1d4ed8" },
   indigo: { label: "אינדיגו", from: "#818cf8", to: "#4338ca" },
@@ -43,7 +46,7 @@ export const ACCENTS = {
   orange: { label: "כתום", from: "#fb923c", to: "#c2410c" },
   amber: { label: "זהב", from: "#fbbf24", to: "#b45309" },
   emerald: { label: "ירוק", from: "#34d399", to: "#047857" },
-} as const;
+} satisfies Record<string, Accent>;
 export type AccentKey = keyof typeof ACCENTS;
 
 export type FeatureValue = {
@@ -144,7 +147,7 @@ export function resolveDesign(design: Design) {
         ]
       : [...SECTION_IDS];
   return {
-    accent: ACCENTS[(personal && design.accent) || "kami"] ?? ACCENTS.kami,
+    accent: (ACCENTS[(personal && design.accent) || "kami"] ?? ACCENTS.kami) as Accent,
     layout: (personal && design.layout) || "classic",
     sections: order.filter((id) => !hidden.has(id)),
   };
