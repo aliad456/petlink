@@ -73,6 +73,8 @@ export function BusinessPage({
   const style = {
     "--accent-from": design.accent.from,
     "--accent-to": design.accent.to,
+    "--accent-ink": design.accent.ink ?? design.accent.to,
+    "--accent-on": design.accent.on ?? "#ffffff",
   } as CSSProperties;
 
   // No empty "מחירון"/"גלריה" tab on the public page (a hidden section has no tab either).
@@ -150,7 +152,7 @@ export function BusinessPage({
                 {avatar ? (
                   <Image src={avatar} alt={business.name} fill sizes="144px" className="object-cover" />
                 ) : (
-                  <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-white">
+                  <div className="flex size-full items-center justify-center bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-[var(--accent-on)]">
                     <CategoryIcon name={business.category.icon} className="size-1/2" />
                   </div>
                 )}
@@ -163,7 +165,7 @@ export function BusinessPage({
               {business.name}
               {business.status === "approved" && !business.unclaimed && (
                 <BadgeCheck
-                  className="size-6 shrink-0 text-[var(--accent-to)] dark:text-[var(--accent-from)]"
+                  className="size-6 shrink-0 text-[var(--accent-ink)] dark:text-[var(--accent-from)]"
                   aria-label="עסק מאושר"
                 />
               )}
@@ -215,7 +217,7 @@ export function BusinessPage({
               className={cn(
                 "pressable focus-ring whitespace-nowrap rounded-full px-4 py-2 text-[15px] font-semibold",
                 current === t.id
-                  ? "bg-[color-mix(in_oklab,var(--accent-from)_22%,transparent)] text-[var(--accent-to)] dark:text-[var(--accent-from)]"
+                  ? "bg-[color-mix(in_oklab,var(--accent-from)_22%,transparent)] text-[var(--accent-ink)] dark:text-[var(--accent-from)]"
                   : "text-muted hover:text-foreground",
               )}
             >
@@ -283,7 +285,7 @@ function DealTicket({ business }: { business: BusinessView }) {
   const [, m, d] = business.deal_until.split("-").map(Number);
   return (
     <div className="mt-4 flex items-center gap-3 rounded-2xl border-2 border-dashed border-[color-mix(in_oklab,var(--accent-to)_45%,transparent)] bg-[color-mix(in_oklab,var(--accent-from)_10%,transparent)] px-4 py-3">
-      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-white">
+      <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-[var(--accent-on)]">
         <BadgePercent className="size-5" />
       </span>
       <div className="min-w-0 flex-1">
@@ -313,7 +315,7 @@ function ActionButtons({ business }: { business: BusinessView }) {
       {business.phone && (
         <a
           href={`tel:${business.phone}`}
-          className="pressable focus-ring col-span-3 flex h-12 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(180deg,var(--accent-from),var(--accent-to))] text-[15px] font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_8px_24px_color-mix(in_oklab,var(--accent-to)_40%,transparent)] aria-disabled:pointer-events-none aria-disabled:opacity-40"
+          className="pressable focus-ring col-span-3 flex h-12 flex-[2] items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(180deg,var(--accent-from),var(--accent-to))] text-[15px] font-bold text-[var(--accent-on)] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_8px_24px_color-mix(in_oklab,var(--accent-to)_35%,transparent)] aria-disabled:pointer-events-none aria-disabled:opacity-40"
         >
           <Phone className="size-5" />
           התקשרו
@@ -484,7 +486,7 @@ function Stat({ value, label, suffix }: { value: number; label: string; suffix: 
       ref={ref as React.Ref<HTMLDivElement>}
       className="relative overflow-hidden rounded-3xl bg-[color-mix(in_oklab,var(--accent-from)_12%,var(--glass-bg))] p-4"
     >
-      <div className="text-3xl font-extrabold tabular-nums tracking-tight text-[var(--accent-to)] dark:text-[var(--accent-from)]">
+      <div className="text-3xl font-extrabold tabular-nums tracking-tight text-[var(--accent-ink)] dark:text-[var(--accent-from)]">
         {shown.toLocaleString("he-IL")}
         {suffix}
       </div>
@@ -521,7 +523,7 @@ function DetailsSection({ business }: { business: BusinessView }) {
       <ul className="flex flex-col gap-3.5">
         {rows.map((r, i) => (
           <li key={i} className="flex items-start gap-3 text-[15px]">
-            <r.icon className="mt-0.5 size-5 shrink-0 text-[var(--accent-to)] dark:text-[var(--accent-from)]" />
+            <r.icon className="mt-0.5 size-5 shrink-0 text-[var(--accent-ink)] dark:text-[var(--accent-from)]" />
             <span>{r.text}</span>
           </li>
         ))}
@@ -542,7 +544,7 @@ function About({ text }: { text: string }) {
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="mt-1 text-sm font-semibold text-[var(--accent-to)] dark:text-[var(--accent-from)]"
+          className="mt-1 text-sm font-semibold text-[var(--accent-ink)] dark:text-[var(--accent-from)]"
         >
           {open ? "פחות" : "קראו עוד"}
         </button>
@@ -592,9 +594,9 @@ function AdoptionDays({ days, note }: { days: BusinessView["hours"]; note?: stri
         {open.map(({ day, i, ranges }) => (
           <li key={day} className="flex items-center justify-between gap-3 text-[15px]">
             <span className={cn("inline-flex items-center gap-2", i === today && "font-bold")}>
-              <HeartHandshake className="size-4 shrink-0 text-[var(--accent-to)] dark:text-[var(--accent-from)]" />
+              <HeartHandshake className="size-4 shrink-0 text-[var(--accent-ink)] dark:text-[var(--accent-from)]" />
               יום {day}
-              {i === today && <span className="text-xs font-semibold text-[var(--accent-to)] dark:text-[var(--accent-from)]">היום</span>}
+              {i === today && <span className="text-xs font-semibold text-[var(--accent-ink)] dark:text-[var(--accent-from)]">היום</span>}
             </span>
             <span dir="ltr" className="tabular-nums">
               {ranges.map(([a, b]) => `${a}–${b}`).join(", ")}
@@ -687,7 +689,7 @@ function Gallery({ business }: { business: BusinessView }) {
               className={cn(
                 "focus-ring pressable inline-flex size-9 items-center justify-center rounded-full text-sm font-semibold tabular-nums",
                 n === page
-                  ? "bg-gradient-to-br from-[var(--accent-from)] to-[var(--accent-to)] text-white shadow-md"
+                  ? "bg-gradient-to-br from-[var(--accent-from)] to-[var(--accent-to)] text-[var(--accent-on)] shadow-md"
                   : "glass-lite text-muted hover:text-foreground",
               )}
             >
@@ -754,7 +756,7 @@ function Prices({ business }: { business: BusinessView }) {
             <span className="font-semibold">{item.title}</span>
             {item.note && <span className="text-sm text-muted">{item.note}</span>}
           </div>
-          <span className="whitespace-nowrap font-bold text-[var(--accent-to)] dark:text-[var(--accent-from)]">
+          <span className="whitespace-nowrap font-bold text-[var(--accent-ink)] dark:text-[var(--accent-from)]">
             {/^\d+([.,]\d+)?$/.test(item.price.trim()) ? `₪${item.price.trim()}` : item.price}
           </span>
         </li>

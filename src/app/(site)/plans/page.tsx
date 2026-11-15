@@ -32,7 +32,7 @@ export default async function PlansPage() {
             Kami לעסקים
           </span>
           <h1 className="max-w-2xl text-balance text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl">
-            יותר לקוחות, <span className="text-kami">בלי להתאמץ</span>
+            יותר לקוחות, <span className="highlight-sun">בלי להתאמץ</span>
           </h1>
           <p className="max-w-xl text-balance text-muted">
             עמוד העסק ב-Kami חינמי ותמיד יישאר חינמי. התוכניות מוסיפות עדיפות בחיפוש, עיצובים מתקדמים וסטטיסטיקות שמראות
@@ -70,7 +70,7 @@ function PlanCard({ plan, index, hasBusiness, joined }: { plan: Plan; index: num
       style={{ "--i": index + 1 } as CSSProperties}
     >
       {plan.highlight && (
-        <span className="absolute -top-3 start-6 rounded-full bg-kami px-3 py-1 text-xs font-bold text-white shadow-md">
+        <span className="absolute -top-3 start-6 rounded-full bg-sun px-3 py-1 text-xs font-bold">
           {plan.highlight}
         </span>
       )}

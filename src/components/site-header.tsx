@@ -1,4 +1,4 @@
-import { ArrowLeft, BadgeCheck, Gem, LogIn, Store } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { BetaTag } from "./beta";
@@ -9,6 +9,9 @@ import { Avatar, cn } from "./ui";
 // Top bar that scrolls away with the page (not sticky). Three columns with the
 // logo in the middle: business and plans links on the start side, account on the end side.
 // The side columns are equal (1fr) so the logo stays centred.
+const NAV_LINK =
+  "focus-ring inline-flex h-9 items-center rounded-full px-3.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground";
+
 export async function SiteHeader() {
   const profile = await getCurrentProfile();
   const firstName = profile?.full_name.trim().split(/\s+/)[0];
@@ -16,38 +19,29 @@ export async function SiteHeader() {
   return (
     <header style={{ viewTransitionName: "app-chrome" }} className="relative z-10 w-full">
       <div className="mx-auto grid h-18 w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4">
-        {/* ימין: לבעלי עסקים, תוכניות, מצב תצוגה */}
-        <div className="flex items-center justify-start gap-0.5">
-          {!profile && (
-            <Link
-              href="/signup?type=business"
-              transitionTypes={["nav-forward"]}
-              aria-label="לבעלי עסקים"
-              className="focus-ring pressable inline-flex items-center gap-1.5 rounded-xl p-2.5 text-sm font-medium text-muted transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground sm:px-3 sm:py-2"
-            >
-              <Store className="size-[18px]" />
-              <span className="hidden sm:inline">לבעלי עסקים</span>
-            </Link>
-          )}
-          <Link
-            href="/unclaimed"
-            transitionTypes={["nav-forward"]}
-            aria-label="העסק שלך כבר ב-Kami?"
-            className="focus-ring pressable inline-flex items-center gap-1.5 rounded-xl p-2.5 text-sm font-medium text-muted transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground sm:px-3 sm:py-2"
-          >
-            <BadgeCheck className="size-[18px]" />
-            <span className="hidden lg:inline">העסק שלך כאן?</span>
-          </Link>
-          <Link
-            href="/plans"
-            transitionTypes={["nav-forward"]}
-            aria-label="תוכניות לעסקים"
-            className="focus-ring pressable inline-flex items-center gap-1.5 rounded-xl p-2.5 text-sm font-medium text-muted transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground sm:px-3 sm:py-2"
-          >
-            <Gem className="size-[18px]" />
-            <span className="hidden sm:inline">תוכניות</span>
-          </Link>
+        {/* ימין: מצב תצוגה וקישורים לבעלי עסקים. בטלפון — כפתור "לעסקים" אחד, השאר בפוטר. */}
+        <div className="flex items-center justify-start gap-1">
           <ThemeToggle />
+          <Link
+            href={profile ? "/unclaimed" : "/signup?type=business"}
+            transitionTypes={["nav-forward"]}
+            className="focus-ring pressable inline-flex h-9 items-center rounded-full border border-[var(--border)] px-3.5 text-[13px] font-semibold text-foreground/80 hover:border-transparent hover:bg-[var(--glass-bg)] hover:text-foreground md:hidden"
+          >
+            לעסקים
+          </Link>
+          <div className="hidden items-center md:flex">
+            {!profile && (
+              <Link href="/signup?type=business" transitionTypes={["nav-forward"]} className={NAV_LINK}>
+                לבעלי עסקים
+              </Link>
+            )}
+            <Link href="/unclaimed" transitionTypes={["nav-forward"]} className={NAV_LINK}>
+              העסק שלך כאן?
+            </Link>
+            <Link href="/plans" transitionTypes={["nav-forward"]} className={NAV_LINK}>
+              תוכניות
+            </Link>
+          </div>
         </div>
 
         {/* אמצע: הלוגו, ותגית BETA שלא מזיזה אותו מהמרכז */}
@@ -62,7 +56,7 @@ export async function SiteHeader() {
             <Link
               href="/account"
               transitionTypes={["nav-forward"]}
-              className="focus-ring pressable flex items-center gap-2.5 rounded-2xl p-1.5 hover:bg-[var(--glass-bg)] sm:pe-3"
+              className="focus-ring pressable flex items-center gap-2.5 rounded-full p-1 hover:bg-[var(--glass-bg)] sm:ps-1 sm:pe-3"
             >
               <span className="hidden flex-col items-end leading-tight sm:flex">
                 <span className="text-[11px] text-muted">שלום{firstName ? "," : ""}</span>
@@ -71,43 +65,28 @@ export async function SiteHeader() {
               <Avatar
                 name={profile.full_name || profile.email || "?"}
                 seed={profile.id}
-                shape="square"
+                shape="circle"
                 className="size-9 text-sm"
               />
             </Link>
           ) : (
             <>
-              <Link
-                href="/login"
-                transitionTypes={["nav-forward"]}
-                aria-label="התחברות"
-                className="focus-ring group relative inline-flex items-center rounded-xl p-2.5 text-sm font-semibold sm:px-3 sm:py-2"
-              >
-                <LogIn className="size-[18px] sm:hidden" />
-                <span className="hidden sm:inline">התחברות</span>
-                <span className="absolute inset-x-3 bottom-1 hidden h-0.5 origin-right scale-x-0 rounded-full bg-brand transition-transform duration-300 ease-out-soft group-hover:scale-x-100 sm:block" />
+              <Link href="/login" transitionTypes={["nav-forward"]} className={cn(NAV_LINK, "hidden sm:inline-flex")}>
+                התחברות
               </Link>
               <Link
                 href="/signup?src=header"
                 transitionTypes={["nav-forward"]}
-                className={cn(
-                  "focus-ring pressable group hidden h-10 items-center gap-1.5 rounded-xl px-4 text-sm font-semibold text-white sm:inline-flex",
-                  "bg-foreground dark:bg-white dark:text-[#05080b]",
-                  "shadow-[inset_0_1px_0_rgb(255_255_255/0.18),0_6px_16px_rgb(0_0_0/0.18)]",
-                )}
+                className="btn-brand focus-ring pressable group inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-[13px] font-bold sm:h-10 sm:text-sm"
               >
                 הרשמה
-                <ArrowLeft className="size-4 transition-transform duration-300 ease-spring group-hover:-translate-x-0.5" />
+                <ArrowLeft className="hidden size-4 transition-transform duration-300 ease-spring group-hover:-translate-x-0.5 sm:block" />
               </Link>
             </>
           )}
         </nav>
       </div>
-      {/* hairline: brand color fading out toward the edges */}
-      <div
-        aria-hidden
-        className="mx-auto h-px max-w-5xl bg-[linear-gradient(90deg,transparent,color-mix(in_oklab,var(--brand)_45%,transparent),transparent)]"
-      />
+      <div aria-hidden className="mx-auto h-px max-w-5xl bg-[var(--border)]" />
     </header>
   );
 }

@@ -53,6 +53,11 @@ paid promotion, give the owner an honest pre-spend review first (the budget is v
 - Tokens and utilities live in `src/app/globals.css`: `glass`, `glass-strong`,
   `glass-glow` (pointer-following highlight), `pressable` (spring hover/press),
   `focus-ring`, `animate-rise` (stagger with `style={{"--i": n}}`).
+- Palette (Nov 2026): the brand blue/cyan stays the base. Primary actions are solid `btn-brand`
+  (`--primary`, no gradient). Sun yellow (`--accent*`, `bg-sun`, `highlight-sun`) is a **touch only**:
+  "מומלץ", deals, the headline marker, one promo card. The owner explicitly said not to make
+  everything yellow. `surface` = opaque list card; per-category soft colours from `src/lib/tints.ts`.
+  Selected chips are ink (`bg-foreground text-background`).
 - Components in `src/components/ui` (`Button`/`buttonClass`, `Card`, `Input`,
   `Badge`, `Avatar`, …) and `src/components/{dialog,toast}.tsx`. Icons: `lucide-react`.
 - Page transitions: wrap each page in `<PageTransition>`; links opt in with

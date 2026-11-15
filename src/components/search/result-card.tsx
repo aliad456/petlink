@@ -9,6 +9,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { cn } from "@/components/ui";
 import { hasAnyHours, isClosingSoon, openLabel, openState } from "@/lib/business/hours";
 import { mediaUrl } from "@/lib/business/media";
+import { tintFor } from "@/lib/tints";
 import type { SearchResult } from "@/lib/search/load";
 
 const useClient = () =>
@@ -31,10 +32,11 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
   const state = client && hasAnyHours(r.hours) ? openState(r.hours) : null;
   // Unclaimed pages: only an explicit WhatsApp number (the public phone may be a landline).
   const wa = r.whatsapp || (r.unclaimed ? null : r.phone);
+  const tint = tintFor(r.category_icon);
 
   return (
     <article
-      className="glass-lite glass-glow animate-rise group relative flex flex-col overflow-hidden rounded-[1.75rem] transition-transform duration-500 ease-spring hover:-translate-y-1"
+      className="surface animate-rise group relative flex flex-col overflow-hidden rounded-[1.5rem] transition-[transform,box-shadow] duration-500 ease-spring hover:-translate-y-1 hover:shadow-[0_2px_4px_rgb(60_45_20/0.06),0_14px_32px_rgb(60_45_20/0.1)]"
       style={{ "--i": Math.min(index, 10) } as CSSProperties}
     >
       <div className="relative h-24 overflow-hidden">
@@ -47,15 +49,15 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
             className="object-cover transition-transform duration-700 ease-out-soft group-hover:scale-105"
           />
         ) : (
-          <div className="bg-kami relative size-full opacity-90">
-            <div aria-hidden className="absolute inset-0 bg-white/25 [mask:url(/doodles.svg)_0_0/300px_300px_repeat]" />
+          <div className={cn("relative size-full", tint.tile)}>
+            <div aria-hidden className="absolute inset-0 bg-current opacity-[0.14] [mask:url(/doodles.svg)_0_0/260px_260px_repeat]" />
           </div>
         )}
         {saved !== undefined && (
           <FavoriteButton businessId={r.id} businessName={r.name} saved={saved} variant="overlay" className="absolute end-3 top-3 z-10 size-9" />
         )}
         {r.is_featured && (
-          <span className="absolute start-3 top-3 inline-flex items-center gap-1 rounded-full bg-amber-400/95 px-2.5 py-1 text-xs font-bold text-amber-950 shadow">
+          <span className="bg-sun absolute start-3 top-3 inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold">
             <Star className="size-3 fill-current" />
             מומלץ
           </span>
@@ -64,12 +66,12 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
 
       <div className="flex flex-1 flex-col gap-2.5 px-4 pb-4">
         <div className="-mt-8 flex items-end gap-3">
-          <span className="relative size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-[var(--background)] bg-[var(--background)] shadow-lg">
+          <span className="relative size-16 shrink-0 overflow-hidden rounded-full border-4 border-[var(--surface)] bg-[var(--surface)] shadow-[0_4px_12px_rgb(60_45_20/0.12)]">
             {avatar ? (
               <Image src={avatar} alt="" fill sizes="64px" className="object-cover" />
             ) : (
-              <span className="bg-kami flex size-full items-center justify-center text-white">
-                <CategoryIcon name={r.category_icon} className="size-7" />
+              <span className={cn("flex size-full items-center justify-center", tint.solid)}>
+                <CategoryIcon name={r.category_icon} className="size-7" strokeWidth={1.75} />
               </span>
             )}
           </span>
@@ -122,7 +124,7 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
         {r.features.length > 0 && (
           <ul className="flex flex-wrap gap-1.5">
             {r.features.map((f) => (
-              <li key={f} className="rounded-full bg-[color-mix(in_oklab,var(--brand)_12%,transparent)] px-2.5 py-1 text-xs font-medium text-brand-strong dark:text-brand">
+              <li key={f} className="rounded-full border border-[var(--border)] px-2.5 py-0.5 text-xs font-medium text-foreground/75">
                 {f}
               </li>
             ))}
@@ -133,7 +135,7 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
           {r.phone && (
             <a
               href={`tel:${r.phone}`}
-              className="pressable focus-ring inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-xl bg-[linear-gradient(135deg,#0891b2,#2563eb)] text-sm font-semibold text-white"
+              className="btn-brand pressable focus-ring inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold"
             >
               <Phone className="size-4" />
               התקשרו
@@ -145,7 +147,7 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
               target="_blank"
               rel="noreferrer"
               aria-label="וואטסאפ"
-              className="pressable focus-ring glass inline-flex size-10 items-center justify-center rounded-xl"
+              className="pressable focus-ring inline-flex size-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] hover:bg-[#25d366]/10"
             >
               <MessageCircle className="size-[18px] text-[#128c7e] dark:text-[#25d366]" />
             </a>

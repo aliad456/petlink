@@ -42,7 +42,7 @@ export default async function ClaimPage({ params, searchParams }: PageProps<"/cl
     <PageTransition>
       <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 pb-16 pt-8">
         <header className="animate-rise flex flex-col items-center gap-3 text-center">
-          <span className="inline-flex size-14 items-center justify-center rounded-2xl bg-kami text-white shadow-[0_10px_30px_rgb(37_99_235/0.3)]">
+          <span className="inline-flex size-14 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] text-brand-strong dark:text-brand">
             <BadgeCheck className="size-7" />
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight">זה העסק שלך?</h1>

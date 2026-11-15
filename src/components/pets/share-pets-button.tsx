@@ -34,7 +34,7 @@ export function SharePetsButton({ businessId, businessName, pets }: { businessId
         onClick={() => setOpen(true)}
         className="pressable focus-ring mt-3 flex w-full items-center gap-3 rounded-2xl bg-[color-mix(in_oklab,var(--accent-from)_10%,transparent)] px-4 py-3 text-start"
       >
-        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-white">
+        <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--accent-from),var(--accent-to))] text-[var(--accent-on,#fff)]">
           <PawPrint className="size-5" />
         </span>
         <span className="min-w-0 flex-1">

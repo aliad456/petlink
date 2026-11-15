@@ -27,7 +27,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
     <nav
       aria-label="ניווט ראשי"
       data-bottom-nav
-      className="fixed inset-x-3 bg-[color-mix(in_oklab,var(--background)_95%,transparent)] backdrop-blur-xl bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[70] mx-auto flex h-16 max-w-md items-stretch justify-around rounded-[1.75rem] border border-[var(--glass-border)] px-1.5 shadow-[0_10px_30px_rgb(15_23_42/0.14)] md:hidden print:hidden"
+      className="fixed inset-x-3 bg-[color-mix(in_oklab,var(--background)_95%,transparent)] backdrop-blur-xl bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[70] mx-auto flex h-16 max-w-md items-stretch justify-around rounded-[1.75rem] border border-[var(--glass-border)] px-1.5 shadow-[0_10px_30px_rgb(60_45_20/0.14)] md:hidden print:hidden"
     >
       {tabs.map((t) => {
         const on = t.active(path);
@@ -44,7 +44,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
               className={cn(
                 "inline-flex h-8 w-12 items-center justify-center rounded-xl transition-[background,color,box-shadow] duration-300",
                 on
-                  ? "bg-[linear-gradient(135deg,#4ade80,#22d3ee_50%,#3b82f6)] text-white shadow-[0_4px_12px_rgb(34_211_238/0.4)]"
+                  ? "bg-primary text-white"
                   : "text-muted group-hover:text-foreground",
               )}
             >
