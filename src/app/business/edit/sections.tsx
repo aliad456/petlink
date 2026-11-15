@@ -309,7 +309,7 @@ function NumberPicker({
                     className={cn(
                       "pressable focus-ring h-12 rounded-2xl text-[15px] font-semibold tabular-nums",
                       on
-                        ? "bg-sun"
+                        ? "btn-brand"
                         : "glass-lite",
                     )}
                   >

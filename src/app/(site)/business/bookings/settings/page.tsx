@@ -55,7 +55,7 @@ export default async function BookingSettingsPage() {
           <>
             {!pro && (
               <Card className="flex flex-col items-center gap-3 p-7 text-center">
-                <span className="inline-flex size-12 items-center justify-center rounded-full bg-sun">
+                <span className="inline-flex size-12 items-center justify-center rounded-full bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] text-brand-strong dark:text-brand">
                   <Gem className="size-6" />
                 </span>
                 <p className="text-lg font-bold">זימון תורים אונליין זמין במנוי KamiPet ומעלה</p>

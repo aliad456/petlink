@@ -44,7 +44,7 @@ export function BottomNav({ signedIn }: { signedIn: boolean }) {
               className={cn(
                 "inline-flex h-8 w-12 items-center justify-center rounded-xl transition-[background,color,box-shadow] duration-300",
                 on
-                  ? "bg-accent text-accent-foreground"
+                  ? "bg-primary text-white"
                   : "text-muted group-hover:text-foreground",
               )}
             >

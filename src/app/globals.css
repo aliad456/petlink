@@ -20,20 +20,23 @@
 :root {
   color-scheme: light;
 
-  /* חם ונעים: קרם במקום אפור-כחלחל, דיו חום-כהה במקום שחור קר */
-  --background: #faf6ee;
-  --foreground: #1d1a16;
-  --muted: #6e675d;
-  --border: rgb(60 45 20 / 0.1);
+  --background: #eef2f4;
+  --foreground: #0b1215;
+  --muted: #5b6b73;
+  --border: rgb(15 23 42 / 0.08);
 
   --brand: #0891b2;
-  --brand-strong: #0e6f86;
+  --brand-strong: #1d4ed8;
   --brand-foreground: #ffffff;
   --danger: #e11d48;
-  --warning: #c26a00;
-  --success: #15803d;
+  --warning: #d97706;
+  --success: #059669;
 
-  /* צהוב "שמש": כפתורים ראשיים, הדגשות, לשונית פעילה. טקסט עליו תמיד כהה. */
+  /* כפתור ראשי: כחול-תכלת של המותג, אטום (בלי גרדיאנט) */
+  --primary: #0b7fc2;
+  --primary-hover: #0969a3;
+
+  /* צהוב "שמש": נגיעות בלבד (מרקר, "מומלץ", מבצעים). טקסט עליו תמיד כהה. */
   --accent: #ffc83d;
   --accent-strong: #f5ad00;
   --accent-foreground: #2b1f00;
@@ -41,28 +44,28 @@
 
   /* משטח אטום לכרטיסים ברשימות */
   --surface: #ffffff;
-  --surface-border: rgb(60 45 20 / 0.08);
-  --surface-shadow: 0 1px 2px rgb(60 45 20 / 0.05), 0 6px 20px rgb(60 45 20 / 0.06);
+  --surface-border: rgb(15 23 42 / 0.07);
+  --surface-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 6px 20px rgb(15 23 42 / 0.06);
 
   /* גרפים (נבדקו לעיוורון צבעים מול הרקע) */
   --chart-1: #0891b2;
   --chart-2: #7c3aed;
 
   /* זכוכית */
-  --glass-bg: rgb(255 253 248 / 0.6);
-  --glass-bg-strong: rgb(255 253 248 / 0.82);
-  --glass-border: rgb(255 255 255 / 0.8);
+  --glass-bg: rgb(255 255 255 / 0.48);
+  --glass-bg-strong: rgb(255 255 255 / 0.72);
+  --glass-border: rgb(255 255 255 / 0.75);
   --glass-highlight: rgb(255 255 255 / 0.9);
-  --glass-shadow: 0 1px 2px rgb(60 45 20 / 0.05), 0 8px 28px rgb(60 45 20 / 0.08);
+  --glass-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 32px rgb(15 23 42 / 0.08);
   --glass-glow: rgb(255 255 255 / 0.55);
-  --glass-lite-bg: rgb(255 255 255 / 0.92);
+  --glass-lite-bg: rgb(255 255 255 / 0.8);
 
-  /* רקע: שמש, מנטה ואפרסק, עם נגיעת תכלת מהלוגו */
-  --blob-1: rgb(255 210 90 / 0.42);
-  --blob-2: rgb(255 190 160 / 0.32);
-  --blob-3: rgb(150 225 190 / 0.35);
-  --blob-4: rgb(140 210 235 / 0.3);
-  --doodle: rgb(150 110 40 / 0.09);
+  /* רקע: צבעי הלוגו, ונגיעה של צהוב חמים במקום הסגול */
+  --blob-1: rgb(34 211 238 / 0.45);
+  --blob-2: rgb(147 197 253 / 0.55);
+  --blob-3: rgb(134 239 172 / 0.4);
+  --blob-4: rgb(253 214 99 / 0.45);
+  --doodle: rgb(8 145 178 / 0.13);
 
   /* תנועה */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -74,86 +77,92 @@
 :root.theme-dark {
   color-scheme: dark;
 
-  --background: #12110f;
-  --foreground: #f4efe6;
-  --muted: #a39b8f;
-  --border: rgb(255 240 220 / 0.09);
+  --background: #05080b;
+  --foreground: #eef4f6;
+  --muted: #8fa1a9;
+  --border: rgb(255 255 255 / 0.08);
 
   --brand: #22d3ee;
-  --brand-strong: #67e8f9;
+  --brand-strong: #60a5fa;
   --brand-foreground: #06243a;
   --danger: #fb7185;
   --warning: #fbbf24;
-  --success: #4ade80;
+  --success: #34d399;
+
+  --primary: #1590d6;
+  --primary-hover: #2aa2e6;
 
   --accent: #ffcf4d;
   --accent-strong: #ffd970;
   --accent-foreground: #2b1f00;
   --accent-soft: rgb(255 207 77 / 0.14);
 
-  --surface: #1c1a17;
-  --surface-border: rgb(255 240 220 / 0.07);
+  --surface: #10171c;
+  --surface-border: rgb(255 255 255 / 0.07);
   --surface-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.3);
 
   --chart-1: #0ea5c0;
   --chart-2: #8b5cf6;
 
-  --glass-bg: rgb(255 245 230 / 0.06);
-  --glass-bg-strong: rgb(255 245 230 / 0.1);
-  --glass-border: rgb(255 240 220 / 0.12);
-  --glass-highlight: rgb(255 245 230 / 0.18);
+  --glass-bg: rgb(255 255 255 / 0.06);
+  --glass-bg-strong: rgb(255 255 255 / 0.1);
+  --glass-border: rgb(255 255 255 / 0.12);
+  --glass-highlight: rgb(255 255 255 / 0.22);
   --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
-  --glass-glow: rgb(255 245 230 / 0.1);
-  --glass-lite-bg: rgb(30 28 25 / 0.92);
+  --glass-glow: rgb(255 255 255 / 0.12);
+  --glass-lite-bg: rgb(22 28 34 / 0.78);
 
-  --blob-1: rgb(255 190 60 / 0.12);
-  --blob-2: rgb(255 140 100 / 0.08);
-  --blob-3: rgb(60 180 130 / 0.1);
-  --blob-4: rgb(40 160 200 / 0.1);
-  --doodle: rgb(255 220 160 / 0.05);
+  --blob-1: rgb(6 182 212 / 0.26);
+  --blob-2: rgb(59 130 246 / 0.22);
+  --blob-3: rgb(34 197 94 / 0.12);
+  --blob-4: rgb(250 204 21 / 0.1);
+  --doodle: rgb(165 243 252 / 0.07);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not(.theme-light) {
     color-scheme: dark;
 
-    --background: #12110f;
-    --foreground: #f4efe6;
-    --muted: #a39b8f;
-    --border: rgb(255 240 220 / 0.09);
+    --background: #05080b;
+    --foreground: #eef4f6;
+    --muted: #8fa1a9;
+    --border: rgb(255 255 255 / 0.08);
 
     --brand: #22d3ee;
-    --brand-strong: #67e8f9;
+    --brand-strong: #60a5fa;
     --brand-foreground: #06243a;
     --danger: #fb7185;
     --warning: #fbbf24;
-    --success: #4ade80;
+    --success: #34d399;
+
+    --primary: #1590d6;
+    --primary-hover: #2aa2e6;
 
     --accent: #ffcf4d;
     --accent-strong: #ffd970;
     --accent-foreground: #2b1f00;
     --accent-soft: rgb(255 207 77 / 0.14);
 
-    --surface: #1c1a17;
-    --surface-border: rgb(255 240 220 / 0.07);
+    --surface: #10171c;
+    --surface-border: rgb(255 255 255 / 0.07);
     --surface-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.3);
 
     --chart-1: #0ea5c0;
     --chart-2: #8b5cf6;
 
-    --glass-bg: rgb(255 245 230 / 0.06);
-    --glass-bg-strong: rgb(255 245 230 / 0.1);
-    --glass-border: rgb(255 240 220 / 0.12);
-    --glass-highlight: rgb(255 245 230 / 0.18);
+    --glass-bg: rgb(255 255 255 / 0.06);
+    --glass-bg-strong: rgb(255 255 255 / 0.1);
+    --glass-border: rgb(255 255 255 / 0.12);
+    --glass-highlight: rgb(255 255 255 / 0.22);
     --glass-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 40px rgb(0 0 0 / 0.45);
-    --glass-glow: rgb(255 245 230 / 0.1);
-    --glass-lite-bg: rgb(30 28 25 / 0.92);
+    --glass-glow: rgb(255 255 255 / 0.12);
+    --glass-lite-bg: rgb(22 28 34 / 0.78);
 
-    --blob-1: rgb(255 190 60 / 0.12);
-    --blob-2: rgb(255 140 100 / 0.08);
-    --blob-3: rgb(60 180 130 / 0.1);
-    --blob-4: rgb(40 160 200 / 0.1);
-    --doodle: rgb(255 220 160 / 0.05);
+    --blob-1: rgb(6 182 212 / 0.26);
+    --blob-2: rgb(59 130 246 / 0.22);
+    --blob-3: rgb(34 197 94 / 0.12);
+    --blob-4: rgb(250 204 21 / 0.1);
+    --doodle: rgb(165 243 252 / 0.07);
   }
 }
 
@@ -173,6 +182,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-soft: var(--accent-soft);
   --color-surface: var(--surface);
+  --color-primary: var(--primary);
   --font-sans: var(--font-heebo);
   --ease-spring: var(--ease-spring);
   --ease-out-soft: var(--ease-out);
@@ -234,7 +244,7 @@ body::after {
 }
 
 ::selection {
-  background: color-mix(in oklab, var(--accent) 55%, transparent);
+  background: color-mix(in oklab, var(--brand) 30%, transparent);
 }
 
 /* צבעי המותג, כמו בלוגו: ירוק → תכלת → כחול */
@@ -249,7 +259,22 @@ body::after {
   color: transparent;
 }
 
-/* כפתור "שמש": הפעולה הראשית בכל מסך (התקשרו, חיפוש, הרשמה) */
+/* כפתור ראשי: כחול המותג, אטום, טקסט לבן */
+@utility btn-brand {
+  color: #ffffff;
+  background-color: var(--primary);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.2),
+    0 1px 2px rgb(15 23 42 / 0.12),
+    0 4px 12px color-mix(in oklab, var(--primary) 28%, transparent);
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--primary-hover);
+    }
+  }
+}
+
+/* "שמש": נגיעה צהובה לדברים שצריכים לבלוט (מומלץ, מבצע) — לא לכפתורים רגילים */
 @utility bg-sun {
   color: var(--accent-foreground);
   background-color: var(--accent);

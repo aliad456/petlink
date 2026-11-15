@@ -88,7 +88,7 @@ export function SearchBar({
         }}
         className={cn(
           "surface flex items-center gap-3 rounded-full ps-5 pe-1.5 transition-shadow",
-          "focus-within:shadow-[0_0_0_3px_color-mix(in_oklab,var(--accent)_55%,transparent),var(--surface-shadow)]",
+          "focus-within:shadow-[0_0_0_3px_color-mix(in_oklab,var(--brand)_30%,transparent),var(--surface-shadow)]",
           size === "lg" ? "h-15" : "h-13",
         )}
       >
@@ -144,7 +144,7 @@ export function SearchBar({
           type="submit"
           aria-label="חיפוש"
           className={cn(
-            "bg-sun pressable focus-ring inline-flex shrink-0 items-center justify-center rounded-full",
+            "btn-brand pressable focus-ring inline-flex shrink-0 items-center justify-center rounded-full",
             size === "lg" ? "size-12" : "size-10",
           )}
         >
@@ -170,7 +170,7 @@ export function SearchBar({
                   i === active && "bg-[var(--glass-bg-strong)]",
                 )}
               >
-                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent-foreground dark:text-accent">
+                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_oklab,var(--brand)_14%,transparent)] text-brand-strong dark:text-brand">
                   {s.kind === "city" ? (
                     <MapPin className="size-[18px]" />
                   ) : s.kind === "business" && !s.icon ? (

@@ -135,7 +135,7 @@ export function ResultCard({ r, index, saved }: { r: SearchResult; index: number
           {r.phone && (
             <a
               href={`tel:${r.phone}`}
-              className="bg-sun pressable focus-ring inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold"
+              className="btn-brand pressable focus-ring inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-bold"
             >
               <Phone className="size-4" />
               התקשרו

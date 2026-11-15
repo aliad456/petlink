@@ -10,7 +10,7 @@ import { Avatar, cn } from "./ui";
 // logo in the middle: business and plans links on the start side, account on the end side.
 // The side columns are equal (1fr) so the logo stays centred.
 const NAV_LINK =
-  "focus-ring inline-flex h-9 items-center rounded-full px-3.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-accent-soft hover:text-foreground";
+  "focus-ring inline-flex h-9 items-center rounded-full px-3.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground";
 
 export async function SiteHeader() {
   const profile = await getCurrentProfile();
@@ -25,7 +25,7 @@ export async function SiteHeader() {
           <Link
             href={profile ? "/unclaimed" : "/signup?type=business"}
             transitionTypes={["nav-forward"]}
-            className="focus-ring pressable inline-flex h-9 items-center rounded-full border border-[var(--border)] px-3.5 text-[13px] font-semibold text-foreground/80 hover:border-transparent hover:bg-accent-soft hover:text-foreground md:hidden"
+            className="focus-ring pressable inline-flex h-9 items-center rounded-full border border-[var(--border)] px-3.5 text-[13px] font-semibold text-foreground/80 hover:border-transparent hover:bg-[var(--glass-bg)] hover:text-foreground md:hidden"
           >
             לעסקים
           </Link>
@@ -56,7 +56,7 @@ export async function SiteHeader() {
             <Link
               href="/account"
               transitionTypes={["nav-forward"]}
-              className="focus-ring pressable flex items-center gap-2.5 rounded-full p-1 hover:bg-accent-soft sm:ps-1 sm:pe-3"
+              className="focus-ring pressable flex items-center gap-2.5 rounded-full p-1 hover:bg-[var(--glass-bg)] sm:ps-1 sm:pe-3"
             >
               <span className="hidden flex-col items-end leading-tight sm:flex">
                 <span className="text-[11px] text-muted">שלום{firstName ? "," : ""}</span>
@@ -77,7 +77,7 @@ export async function SiteHeader() {
               <Link
                 href="/signup?src=header"
                 transitionTypes={["nav-forward"]}
-                className="bg-sun focus-ring pressable group inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-[13px] font-bold sm:h-10 sm:text-sm"
+                className="btn-brand focus-ring pressable group inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-[13px] font-bold sm:h-10 sm:text-sm"
               >
                 הרשמה
                 <ArrowLeft className="hidden size-4 transition-transform duration-300 ease-spring group-hover:-translate-x-0.5 sm:block" />

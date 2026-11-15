@@ -133,8 +133,8 @@ export function BusinessPage({
                 className={cn(
                   // Solid, not glass: it sits on the cover photo, which can be any colour.
                   "animate-rise absolute bottom-full z-10 mb-3 w-max max-w-[16rem] rounded-2xl px-4 py-2.5 text-sm font-semibold leading-snug",
-                  "bg-white text-[#1d1a16] shadow-[0_8px_24px_rgb(0_0_0/0.28)] ring-1 ring-black/5",
-                  "dark:bg-[#2a2622] dark:text-white dark:ring-white/10",
+                  "bg-white text-[#0b1215] shadow-[0_8px_24px_rgb(0_0_0/0.28)] ring-1 ring-black/5",
+                  "dark:bg-[#1e2a36] dark:text-white dark:ring-white/10",
                   "after:absolute after:top-full after:size-3 after:-translate-y-1.5 after:rotate-45 after:rounded-sm after:bg-inherit",
                   side ? "start-0 after:start-8" : "left-1/2 -translate-x-1/2 after:left-1/2 after:-ml-1.5",
                 )}

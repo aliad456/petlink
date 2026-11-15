@@ -37,7 +37,7 @@ export type Design = {
 // (defaults to `to`). on: text on top of the gradient (defaults to white).
 type Accent = { label: string; from: string; to: string; ink?: string; on?: string };
 export const ACCENTS = {
-  kami: { label: "Kami", from: "#ffd25a", to: "#f5a00b", ink: "#9a5800", on: "#2b1f00" },
+  kami: { label: "Kami", from: "#22d3ee", to: "#2563eb" },
   teal: { label: "טורקיז", from: "#2dd4bf", to: "#0e7490" },
   sky: { label: "תכלת", from: "#38bdf8", to: "#1d4ed8" },
   indigo: { label: "אינדיגו", from: "#818cf8", to: "#4338ca" },

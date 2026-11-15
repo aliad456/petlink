@@ -6,7 +6,7 @@ type Variant = "primary" | "glass" | "ghost" | "danger";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-sun",
+  primary: "btn-brand",
   glass: "glass glass-glow text-foreground",
   ghost: "text-foreground hover:bg-[var(--glass-bg)]",
   danger:

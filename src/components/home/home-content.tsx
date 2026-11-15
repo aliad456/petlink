@@ -126,7 +126,7 @@ export async function HomeContent({
                 <li key={f.id}>
                   <Link
                     href={filterHref(f)}
-                    className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-sm font-medium hover:border-[color-mix(in_oklab,var(--accent)_60%,transparent)]"
+                    className="pressable focus-ring inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3.5 py-1.5 text-sm font-medium hover:border-[color-mix(in_oklab,var(--brand)_45%,transparent)]"
                   >
                     {f.kind === "open_now" && <Clock className="size-3.5 text-success" />}
                     {f.kind === "distance" && <Navigation className="size-3.5 text-brand" />}

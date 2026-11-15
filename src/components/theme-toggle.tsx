@@ -14,7 +14,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       title="מצב בהיר / כהה"
       onClick={() => applyTheme(effectiveTheme(readTheme()) === "dark" ? "light" : "dark")}
       className={cn(
-        "focus-ring pressable inline-flex items-center justify-center rounded-xl size-9 text-muted transition-colors hover:bg-accent-soft hover:text-foreground",
+        "focus-ring pressable inline-flex items-center justify-center rounded-xl size-9 text-muted transition-colors hover:bg-[var(--glass-bg)] hover:text-foreground",
         className,
       )}
     >
